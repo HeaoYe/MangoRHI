@@ -48,4 +48,4 @@ target_link_libraries(MangoRHI PUBLIC vulkan)
 
 project(Sandbox)
 add_executable(Sandbox examples/Sandbox/sandbox.cpp)
-target_link_libraries(Sandbox MangoRHI)
+target_link_libraries(Sandbox MangoRHI glfw)

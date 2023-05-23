@@ -55,9 +55,10 @@ namespace MangoRHI {
 
     enum class Result {
         eSuccess,
-        eAlreadyDestroyed,
         eFailed,
+        eAlreadyDestroyed,
         eNotImplemented,
+        eDeviceNotFound,
     };
 
     class RuntimeComponent {
@@ -68,6 +69,42 @@ namespace MangoRHI {
     protected:
         Bool destroyed = MG_TRUE;
     };
+
+    #define define_readonly_member(type, member_name) \
+    private: \
+        type member_name{}; \
+    public: \
+        const type &get_##member_name() const { return member_name; }
+
+    #define define_readonly_pointer(type, member_name) \
+    private: \
+        type *member_name{}; \
+    public: \
+        const type *get_##member_name() const { return member_name; }
+
+    #define define_readonly_const_pointer(type, member_name) \
+    private: \
+        const type *member_name{}; \
+    public: \
+        const type *get_##member_name() const { return member_name; }
+
+    #define define_readonly_member_value(type, member_name, value) \
+    private: \
+        type member_name = value; \
+    public: \
+        const type &get_##member_name() const { return member_name; }
+
+    #define define_readonly_pointer_value(type, member_name, value) \
+    private: \
+        type *member_name = value; \
+    public: \
+        const type *get_##member_name() const { return member_name; }
+
+    #define define_readonly_const_pointer_value(type, member_name, value) \
+    private: \
+        const type *member_name = value; \
+    public: \
+        const type *get_##member_name() const { return member_name; }
 
     #define component_create() \
     if (destroyed == ::MangoRHI::MG_FALSE) { \
