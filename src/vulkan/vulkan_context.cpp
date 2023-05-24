@@ -4,7 +4,7 @@ namespace MangoRHI {
     VulkanContext *vulkan_context;
 
     void VulkanContext::set_api_info(const void *info) {
-        this->info = (VulkanContextInfo *)info;
+        this->info = (const VulkanContextInfo *)info;
     }
 
     void VulkanContext::set_application_name(const char *name) {

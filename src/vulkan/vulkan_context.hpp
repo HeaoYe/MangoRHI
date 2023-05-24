@@ -14,15 +14,15 @@ namespace MangoRHI {
         Result create() override;
         Result destroy() override;
 
-    define_readonly_const_pointer_value(char, app_name, "")
-    define_readonly_pointer(VkAllocationCallbacks, allocator)
-    define_readonly_member(VkInstance, instance)
-    define_readonly_member(VkSurfaceKHR, surface)
-    define_readonly_member(VulkanDevice, device)
-    define_readonly_member(VkExtent2D, extent)
+    define_readonly_pointer(char, app_name, "")
+    define_pointer(VkAllocationCallbacks, allocator, VK_NULL_HANDLE)
+    define_member(VkInstance, instance, VK_NULL_HANDLE)
+    define_member(VkSurfaceKHR, surface, VK_NULL_HANDLE)
+    define_member(VulkanDevice, device, MANGO_NO_INIT_VAULE)
+    define_extern_writeable_member(VkExtent2D, extent, MANGO_NO_INIT_VAULE)
 
     private:
-        VulkanContextInfo *info;
+        const VulkanContextInfo *info;
     };
 
     extern VulkanContext *vulkan_context;

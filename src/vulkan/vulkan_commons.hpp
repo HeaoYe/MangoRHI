@@ -19,6 +19,12 @@ namespace MangoRHI {
         SurfaceCreateFunc surface_create_callback;
     };
 
+    struct SwapchainDetails {
+        VkSurfaceCapabilitiesKHR capabilities;
+        STL_IMPL::vector<VkSurfaceFormatKHR> formats;
+        STL_IMPL::vector<VkPresentModeKHR> present_modes;
+    };
+
     Result initialize_vulkan();
     Result quit_vulkan();
 }

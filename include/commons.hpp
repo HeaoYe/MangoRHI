@@ -56,7 +56,7 @@ namespace MangoRHI {
     constexpr Bool MG_TRUE = 1;
     typedef u64 AddrType;
 
-    enum class API {
+    enum class API : u8 {
         eNone,
         eOpenGL,
         eVulkan,
@@ -64,7 +64,7 @@ namespace MangoRHI {
         eMetal,
     };
 
-    enum class LogLevel {
+    enum class LogLevel : u8 {
         eTrace,
         eDebug,
         eInfo,
@@ -73,13 +73,14 @@ namespace MangoRHI {
         eFatal,
     };
 
-    enum class Result {
+    enum class Result : u32 {
         eSuccess,
         eFailed,
         eAlreadyDestroyed,
         eNotImplemented,
         eDeviceNotFound,
     };
+    std::string to_string(Result res);
 
     class RuntimeComponent {
     public:
@@ -90,41 +91,38 @@ namespace MangoRHI {
         Bool destroyed = MG_TRUE;
     };
 
-    #define define_readonly_member(type, member_name) \
-    private: \
-        type member_name{}; \
-    public: \
-        const type &get_##member_name() const { return member_name; }
+    #define MANGO_NULL_MACRO
+    #define MANGO_NO_INIT_VAULE MANGO_NULL_MACRO
+    #define MANGO_READONLY const
+    #define MANGO_READWRITE MANGO_NULL_MACRO
 
-    #define define_readonly_pointer(type, member_name) \
-    private: \
-        type *member_name{}; \
-    public: \
-        const type *get_##member_name() const { return member_name; }
 
-    #define define_readonly_const_pointer(type, member_name) \
-    private: \
-        const type *member_name{}; \
+    #define __define_member_getter(type, type_descriptor, is_const, member_name) \
     public: \
-        const type *get_##member_name() const { return member_name; }
+        is_const type type_descriptor get_##member_name() is_const { return member_name; }
 
-    #define define_readonly_member_value(type, member_name, value) \
+    #define __define_member(type, is_readonly, is_pointer, is_refrence, member_name, value) \
     private: \
-        type member_name = value; \
-    public: \
-        const type &get_##member_name() const { return member_name; }
+        is_readonly type is_pointer member_name { value }; \
+    __define_member_getter(type, is_pointer is_refrence, const, member_name)
 
-    #define define_readonly_pointer_value(type, member_name, value) \
-    private: \
-        type *member_name = value; \
-    public: \
-        const type *get_##member_name() const { return member_name; }
 
-    #define define_readonly_const_pointer_value(type, member_name, value) \
-    private: \
-        const type *member_name = value; \
-    public: \
-        const type *get_##member_name() const { return member_name; }
+    #define define_member(type, member_name, value) \
+    __define_member(type, MANGO_READWRITE, MANGO_NULL_MACRO, &, member_name, value)
+
+    #define define_readonly_member(type, member_name, value) \
+    __define_member(type, MANGO_READONLY, MANGO_NULL_MACRO, &, member_name, value)
+
+    #define define_extern_writeable_member(type, member_name, value) \
+    __define_member(type, MANGO_READWRITE, MANGO_NULL_MACRO, &, member_name, value) \
+    __define_member_getter(type, &, MANGO_NULL_MACRO, member_name)
+
+    #define define_pointer(type, member_name, value) \
+    __define_member(type, MANGO_READWRITE, *, MANGO_NULL_MACRO, member_name, value)
+
+    #define define_readonly_pointer(type, member_name, value) \
+    __define_member(type, MANGO_READONLY, *, MANGO_NULL_MACRO, member_name, value)
+
 
     #define component_create() \
     if (destroyed == ::MangoRHI::MG_FALSE) { \

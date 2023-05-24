@@ -94,6 +94,17 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
+    void VulkanDevice::query_swapchain_details(SwapchainDetails &details) const {
+        u32 count;
+        VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device, vulkan_context->get_surface(), &details.capabilities))
+        VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device, vulkan_context->get_surface(), &count, nullptr))
+        details.formats.resize(count);
+        VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device, vulkan_context->get_surface(), &count, details.formats.data()))
+        VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device, vulkan_context->get_surface(), &count, nullptr))
+        details.present_modes.resize(count);
+        VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device, vulkan_context->get_surface(), &count, details.present_modes.data()))
+    }
+
     Bool VulkanDevice::check_physical_device_suitable(const VkPhysicalDevice &physical_device) {
         VkPhysicalDeviceProperties properties;
         vkGetPhysicalDeviceProperties(physical_device, &properties);
