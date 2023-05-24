@@ -51,15 +51,15 @@ namespace MangoRHI {
             return Result::eDeviceNotFound;
         }
 
-        STL_IMPL::vector_set<u32> queue_families_indices = { graphics_family_index, present_family_index, transfer_family_index, compute_family_index };
-        VkDeviceQueueCreateInfo queue_create_infos[queue_families_indices.size()];
+        STL_IMPL::vector_set<u32> queue_family_indices = { graphics_family_index, present_family_index, transfer_family_index, compute_family_index };
+        VkDeviceQueueCreateInfo queue_create_infos[queue_family_indices.size()];
         u32 i = 0;
         f32 priorities = 1.0f;
-        for (const auto &queue_families_index : queue_families_indices) {
+        for (const auto &queue_family_index : queue_family_indices) {
             queue_create_infos[i].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
             queue_create_infos[i].pNext = nullptr;
             queue_create_infos[i].flags = 0;
-            queue_create_infos[i].queueFamilyIndex = queue_families_index;
+            queue_create_infos[i].queueFamilyIndex = queue_family_index;
             queue_create_infos[i].queueCount = 1;
             queue_create_infos[i].pQueuePriorities = &priorities;
             i++;
@@ -71,7 +71,7 @@ namespace MangoRHI {
 
         VkDeviceCreateInfo device_create_info { .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO };
         device_create_info.pQueueCreateInfos = queue_create_infos;
-        device_create_info.queueCreateInfoCount = queue_families_indices.size();
+        device_create_info.queueCreateInfoCount = queue_family_indices.size();
         const char *extensions[] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
         device_create_info.ppEnabledExtensionNames = extensions;
         device_create_info.enabledExtensionCount = 1;
