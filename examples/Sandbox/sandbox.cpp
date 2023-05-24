@@ -19,7 +19,7 @@ int main() {
     };
     ctx->resize(640, 640);
     ctx->set_application_name("MangoRHI Sanbox App");
-    ctx->set_device_name("NVIDIA GeForce RTX 3090");
+    // ctx->set_device_name("NVIDIA GeForce RTX 4090");
     ctx->set_api_info(&info);
 
     ctx->create();

@@ -7,6 +7,8 @@ namespace MangoRHI {
     }
 
     Result VulkanDevice::create() {
+        component_create()
+
         u32 device_count;
         VK_CHECK(vkEnumeratePhysicalDevices(vulkan_context->get_instance(), &device_count, nullptr))
         VkPhysicalDevice physical_devices[device_count];
@@ -37,6 +39,7 @@ namespace MangoRHI {
         if (found_device == MG_FALSE) {
             for (const auto &a_physical_device : physical_devices) {
                 if (check_physical_device_suitable(a_physical_device)) {
+                    physical_device = a_physical_device;
                     found_device = MG_TRUE;
                     break;
                 }
@@ -47,6 +50,46 @@ namespace MangoRHI {
             RHI_ERROR("No device is suitable")
             return Result::eDeviceNotFound;
         }
+
+        STL_IMPL::vector_set<u32> queue_families_indices = { graphics_family_index, present_family_index, transfer_family_index, compute_family_index };
+        VkDeviceQueueCreateInfo queue_create_infos[queue_families_indices.size()];
+        u32 i = 0;
+        f32 priorities = 1.0f;
+        for (const auto &queue_families_index : queue_families_indices) {
+            queue_create_infos[i].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            queue_create_infos[i].pNext = nullptr;
+            queue_create_infos[i].flags = 0;
+            queue_create_infos[i].queueFamilyIndex = queue_families_index;
+            queue_create_infos[i].queueCount = 1;
+            queue_create_infos[i].pQueuePriorities = &priorities;
+            i++;
+        }
+
+        VkPhysicalDeviceFeatures features {};
+        features.samplerAnisotropy = VK_TRUE;
+        features.depthClamp = VK_TRUE;
+
+        VkDeviceCreateInfo device_create_info { .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO };
+        device_create_info.pQueueCreateInfos = queue_create_infos;
+        device_create_info.queueCreateInfoCount = queue_families_indices.size();
+        const char *extensions[] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+        device_create_info.ppEnabledExtensionNames = extensions;
+        device_create_info.enabledExtensionCount = 1;
+        #if defined (MANGO_DEBUG)
+        const char *layers[] = { "VK_LAYER_KHRONOS_validation" };
+        device_create_info.ppEnabledLayerNames = layers;
+        device_create_info.enabledLayerCount = 1;
+        #else
+        device_create_info.enabledLayerCount = 0;
+        #endif
+        device_create_info.pEnabledFeatures = &features;
+        VK_CHECK(vkCreateDevice(physical_device, &device_create_info, vulkan_context->get_allocator(), &logical_device))
+        RHI_DEBUG("Create vulkan device -> 0x{:x}", (AddrType)logical_device)
+
+        vkGetDeviceQueue(logical_device, graphics_family_index, 0, &graphics_queue);
+        vkGetDeviceQueue(logical_device, present_family_index, 0, &present_queue);
+        vkGetDeviceQueue(logical_device, transfer_family_index, 0, &transfer_queue);
+        vkGetDeviceQueue(logical_device, compute_family_index, 0, &compute_queue);
 
         return Result::eSuccess;
     }
@@ -94,18 +137,19 @@ namespace MangoRHI {
             return MG_FALSE;
         }
 
+        RHI_DEBUG("{} is suitable", properties.deviceName)
+
         VkPhysicalDeviceMemoryProperties memoryProperties;
         vkGetPhysicalDeviceMemoryProperties(physical_device, &memoryProperties);
-        RHI_DEBUG("{} is suitable", properties.deviceName)
-        RHI_DEBUG("Device Driver Version: {}.{}.{}", VK_VERSION_MAJOR(properties.driverVersion), VK_VERSION_MINOR(properties.driverVersion), VK_VERSION_PATCH(properties.driverVersion))
-        RHI_DEBUG("Vulkan API Version: {}.{}.{}", VK_VERSION_MAJOR(properties.apiVersion), VK_VERSION_MINOR(properties.apiVersion), VK_VERSION_PATCH(properties.apiVersion))
+        RHI_DEBUG("\tDevice Driver Version: {}.{}.{}", VK_VERSION_MAJOR(properties.driverVersion), VK_VERSION_MINOR(properties.driverVersion), VK_VERSION_PATCH(properties.driverVersion))
+        RHI_DEBUG("\tVulkan API Version: {}.{}.{}", VK_VERSION_MAJOR(properties.apiVersion), VK_VERSION_MINOR(properties.apiVersion), VK_VERSION_PATCH(properties.apiVersion))
         for (u32 i = 0; i < memoryProperties.memoryHeapCount; i++) {
             f32 size = ((f32)memoryProperties.memoryHeaps[i].size) / 1024.0f / 1024.0f / 1024.0f;
             if (memoryProperties.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
-                RHI_DEBUG("Local GPU Memory: {} Gib", size)
+                RHI_DEBUG("\tLocal GPU Memory: {} Gib", size)
             }
             else {
-                RHI_DEBUG("Shared GPU Memory: {} Gib", size)
+                RHI_DEBUG("\tShared GPU Memory: {} Gib", size)
             }
         }
 
@@ -113,6 +157,11 @@ namespace MangoRHI {
     }
 
     Result VulkanDevice::destroy() {
+        component_destroy()
+
+        RHI_DEBUG("Destroy vulkan device -> 0x{:x}", (AddrType)logical_device)
+        vkDestroyDevice(logical_device, vulkan_context->get_allocator());
+
         return Result::eSuccess;
     }
 }

@@ -16,9 +16,29 @@
     #error Unknown Platform.
 #endif
 
+#if defined (NDEBUG)
+    #define MANGO_DEBUG
+#else
+    #define MANGO_RELEASE
+#endif
+
 #include <stdint.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+
+#if defined (USE_EASTL)
+    #define STL_IMPL eastl
+    #include <EASTL/vector.h>
+    #include <EASTL/vector_set.h>
+#else
+    #define STL_IMPL std
+    #include <vector>
+    #include <set>
+    namespace std {
+        template<typename T>
+        using vector_set = std::set<T>;
+    }
+#endif
 
 namespace MangoRHI {
     typedef int8_t i8;

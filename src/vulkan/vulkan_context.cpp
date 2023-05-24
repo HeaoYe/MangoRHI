@@ -31,8 +31,13 @@ namespace MangoRHI {
         instance_create_info.pApplicationInfo = &app_info;
         instance_create_info.ppEnabledExtensionNames = info->extensions;
         instance_create_info.enabledExtensionCount = info->extension_count;
-        instance_create_info.ppEnabledLayerNames = nullptr;
+        #if defined (MANGO_DEBUG)
+        const char *layers[] = { "VK_LAYER_KHRONOS_validation" };
+        instance_create_info.ppEnabledLayerNames = layers;
+        instance_create_info.enabledLayerCount = 1;
+        #else
         instance_create_info.enabledLayerCount = 0;
+        #endif
         VK_CHECK(vkCreateInstance(&instance_create_info, allocator, &instance))
         RHI_DEBUG("Create vulkan instance -> 0x{:x}", (AddrType)instance)
 
@@ -53,7 +58,10 @@ namespace MangoRHI {
 
         device.destroy();
 
-        RHI_DEBUG("Destroy Vulkan Instance -> 0x{:x}", (AddrType)instance)
+        RHI_DEBUG("Destroy vulkan surface -> 0x{:x}", (AddrType)surface)
+        vkDestroySurfaceKHR(instance, surface, allocator);
+
+        RHI_DEBUG("Destroy vulkan instance -> 0x{:x}", (AddrType)instance)
         vkDestroyInstance(instance, allocator);
 
         return Result::eSuccess;
