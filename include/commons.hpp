@@ -16,9 +16,29 @@
     #error Unknown Platform.
 #endif
 
+#if defined (NDEBUG)
+    #define MANGO_DEBUG
+#else
+    #define MANGO_RELEASE
+#endif
+
 #include <stdint.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+
+#if defined (USE_EASTL)
+    #define STL_IMPL eastl
+    #include <EASTL/vector.h>
+    #include <EASTL/vector_set.h>
+#else
+    #define STL_IMPL std
+    #include <vector>
+    #include <set>
+    namespace std {
+        template<typename T>
+        using vector_set = std::set<T>;
+    }
+#endif
 
 namespace MangoRHI {
     typedef int8_t i8;
@@ -55,9 +75,10 @@ namespace MangoRHI {
 
     enum class Result {
         eSuccess,
-        eAlreadyDestroyed,
         eFailed,
+        eAlreadyDestroyed,
         eNotImplemented,
+        eDeviceNotFound,
     };
 
     class RuntimeComponent {
@@ -68,6 +89,42 @@ namespace MangoRHI {
     protected:
         Bool destroyed = MG_TRUE;
     };
+
+    #define define_readonly_member(type, member_name) \
+    private: \
+        type member_name{}; \
+    public: \
+        const type &get_##member_name() const { return member_name; }
+
+    #define define_readonly_pointer(type, member_name) \
+    private: \
+        type *member_name{}; \
+    public: \
+        const type *get_##member_name() const { return member_name; }
+
+    #define define_readonly_const_pointer(type, member_name) \
+    private: \
+        const type *member_name{}; \
+    public: \
+        const type *get_##member_name() const { return member_name; }
+
+    #define define_readonly_member_value(type, member_name, value) \
+    private: \
+        type member_name = value; \
+    public: \
+        const type &get_##member_name() const { return member_name; }
+
+    #define define_readonly_pointer_value(type, member_name, value) \
+    private: \
+        type *member_name = value; \
+    public: \
+        const type *get_##member_name() const { return member_name; }
+
+    #define define_readonly_const_pointer_value(type, member_name, value) \
+    private: \
+        const type *member_name = value; \
+    public: \
+        const type *get_##member_name() const { return member_name; }
 
     #define component_create() \
     if (destroyed == ::MangoRHI::MG_FALSE) { \
