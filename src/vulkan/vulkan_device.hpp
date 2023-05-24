@@ -9,17 +9,19 @@ namespace MangoRHI {
         Result create() override;
         Result destroy() override;
 
-        define_readonly_const_pointer_value(char, name, "")
-        define_readonly_member(VkPhysicalDevice, physical_device)
-        define_readonly_member(VkDevice, logical_device)
-        define_readonly_member(u32, graphics_family_index)
-        define_readonly_member(u32, present_family_index)
-        define_readonly_member(u32, transfer_family_index)
-        define_readonly_member(u32, compute_family_index)
-        define_readonly_member(VkQueue, graphics_queue)
-        define_readonly_member(VkQueue, present_queue)
-        define_readonly_member(VkQueue, transfer_queue)
-        define_readonly_member(VkQueue, compute_queue)
+        void query_swapchain_details(SwapchainDetails &details) const;
+
+        define_readonly_pointer(char, name, "")
+        define_member(VkPhysicalDevice, physical_device, VK_NULL_HANDLE)
+        define_member(VkDevice, logical_device, VK_NULL_HANDLE)
+        define_member(u32, graphics_family_index, -1u)
+        define_member(u32, present_family_index, -1u)
+        define_member(u32, transfer_family_index, -1u)
+        define_member(u32, compute_family_index, -1u)
+        define_member(VkQueue, graphics_queue, VK_NULL_HANDLE)
+        define_member(VkQueue, present_queue, VK_NULL_HANDLE)
+        define_member(VkQueue, transfer_queue, VK_NULL_HANDLE)
+        define_member(VkQueue, compute_queue, VK_NULL_HANDLE)
     private:
         Bool check_physical_device_suitable(const VkPhysicalDevice &physical_device);
     };

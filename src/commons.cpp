@@ -69,4 +69,18 @@ namespace MangoRHI {
     }
 
     #undef invoke_backend_func
+
+    #define case_result(value) \
+    case Result::e##value: \
+        return #value;
+
+    std::string to_string(Result res) {
+        switch (res) {
+        case_result(Success)
+        case_result(Failed)
+        case_result(AlreadyDestroyed)
+        case_result(NotImplemented)
+        case_result(DeviceNotFound)
+        }
+    }
 }
