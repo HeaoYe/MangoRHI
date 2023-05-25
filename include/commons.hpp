@@ -56,7 +56,7 @@ namespace MangoRHI {
     constexpr Bool MG_TRUE = 1;
     typedef u64 AddrType;
 
-    enum class API : u8 {
+    enum class API : u32 {
         eNone,
         eOpenGL,
         eVulkan,
@@ -64,7 +64,7 @@ namespace MangoRHI {
         eMetal,
     };
 
-    enum class LogLevel : u8 {
+    enum class LogLevel : u32 {
         eTrace,
         eDebug,
         eInfo,
@@ -126,6 +126,8 @@ namespace MangoRHI {
 
     #define component_create() \
     if (destroyed == ::MangoRHI::MG_FALSE) { \
+        RHI_WARN("{} --> {}", __FILE__, __LINE__) \
+        RHI_WARN("Create a runtime component without destroy the old one") \
         destroy(); \
     } \
     destroyed = ::MangoRHI::MG_FALSE;
@@ -136,7 +138,35 @@ namespace MangoRHI {
     } \
     destroyed = ::MangoRHI::MG_TRUE;
 
+
+    struct ColorClearColor {
+        f32 r, g, b, a;
+    };
+
+    struct DepthStencilClearColor {
+        f32 depth;
+        u32 stencil;
+    };
+
+    union ClearColor {
+        ColorClearColor color;
+        DepthStencilClearColor depth_stencil;
+    };
+
+    enum class AttachmentUsage : u32 {
+        eColorAttachment,
+        eDepthAttachment,
+    };
+
+    enum class PipelineBindPoint : u32 {
+        eGraphicsPipeline,
+        eComputePipeline,
+    };
+
     class Context;
+    class Swapchain;
+    class Attachment;
+    class RenderPass;
 
     MangoRHI_API Result initialize(API api);
     MangoRHI_API Result quit();

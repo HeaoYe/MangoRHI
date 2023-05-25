@@ -83,4 +83,6 @@ namespace MangoRHI {
         case_result(DeviceNotFound)
         }
     }
+    
+    #undef case_result
 }
