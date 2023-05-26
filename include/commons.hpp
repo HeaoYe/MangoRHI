@@ -29,15 +29,13 @@
 #if defined (USE_EASTL)
     #define STL_IMPL eastl
     #include <EASTL/vector.h>
-    #include <EASTL/vector_set.h>
+    #include <EASTL/set.h>
+    #include <EASTL/unordered_map.h>
 #else
     #define STL_IMPL std
     #include <vector>
     #include <set>
-    namespace std {
-        template<typename T>
-        using vector_set = std::set<T>;
-    }
+    #include <unordered_map>
 #endif
 
 namespace MangoRHI {
@@ -102,10 +100,9 @@ namespace MangoRHI {
         is_const type type_descriptor get_##member_name() is_const { return member_name; }
 
     #define __define_member(type, is_readonly, is_pointer, is_refrence, member_name, value) \
-    private: \
+    protected: \
         is_readonly type is_pointer member_name { value }; \
     __define_member_getter(type, is_pointer is_refrence, const, member_name)
-
 
     #define define_member(type, member_name, value) \
     __define_member(type, MANGO_READWRITE, MANGO_NULL_MACRO, &, member_name, value)
@@ -114,7 +111,7 @@ namespace MangoRHI {
     __define_member(type, MANGO_READONLY, MANGO_NULL_MACRO, &, member_name, value)
 
     #define define_extern_writeable_member(type, member_name, value) \
-    __define_member(type, MANGO_READWRITE, MANGO_NULL_MACRO, &, member_name, value) \
+    define_member(type, member_name, value) \
     __define_member_getter(type, &, MANGO_NULL_MACRO, member_name)
 
     #define define_pointer(type, member_name, value) \
@@ -122,6 +119,10 @@ namespace MangoRHI {
 
     #define define_readonly_pointer(type, member_name, value) \
     __define_member(type, MANGO_READONLY, *, MANGO_NULL_MACRO, member_name, value)
+
+    #define define_extern_writeable_pointer(type, member_name, value) \
+    define_pointer(type, member_name, value) \
+    __define_member_getter(type, *, MANGO_NULL_MACRO, member_name)
 
 
     #define component_create() \
@@ -139,23 +140,29 @@ namespace MangoRHI {
     destroyed = ::MangoRHI::MG_TRUE;
 
 
-    struct ColorClearColor {
+    struct ColorClearValue {
         f32 r, g, b, a;
     };
 
-    struct DepthStencilClearColor {
+    struct DepthStencilClearValue {
         f32 depth;
         u32 stencil;
     };
 
-    union ClearColor {
-        ColorClearColor color;
-        DepthStencilClearColor depth_stencil;
+    union ClearValue {
+        ColorClearValue color;
+        DepthStencilClearValue depth_stencil;
     };
 
-    enum class AttachmentUsage : u32 {
-        eColorAttachment,
-        eDepthAttachment,
+    enum class RenderTargetUsage : u32 {
+        eColor,
+        eDepth,
+    };
+
+    enum class RenderTargetLayout : u32 {
+        eUndefined,
+        ePresentSrc,
+        eColor
     };
 
     enum class PipelineBindPoint : u32 {
@@ -165,7 +172,7 @@ namespace MangoRHI {
 
     class Context;
     class Swapchain;
-    class Attachment;
+    class RenderTarget;
     class RenderPass;
 
     MangoRHI_API Result initialize(API api);

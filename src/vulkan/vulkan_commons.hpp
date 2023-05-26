@@ -11,6 +11,8 @@ namespace MangoRHI {
             RHI_ERROR("") \
         } \
     }
+    
+    #define MANGO_VULKAN_SURFACE_RENDER_TARGET_NAME "surface"
 
     using SurfaceCreateFunc = std::function<VkSurfaceKHR(VkInstance &, VkAllocationCallbacks *)>;
     struct VulkanContextInfo {
@@ -24,6 +26,10 @@ namespace MangoRHI {
         STL_IMPL::vector<VkSurfaceFormatKHR> formats;
         STL_IMPL::vector<VkPresentModeKHR> present_modes;
     };
+
+    VkClearValue clear_value2vk_clear_value(ClearValue clear_value);
+    VkImageLayout render_target_layout2vk_image_layout(RenderTargetLayout layout);
+    VkPipelineBindPoint pipeline_bind_point2vk_pipeline_bind_point(PipelineBindPoint bind_point);
 
     Result initialize_vulkan();
     Result quit_vulkan();

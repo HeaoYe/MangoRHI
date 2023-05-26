@@ -17,10 +17,14 @@ int main() {
         glfwCreateWindowSurface(instance, glfwWindow, allocator, &surface);
         return surface;
     };
-    // ctx->resize(640, 640);
     ctx->set_application_name("MangoRHI Sanbox App");
-    // ctx->set_device_name("NVIDIA GeForce RTX 4090");
+    ctx->set_device_name("NVIDIA GeForce RTX 4090");
     ctx->set_api_info(&info);
+
+    ctx->set_clear_color(MangoRHI::ColorClearValue { .r = 0.04f, .g = 0.04f, .b = 0.04f, .a = 1.0f } );
+    auto *rp = ctx->get_render_pass();
+    rp->add_output_render_target("surface", MangoRHI::RenderTargetLayout::eColor);
+    rp->add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
 
     ctx->create();
 
