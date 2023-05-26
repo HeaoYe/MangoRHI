@@ -22,10 +22,11 @@ int main() {
     ctx->set_api_info(&info);
 
     ctx->set_clear_color(MangoRHI::ColorClearValue { .r = 0.04f, .g = 0.04f, .b = 0.04f, .a = 1.0f } );
-    auto *rp = ctx->get_render_pass();
-    rp->add_output_render_target("surface", MangoRHI::RenderTargetLayout::eColor);
-    rp->add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
-
+    auto &rp = ctx->get_render_pass_reference();
+    rp.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
+    rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
+    rp.add_dependency({ MANGORHI_EXTERNAL_SUBPASS_NAME, MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eNone }, { "main", MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eColorRenderTargetWrite });
+    
     ctx->create();
 
     glfwSetWindowUserPointer(glfwWindow, ctx);
@@ -33,11 +34,16 @@ int main() {
         MangoRHI::Context *ctx = (MangoRHI::Context *)glfwGetWindowUserPointer(window);
         ctx->resize(static_cast<MangoRHI::u32>(w), static_cast<MangoRHI::u32>(h));
     });
+
     while (!glfwWindowShouldClose(glfwWindow)) {
         glfwPollEvents();
 
-        if (ctx->acquire_next_frame() == MangoRHI::Result::eSuccess) {
-            ctx->present();
+        if (ctx->begin_frame() == MangoRHI::Result::eSuccess) {
+            auto &command = ctx->get_current_command();
+
+            // TODO: Record Command
+
+            ctx->end_frame();
         }
     }
 

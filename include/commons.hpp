@@ -99,13 +99,22 @@ namespace MangoRHI {
     public: \
         is_const type type_descriptor get_##member_name() is_const { return member_name; }
 
+    #define __define_private_member(type, is_readonly, is_pointer, member_name, value) \
+    private: \
+        is_readonly type is_pointer member_name { value };
+
     #define __define_member(type, is_readonly, is_pointer, is_refrence, member_name, value) \
-    protected: \
-        is_readonly type is_pointer member_name { value }; \
+    __define_private_member(type, is_readonly, is_pointer, member_name, value) \
     __define_member_getter(type, is_pointer is_refrence, const, member_name)
+
+    #define define_private_member(type, member_name, value) \
+    __define_private_member(type, MANGO_READWRITE, MANGO_NULL_MACRO, member_name, value)
 
     #define define_member(type, member_name, value) \
     __define_member(type, MANGO_READWRITE, MANGO_NULL_MACRO, &, member_name, value)
+
+    #define define_private_readonly_member(type, member_name, value) \
+    __define_private_member(type, MANGO_READONLY, MANGO_NULL_MACRO, member_name, value)
 
     #define define_readonly_member(type, member_name, value) \
     __define_member(type, MANGO_READONLY, MANGO_NULL_MACRO, &, member_name, value)
@@ -114,8 +123,14 @@ namespace MangoRHI {
     define_member(type, member_name, value) \
     __define_member_getter(type, &, MANGO_NULL_MACRO, member_name)
 
+    #define define_private_pointer(type, member_name, value) \
+    __define_private_member(type, MANGO_READWRITE, *, member_name, value)
+
     #define define_pointer(type, member_name, value) \
     __define_member(type, MANGO_READWRITE, *, MANGO_NULL_MACRO, member_name, value)
+
+    #define define_private_readonly_pointer(type, member_name, value) \
+    __define_private_member(type, MANGO_READONLY, *, member_name, value)
 
     #define define_readonly_pointer(type, member_name, value) \
     __define_member(type, MANGO_READONLY, *, MANGO_NULL_MACRO, member_name, value)
@@ -169,11 +184,31 @@ namespace MangoRHI {
         eGraphicsPipeline,
         eComputePipeline,
     };
+    
+    enum class PipelineStage : u32 {
+        eColorOutput,
+    };
+
+    enum class Access : u32 {
+        eNone,
+        eColorRenderTargetWrite,
+    };
+
+    struct SubpassStageInfo {
+        const char *name;
+        PipelineStage stage;
+        Access access;
+    };
+
+    enum class CommandLevel : u32 {
+        ePrimary,
+        eSecondary,
+    };
+
+    #define MANGORHI_SURFACE_RENDER_TARGET_NAME "surface"
+    #define MANGORHI_EXTERNAL_SUBPASS_NAME "external"
 
     class Context;
-    class Swapchain;
-    class RenderTarget;
-    class RenderPass;
 
     MangoRHI_API Result initialize(API api);
     MangoRHI_API Result quit();

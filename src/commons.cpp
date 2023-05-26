@@ -1,5 +1,5 @@
 #include "commons.hpp"
-#include "vulkan/MangoRHIVulkan.hpp"
+#include "vulkan/vulkan_context.hpp"
 
 namespace MangoRHI {
     #define invoke_backend_func(backend, func) \

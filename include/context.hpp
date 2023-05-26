@@ -3,6 +3,7 @@
 #include "commons.hpp"
 #include "swapchain.hpp"
 #include "renderpass.hpp"
+#include "command.hpp"
 
 namespace MangoRHI {
     class Context : public RuntimeComponent {
@@ -14,15 +15,10 @@ namespace MangoRHI {
         virtual void set_max_in_flight_image_count(const u32 count) = 0;
         virtual void set_clear_color(ColorClearValue clear_color) = 0;
         virtual void resize(const u32 width, const u32 height) = 0;
-        virtual Result acquire_next_frame() {
-            return swapchain->acquire_next_frame();
-        }
+        virtual RenderPass &get_render_pass_reference() = 0;
+        virtual Command &get_current_command() = 0;
 
-        virtual Result present() {
-            return swapchain->present();
-        }
-    protected:
-    define_pointer(Swapchain, swapchain, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_pointer(RenderPass, render_pass, MANGO_NO_INIT_VAULE)
+        virtual Result begin_frame() = 0;
+        virtual Result end_frame() = 0;
     };
 }
