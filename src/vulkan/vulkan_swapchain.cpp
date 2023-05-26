@@ -87,7 +87,7 @@ namespace MangoRHI {
             image_count = count;
         }
 
-        render_target.set_name(MANGO_VULKAN_SURFACE_RENDER_TARGET_NAME);
+        render_target.set_name(MANGORHI_SURFACE_RENDER_TARGET_NAME);
         render_target.set_clear_color(ClearValue { .color = { .r = 0.0f, .g = 0.0f, .b= 0.0f, .a = 1.0f } });
         render_target.set_usage(RenderTargetUsage::eColor);
 

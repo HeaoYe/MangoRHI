@@ -13,7 +13,7 @@ namespace MangoRHI {
     void VulkanRenderTarget::set_usage(RenderTargetUsage usage) {
         switch (usage) {
         case RenderTargetUsage::eColor:
-            description.format = ((VulkanSwapchain *)vulkan_context->get_swapchain())->get_format().format;
+            description.format = vulkan_context->get_swapchain().get_format().format;
             description.samples = VK_SAMPLE_COUNT_1_BIT;
             description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
@@ -48,6 +48,9 @@ namespace MangoRHI {
 
     Result VulkanRenderTarget::destroy() {
         component_destroy()
+
+        this->images.clear();
+        this->image_views.clear();
 
         return Result::eSuccess;
     }

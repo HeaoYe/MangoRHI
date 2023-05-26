@@ -3,11 +3,6 @@
 namespace MangoRHI {
     VulkanContext *vulkan_context;
 
-    VulkanContext::VulkanContext() {
-        swapchain = new VulkanSwapchain();
-        render_pass = new VulkanRenderPass();
-    }
-
     void VulkanContext::set_api_info(const void *info) {
         this->info = (const VulkanContextInfo *)info;
     }
@@ -21,7 +16,7 @@ namespace MangoRHI {
     }
 
     void VulkanContext::set_swapchain_image_count(const u32 count) {
-        ((VulkanSwapchain *)this->swapchain)->set_image_count(count);
+        this->swapchain.set_image_count(count);
     }
 
     void VulkanContext::set_max_in_flight_image_count(const u32 count) {
@@ -29,11 +24,11 @@ namespace MangoRHI {
     }
 
     void VulkanContext::set_clear_color(ColorClearValue clear_color) {
-        ((VulkanSwapchain *)this->swapchain)->get_render_target().set_clear_color(ClearValue { .color = clear_color });
+        this->swapchain.get_render_target().set_clear_color(ClearValue { .color = clear_color });
     }
 
     void VulkanContext::resize(const u32 width, const u32 height) {
-        swapchain->recreate();
+        swapchain.recreate();
         RHI_DEBUG("Resize to [{}, {}]", extent.width, extent.height)
     }
 
@@ -66,8 +61,13 @@ namespace MangoRHI {
         RHI_DEBUG("Create vulkan surface -> 0x{:x}", (AddrType)surface)
 
         device.create();
-        swapchain->create();
-        render_pass->create();
+        swapchain.create();
+        render_pass.create();
+        command_pool.create();
+        commands.resize(max_in_flight_image_count);
+        for (auto &command : commands) {
+            command_pool.allocate(CommandLevel::ePrimary, &command);
+        }
 
         return Result::eSuccess;
     }
@@ -75,9 +75,13 @@ namespace MangoRHI {
     Result VulkanContext::destroy() {
         component_destroy()
 
+        for (auto &command : commands) {
+            command_pool.free(&command);
+        }
+        command_pool.destroy();
 
-        render_pass->destroy();
-        swapchain->destroy();
+        render_pass.destroy();
+        swapchain.destroy();
         device.destroy();
 
         RHI_DEBUG("Destroy vulkan surface -> 0x{:x}", (AddrType)surface)
@@ -85,6 +89,45 @@ namespace MangoRHI {
 
         RHI_DEBUG("Destroy vulkan instance -> 0x{:x}", (AddrType)instance)
         vkDestroyInstance(instance, allocator);
+
+        return Result::eSuccess;
+    }
+
+    Result VulkanContext::begin_frame() {
+        Result res;
+        if ((res = swapchain.acquire_next_frame()) != Result::eSuccess) {
+            return res;
+        }
+
+        auto &command = get_current_command();
+        if ((res = command.begin_render()) != Result::eSuccess) {
+            return res;
+        }
+
+        if ((res = render_pass.begin_render_pass((VulkanCommand *)&command)) != Result::eSuccess) {
+            return res;
+        }
+        
+        return Result::eSuccess;
+    }
+
+    Result VulkanContext::end_frame() {
+        Result res;
+        auto &command = get_current_command();
+
+        if ((res = render_pass.end_render_pass((VulkanCommand *)&command)) != Result::eSuccess) {
+            return res;
+        }
+
+        if ((res = get_current_command().end_render()) != Result::eSuccess) {
+            return res;
+        }
+
+        if ((res = swapchain.present()) != Result::eSuccess) {
+            return res;
+        }
+
+        _current_in_flight_index = (_current_in_flight_index + 1) % max_in_flight_image_count;
 
         return Result::eSuccess;
     }

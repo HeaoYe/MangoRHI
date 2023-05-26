@@ -1,6 +1,7 @@
 #pragma once
 
 #include "commons.hpp"
+#include "resource/render_target.hpp"
 
 namespace MangoRHI {
     class RenderPass : public RuntimeComponent {
@@ -13,5 +14,6 @@ namespace MangoRHI {
         virtual void set_depth_render_target(const char *render_target_name, RenderTargetLayout ref_layout) = 0;
         virtual void set_resolve_render_target(const char *render_target_name, RenderTargetLayout ref_layout) = 0;
         virtual void add_subpass(const char *subpass_name, PipelineBindPoint bind_point) = 0;
+        virtual void add_dependency(SubpassStageInfo src_subpass_name, SubpassStageInfo dst_subpass_name) = 0;
     };
 }
