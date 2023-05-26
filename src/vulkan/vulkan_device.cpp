@@ -39,7 +39,6 @@ namespace MangoRHI {
         if (found_device == MG_FALSE) {
             for (const auto &a_physical_device : physical_devices) {
                 if (check_physical_device_suitable(a_physical_device)) {
-                    physical_device = a_physical_device;
                     found_device = MG_TRUE;
                     break;
                 }
@@ -51,7 +50,7 @@ namespace MangoRHI {
             return Result::eDeviceNotFound;
         }
 
-        STL_IMPL::vector_set<u32> queue_family_indices = { graphics_family_index, present_family_index, transfer_family_index, compute_family_index };
+        STL_IMPL::set<u32> queue_family_indices = { graphics_family_index, present_family_index, transfer_family_index, compute_family_index };
         VkDeviceQueueCreateInfo queue_create_infos[queue_family_indices.size()];
         u32 i = 0;
         f32 priorities = 1.0f;
@@ -149,6 +148,7 @@ namespace MangoRHI {
         }
 
         RHI_DEBUG("{} is suitable", properties.deviceName)
+        this->physical_device = physical_device;
 
         VkPhysicalDeviceMemoryProperties memoryProperties;
         vkGetPhysicalDeviceMemoryProperties(physical_device, &memoryProperties);

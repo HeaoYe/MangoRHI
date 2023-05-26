@@ -87,16 +87,25 @@ namespace MangoRHI {
             image_count = count;
         }
 
+        render_target.set_name(MANGO_VULKAN_SURFACE_RENDER_TARGET_NAME);
+        render_target.set_clear_color(ClearValue { .color = { .r = 0.0f, .g = 0.0f, .b= 0.0f, .a = 1.0f } });
+        render_target.set_usage(RenderTargetUsage::eColor);
+
         for (count = 0; count < image_count; count++) {
             image_views[count] = vulkan_context->create_image_view(images[count], format.format, VK_IMAGE_ASPECT_COLOR_BIT);
+            render_target.add_render_target_data(images[count], image_views[count]);
             RHI_DEBUG("Create swapchain image view({}) -> 0x{:x}", count, (AddrType)image_views[count])
         }
+
+        render_target.create();
 
         return Result::eSuccess;
     };
 
     Result VulkanSwapchain::destroy() {
         component_destroy()
+
+        render_target.destroy();
 
         for (u32 i = 0; i < image_count; i++) {
             RHI_DEBUG("Destroy swapchain image view({}) -> 0x{:x}", i, (AddrType)image_views[i])

@@ -2,6 +2,7 @@
 
 #include "vulkan_commons.hpp"
 #include "swapchain.hpp"
+#include "resource/vulkan_render_target.hpp"
 
 namespace MangoRHI {
     class VulkanSwapchain final : public Swapchain {
@@ -19,6 +20,7 @@ namespace MangoRHI {
     define_member(VkPresentModeKHR, present_mode, MANGO_NO_INIT_VAULE)
     define_member(STL_IMPL::vector<VkImage>, images, MANGO_NO_INIT_VAULE)
     define_member(STL_IMPL::vector<VkImageView>, image_views, MANGO_NO_INIT_VAULE)
+    define_extern_writeable_member(VulkanRenderTarget, render_target, MANGO_NO_INIT_VAULE)
     private:
         VkSwapchainKHR swapchain = VK_NULL_HANDLE;
     };

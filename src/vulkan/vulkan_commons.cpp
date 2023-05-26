@@ -10,4 +10,31 @@ namespace MangoRHI {
         RHI_DEBUG("quit vulkan")
         return Result::eSuccess;
     }
+
+    VkClearValue clear_value2vk_clear_value(ClearValue clear_value) {
+        VkClearValue vk_clear_value {
+            .color = { .float32 = { clear_value.color.r, clear_value.color.g, clear_value.color.b, clear_value.color.a } }
+        };
+        return vk_clear_value;
+    }
+
+    VkImageLayout render_target_layout2vk_image_layout(RenderTargetLayout layout) {
+        switch (layout) {
+        case RenderTargetLayout::eUndefined:
+            return VK_IMAGE_LAYOUT_UNDEFINED;
+        case RenderTargetLayout::eColor:
+            return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        case RenderTargetLayout::ePresentSrc:
+            return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        }
+    }
+
+    VkPipelineBindPoint pipeline_bind_point2vk_pipeline_bind_point(PipelineBindPoint bind_point) {
+        switch (bind_point) {
+        case PipelineBindPoint::eGraphicsPipeline:
+            return VK_PIPELINE_BIND_POINT_GRAPHICS;
+        case PipelineBindPoint::eComputePipeline:
+            return VK_PIPELINE_BIND_POINT_COMPUTE;
+        }
+    }
 }

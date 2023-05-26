@@ -3,6 +3,11 @@
 namespace MangoRHI {
     VulkanContext *vulkan_context;
 
+    VulkanContext::VulkanContext() {
+        swapchain = new VulkanSwapchain();
+        render_pass = new VulkanRenderPass();
+    }
+
     void VulkanContext::set_api_info(const void *info) {
         this->info = (const VulkanContextInfo *)info;
     }
@@ -15,12 +20,20 @@ namespace MangoRHI {
         device.set_name(name);
     }
 
-    void VulkanContext::set_swapchain_image_count(u32 count) {
-        swapchain.set_image_count(count);
+    void VulkanContext::set_swapchain_image_count(const u32 count) {
+        ((VulkanSwapchain *)this->swapchain)->set_image_count(count);
+    }
+
+    void VulkanContext::set_max_in_flight_image_count(const u32 count) {
+        this->max_in_flight_image_count = count;
+    }
+
+    void VulkanContext::set_clear_color(ColorClearValue clear_color) {
+        ((VulkanSwapchain *)this->swapchain)->get_render_target().set_clear_color(ClearValue { .color = clear_color });
     }
 
     void VulkanContext::resize(const u32 width, const u32 height) {
-        swapchain.recreate();
+        swapchain->recreate();
         RHI_DEBUG("Resize to [{}, {}]", extent.width, extent.height)
     }
 
@@ -53,7 +66,8 @@ namespace MangoRHI {
         RHI_DEBUG("Create vulkan surface -> 0x{:x}", (AddrType)surface)
 
         device.create();
-        swapchain.create();
+        swapchain->create();
+        render_pass->create();
 
         return Result::eSuccess;
     }
@@ -62,7 +76,8 @@ namespace MangoRHI {
         component_destroy()
 
 
-        swapchain.destroy();
+        render_pass->destroy();
+        swapchain->destroy();
         device.destroy();
 
         RHI_DEBUG("Destroy vulkan surface -> 0x{:x}", (AddrType)surface)
@@ -72,10 +87,6 @@ namespace MangoRHI {
         vkDestroyInstance(instance, allocator);
 
         return Result::eSuccess;
-    }
-
-    Swapchain *VulkanContext::get_swapchain() {
-        return (Swapchain *)&swapchain;
     }
 
     VkImageView VulkanContext::create_image_view(VkImage image, VkFormat format, VkImageAspectFlags aspect) const {
