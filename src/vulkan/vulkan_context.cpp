@@ -29,6 +29,7 @@ namespace MangoRHI {
 
     void VulkanContext::resize(const u32 width, const u32 height) {
         swapchain.recreate();
+        framebuffer.recreate();
         RHI_DEBUG("Resize to [{}, {}]", extent.width, extent.height)
     }
 
@@ -63,6 +64,7 @@ namespace MangoRHI {
         device.create();
         swapchain.create();
         render_pass.create();
+        framebuffer.create();
         command_pool.create();
         commands.resize(max_in_flight_image_count);
         for (auto &command : commands) {
@@ -80,6 +82,7 @@ namespace MangoRHI {
         }
         command_pool.destroy();
 
+        framebuffer.destroy();
         render_pass.destroy();
         swapchain.destroy();
         device.destroy();

@@ -26,8 +26,8 @@ namespace MangoRHI {
             return 0;
         }
         u32 index = 1;
-        for (const auto &render_target_pair: render_targets) {
-            if (strcmp(render_target_pair.first, render_target_name) == 0) {
+        for (const auto &render_target: render_targets) {
+            if (strcmp(render_target->get_name(), render_target_name) == 0) {
                 break;
             }
             index++;
@@ -37,7 +37,7 @@ namespace MangoRHI {
 
     VkAttachmentReference VulkanRenderPass::get_render_target_ref(const char *render_target_name, RenderTargetLayout ref_layout) {
         u32 attachment = get_render_target_index_by_name(render_target_name);
-        if (attachment == render_targets.size()) {
+        if (attachment != 0 && attachment == render_targets.size()) {
             RHI_ERROR("RenderTarget {} not found", render_target_name)
         }
         return VkAttachmentReference {
@@ -66,7 +66,7 @@ namespace MangoRHI {
         if (get_render_target_index_by_name(vulkan_render_target->get_name()) < render_targets.size()) {
             RHI_ERROR("RenderTarget {} is existed", vulkan_render_target->get_name());
         }
-        render_targets.push_back(STL_IMPL::make_pair(vulkan_render_target->get_name(), vulkan_render_target));
+        render_targets.push_back(vulkan_render_target);
     }
 
     void VulkanRenderPass::add_input_render_target(const char *render_target_name, RenderTargetLayout ref_layout) {
@@ -121,11 +121,10 @@ namespace MangoRHI {
 
         STL_IMPL::vector<VkAttachmentDescription> attachment_descriptions;
         STL_IMPL::vector<VkSubpassDescription> subpass_descriptions;
-        attachment_descriptions.push_back(vulkan_context->get_swapchain().get_render_target().get_description());
-        clear_values.push_back(vulkan_context->get_swapchain().get_render_target().get_clear_value());
-        for (const auto &render_target_pair : render_targets) {
-            attachment_descriptions.push_back(render_target_pair.second->get_description());
-            clear_values.push_back(render_target_pair.second->get_clear_value());
+        render_targets.insert(render_targets.begin(), &vulkan_context->get_swapchain().get_render_target());
+        for (const auto &render_target : render_targets) {
+            attachment_descriptions.push_back(render_target->get_description());
+            clear_values.push_back(render_target->get_clear_value());
         }
         for (const auto &subpass : subpasses) {
             subpass_descriptions.push_back(subpass.get_description());
@@ -158,16 +157,16 @@ namespace MangoRHI {
         VkRenderPassBeginInfo render_pass_begin_info { .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
         render_pass_begin_info.renderPass = render_pass;
         render_pass_begin_info.renderArea = VkRect2D { .offset = { .x = 0, .y = 0}, .extent = vulkan_context->get_extent() };
-        // render_pass_begin_info.framebuffer = framebuffer;
+        render_pass_begin_info.framebuffer = vulkan_context->get_framebuffer().get_framebuffers()[vulkan_context->get_swapchain().get_image_index()];
         render_pass_begin_info.pClearValues = clear_values.data();
         render_pass_begin_info.clearValueCount = clear_values.size();
-        // vkCmdBeginRenderPass(command->get_command_buffer(), &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(command->get_command_buffer(), &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
 
         return Result::eSuccess;
     }
 
     Result VulkanRenderPass::end_render_pass(VulkanCommand *commnad) {
-        // vkCmdEndRenderPass(commnad->get_command_buffer());
+        vkCmdEndRenderPass(commnad->get_command_buffer());
 
         return Result::eSuccess;
     }

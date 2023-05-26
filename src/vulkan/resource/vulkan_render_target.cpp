@@ -38,10 +38,20 @@ namespace MangoRHI {
     void VulkanRenderTarget::add_render_target_data(VkImage image, VkImageView image_view) {
         this->images.push_back(image);
         this->image_views.push_back(image_view);
+        if (images.size() > 1) {
+            is_each_frame_render_target = MG_TRUE;
+        }
     }
 
     Result VulkanRenderTarget::create() {
         component_create()
+
+        if (images.size() == 0) {
+            // TODO create images and image_views
+            if (is_each_frame_render_target == MG_TRUE) {
+                // TODO create for all frame buffer
+            }
+        }
 
         return Result::eSuccess;
     }
@@ -51,6 +61,7 @@ namespace MangoRHI {
 
         this->images.clear();
         this->image_views.clear();
+        is_each_frame_render_target = MG_FALSE;
 
         return Result::eSuccess;
     }

@@ -141,6 +141,7 @@ namespace MangoRHI {
     };
 
     Result VulkanSwapchain::acquire_next_frame() {
+        image_index = (image_index + 1) % image_count;
         // auto res = vkAcquireNextImageKHR(vulkan_context->get_device().get_logical_device(), swapchain, UINT64_MAX, VK_NULL_HANDLE, VK_NULL_HANDLE, &image_index);
         // VK_CHECK(vkDeviceWaitIdle(vulkan_context->get_device().get_logical_device()))
         // if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR) {

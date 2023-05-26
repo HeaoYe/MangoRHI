@@ -5,6 +5,7 @@
 #include "vulkan_device.hpp"
 #include "vulkan_swapchain.hpp"
 #include "vulkan_renderpass.hpp"
+#include "vulkan_framebuffer.hpp"
 #include "vulkan_command_pool.hpp"
 
 namespace MangoRHI {
@@ -34,6 +35,7 @@ namespace MangoRHI {
     define_member(VulkanDevice, device, MANGO_NO_INIT_VAULE)
     define_member(VulkanSwapchain, swapchain, MANGO_NO_INIT_VAULE)
     define_extern_writeable_member(VulkanRenderPass, render_pass, MANGO_NO_INIT_VAULE)
+    define_member(VulkanFrameBuffer, framebuffer, MANGO_NO_INIT_VAULE)
     define_member(VulkanCommandPool, command_pool, MANGO_NO_INIT_VAULE)
     define_extern_writeable_member(VkExtent2D, extent, MANGO_NO_INIT_VAULE)
     define_member(u32, max_in_flight_image_count, 2)

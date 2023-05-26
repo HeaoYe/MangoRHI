@@ -22,7 +22,6 @@ namespace MangoRHI {
     };
 
     class VulkanRenderPass final : public RenderPass {
-        using RenderTargetMap = STL_IMPL::vector<STL_IMPL::pair<const char *, VulkanRenderTarget *>>;
     public:
         void attach_render_target(RenderTarget *render_target);
         
@@ -44,11 +43,11 @@ namespace MangoRHI {
         u32 get_subpass_index_by_name(const char *subpass_name);
         VkAttachmentReference get_render_target_ref(const char *render_target_name, RenderTargetLayout ref_layout);
 
-    define_private_member(VulkanSubpass, temp_subpass, MANGO_NO_INIT_VAULE)
+    define_member(STL_IMPL::vector<const VulkanRenderTarget *>, render_targets, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkClearValue>, clear_values, MANGO_NO_INIT_VAULE)
-    define_private_member(RenderTargetMap, render_targets, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanSubpass>, subpasses, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkSubpassDependency>, dependencies, MANGO_NO_INIT_VAULE)
     define_member(VkRenderPass, render_pass, VK_NULL_HANDLE)
+    define_private_member(VulkanSubpass, temp_subpass, MANGO_NO_INIT_VAULE)
     };
 }
