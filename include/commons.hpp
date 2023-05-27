@@ -245,8 +245,47 @@ namespace MangoRHI {
         ePerInstance,
     };
 
+    struct Viewport {
+        f32 x, y;
+        f32 width, height;
+        f32 min_depth, max_depth;
+    };
+
+    struct Scissor {
+        i32 x, y;
+        u32 width, height;
+    };
+
     #define MANGORHI_SURFACE_RENDER_TARGET_NAME "surface"
     #define MANGORHI_EXTERNAL_SUBPASS_NAME "external"
+
+    #define __default_construction(cls) \
+    public: \
+        cls() = default;
+
+    #define __no_copy_construction(cls) \
+    private: \
+        cls(const cls &) = delete; \
+        cls &operator=(const cls &) = delete;
+    
+    #define __no_move_construction(cls) \
+    private: \
+        cls(cls &&) = delete; \
+        cls &operator=(cls &&) = delete;
+
+
+    #define no_copy_construction(cls) \
+    __default_construction(cls) \
+    __no_copy_construction(cls)
+
+    #define no_move_construction(cls) \
+    __default_construction(cls) \
+    __no_move_construction(cls)
+
+    #define no_copy_and_move_construction(cls) \
+    __default_construction(cls) \
+    __no_copy_construction(cls) \
+    __no_move_construction(cls) \
 
     class Context;
 

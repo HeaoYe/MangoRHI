@@ -9,10 +9,12 @@ namespace MangoRHI {
         Result create() override;
         Result destroy() override;
         
-        void allocate(CommandLevel level, VulkanCommand *command);
-        void allocate_single_use(VulkanCommand *command);
-        void free(VulkanCommand *command);
+        void allocate(CommandLevel level, VulkanCommand *command) const;
+        void allocate_single_use(VulkanCommand *command) const;
+        void free(VulkanCommand *command) const;
     
     define_member(VkCommandPool, command_pool, VK_NULL_HANDLE)
+
+    no_copy_and_move_construction(VulkanCommandPool)
     };
 }

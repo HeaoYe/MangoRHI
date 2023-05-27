@@ -21,5 +21,7 @@ namespace MangoRHI {
     define_member(VkAttachmentDescription, description, MANGO_NO_INIT_VAULE)
     define_extern_writeable_member(u32, index, MANGO_NO_INIT_VAULE)
     define_member(Bool, is_each_frame_render_target, MG_FALSE)
+
+    no_copy_and_move_construction(VulkanRenderTarget)
     };
 }

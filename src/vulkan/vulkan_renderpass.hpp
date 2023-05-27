@@ -9,10 +9,8 @@
 namespace MangoRHI {
     class VulkanSubpass {
     public:
-        VulkanSubpass() = default;
         VulkanSubpass(VulkanSubpass &&other);
-        void build(const char *name, PipelineBindPoint bind_point);
-        void bind_shader_program(VulkanShaderProgram *shader_program);
+        void build(const char *name, PipelineBindPoint bind_point, u32 index);
     
     define_readonly_pointer(char, name, "")
     define_extern_writeable_member(VkSubpassDescription, description, MANGO_NO_INIT_VAULE)
@@ -22,7 +20,9 @@ namespace MangoRHI {
     define_extern_writeable_member(STL_IMPL::vector<u32>, preserve_attachment, MANGO_NO_INIT_VAULE)
     define_extern_writeable_member(STL_IMPL::optional<VkAttachmentReference>, depth_attachment, MANGO_NO_INIT_VAULE)
     define_extern_writeable_member(STL_IMPL::optional<VkAttachmentReference>, resolve_attachment, MANGO_NO_INIT_VAULE)
-    define_pointer(VulkanShaderProgram, shader_program, MANGO_NO_INIT_VAULE)
+    define_extern_writeable_pointer(VulkanShaderProgram, shader_program, MANGO_NO_INIT_VAULE)
+
+    no_copy_construction(VulkanSubpass)
     };
 
     class VulkanRenderPass final : public RenderPass {
@@ -34,7 +34,7 @@ namespace MangoRHI {
         void add_preserve_render_target(const char *render_target_name) override;
         void set_depth_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
         void set_resolve_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
-        void add_subpass(const char *subpass_name, PipelineBindPoint bind_point) override;
+        ShaderProgram *add_subpass(const char *subpass_name, PipelineBindPoint bind_point) override;
         void add_dependency(SubpassStageInfo src_subpass_name, SubpassStageInfo dst_subpass_name) override;
 
         Result create() override;
@@ -54,5 +54,7 @@ namespace MangoRHI {
     define_private_member(STL_IMPL::vector<VkSubpassDependency>, dependencies, MANGO_NO_INIT_VAULE)
     define_member(VkRenderPass, render_pass, VK_NULL_HANDLE)
     define_private_member(VulkanSubpass, temp_subpass, MANGO_NO_INIT_VAULE)
+
+    no_copy_and_move_construction(VulkanRenderPass)
     };
 }

@@ -64,10 +64,7 @@ namespace MangoRHI {
         swapchain_create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
         swapchain_create_info.minImageCount = image_count;
         if (vulkan_context->get_device().get_graphics_family_index() == vulkan_context->get_device().get_present_family_index()) {
-            u32 queue_family_indices[] = { vulkan_context->get_device().get_graphics_family_index() };
             swapchain_create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-            swapchain_create_info.pQueueFamilyIndices = queue_family_indices;
-            swapchain_create_info.queueFamilyIndexCount = 1;
         } else {
             u32 queue_family_indices[] = { vulkan_context->get_device().get_graphics_family_index(), vulkan_context->get_device().get_present_family_index() };
             swapchain_create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
@@ -162,7 +159,12 @@ namespace MangoRHI {
         present_info.waitSemaphoreCount = 1;
         present_info.pImageIndices = &image_index;
         present_info.pResults = nullptr;
-        vkQueuePresentKHR(vulkan_context->get_device().get_present_queue(), &present_info);
+        auto res = vkQueuePresentKHR(vulkan_context->get_device().get_present_queue(), &present_info);
+        if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR) {
+            recreate();
+            vulkan_context->get_framebuffer().recreate();
+            return Result::eFailed;
+        }
 
         return Result::eSuccess;
     };

@@ -2,11 +2,6 @@
 #include "vulkan_context.hpp"
 
 namespace MangoRHI {
-    void VulkanShaderProgram::bind_subpass(const char *subpass_name) {
-        this->subpass_index = vulkan_context->get_render_pass().get_subpass_index_by_name(subpass_name);
-        vulkan_context->get_render_pass().get_subpasses()[this->subpass_index].bind_shader_program(this);
-    }
-
     void VulkanShaderProgram::set_topology(Topology topology) {
         this->topology = topology;
     }
@@ -91,9 +86,9 @@ namespace MangoRHI {
         VkPipelineViewportStateCreateInfo viewport_state { .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO };
         VkViewport viewport {
             .x = 0.0f,
-            .y = 0.0f,
+            .y = static_cast<float>(vulkan_context->get_extent().height),
             .width = static_cast<float>(vulkan_context->get_extent().width),
-            .height = static_cast<float>(vulkan_context->get_extent().height),
+            .height = -static_cast<float>(vulkan_context->get_extent().height),
             .minDepth = 0.0f,
             .maxDepth = 1.0f,
         };
@@ -107,17 +102,17 @@ namespace MangoRHI {
         viewport_state.scissorCount = 1;
 
         VkPipelineRasterizationStateCreateInfo rasterization_state { .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
-        rasterization_state.depthClampEnable = VK_FALSE;
-        rasterization_state.depthBiasEnable = VK_FALSE;
         rasterization_state.rasterizerDiscardEnable = VK_FALSE;
-        rasterization_state.lineWidth = 1.0f;
         rasterization_state.polygonMode = polygon2vk_polygon_mode(polygon);
+        rasterization_state.depthBiasEnable = VK_FALSE;
+        rasterization_state.depthClampEnable = VK_FALSE;
         rasterization_state.frontFace = front_face2vk_front_face(front);
         rasterization_state.cullMode = cull_mode2vk_cull_mode_flags(cull);
+        rasterization_state.lineWidth = 1.0f;
 
         VkPipelineMultisampleStateCreateInfo multisample_state { .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO };
-        multisample_state.sampleShadingEnable = VK_FALSE;
         multisample_state.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+        multisample_state.sampleShadingEnable = VK_FALSE;
 
         VkPipelineDepthStencilStateCreateInfo depth_stencil_state { .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
         depth_stencil_state.stencilTestEnable = VK_FALSE;
@@ -131,6 +126,8 @@ namespace MangoRHI {
         color_blend_state.attachmentCount = 1;
         color_blend_state.pAttachments = &color_blend_attachment;
 
+        dynamic_states.push_back(VK_DYNAMIC_STATE_VIEWPORT);
+        dynamic_states.push_back(VK_DYNAMIC_STATE_SCISSOR);
         VkPipelineDynamicStateCreateInfo dynamic_state { .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO };
         dynamic_state.pDynamicStates = dynamic_states.data();
         dynamic_state.dynamicStateCount = dynamic_states.size();
