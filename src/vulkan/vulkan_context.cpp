@@ -7,12 +7,8 @@ namespace MangoRHI {
         this->info = (const VulkanContextInfo *)info;
     }
 
-    void VulkanContext::set_application_name(const char *name) {
-        app_name = name;
-    }
-
     void VulkanContext::set_device_name(const char *name) {
-        device.set_name(name);
+        this->device.set_name(name);
     }
 
     void VulkanContext::set_swapchain_image_count(const u32 count) {
@@ -28,15 +24,15 @@ namespace MangoRHI {
     }
 
     void VulkanContext::resize(const u32 width, const u32 height) {
-        RHI_DEBUG("Resize to [{}, {}]", extent.width, extent.height)
+        // No Impl For Vulkan
     }
 
     Result VulkanContext::create() {
         component_create()
-        vulkan_context = this;
 
         VkApplicationInfo app_info { .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO };
-        app_info.pApplicationName = app_name;
+        app_info.pApplicationName = info->app_name;
+        app_info.pEngineName = info->engine_name;
         app_info.apiVersion = VK_API_VERSION_1_3;
         VkInstanceCreateInfo instance_create_info { .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO };
         instance_create_info.pApplicationInfo = &app_info;

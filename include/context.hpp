@@ -9,7 +9,6 @@ namespace MangoRHI {
     class Context : public RuntimeComponent {
     public:
         virtual void set_api_info(const void *info) = 0;
-        virtual void set_application_name(const char *name) = 0;
         virtual void set_device_name(const char *name) = 0;
         virtual void set_swapchain_image_count(const u32 count) = 0;
         virtual void set_max_in_flight_frame_count(const u32 count) = 0;

@@ -212,7 +212,7 @@ namespace MangoRHI {
 
     MangoRHI_API Result initialize(API api);
     MangoRHI_API Result quit();
-    MangoRHI_API Context* create_context();
+    MangoRHI_API Context* get_context();
 }
 
 #include "logger.hpp"

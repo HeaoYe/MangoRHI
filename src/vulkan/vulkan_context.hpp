@@ -13,7 +13,6 @@ namespace MangoRHI {
     class VulkanContext final : public Context {
     public:
         void set_api_info(const void *info) override;
-        void set_application_name(const char *name) override;
         void set_device_name(const char *name) override;
         void set_swapchain_image_count(const u32 count) override;
         void set_max_in_flight_frame_count(const u32 count) override;
@@ -29,7 +28,6 @@ namespace MangoRHI {
         RenderPass &get_render_pass_reference() override { return render_pass; }
         Command &get_current_command() override { return commands[current_in_flight_frame_index]; };
 
-    define_readonly_pointer(char, app_name, "")
     define_pointer(VkAllocationCallbacks, allocator, VK_NULL_HANDLE)
     define_member(VkInstance, instance, VK_NULL_HANDLE)
     define_member(VkSurfaceKHR, surface, VK_NULL_HANDLE)
