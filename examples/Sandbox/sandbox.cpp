@@ -27,6 +27,12 @@ int main() {
     rp.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
     rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
     rp.add_dependency({ MANGORHI_EXTERNAL_SUBPASS_NAME, MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eNone }, { "main", MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eColorRenderTargetWrite });
+
+    auto *main_shader_program = ctx->create_shader_program();
+    main_shader_program->bind_subpass("main");
+    main_shader_program->attach_vertex_shader(ctx->create_shader("examples/Sandbox/assets/vert.spv"), "main");
+    main_shader_program->attach_fragment_shader(ctx->create_shader("examples/Sandbox/assets/frag.spv"), "main");
+    main_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
     
     ctx->create();
 
@@ -34,9 +40,11 @@ int main() {
         glfwPollEvents();
 
         if (ctx->begin_frame() == MangoRHI::Result::eSuccess) {
-            auto &command = ctx->get_current_command();
+            auto &command = (MangoRHI::VulkanCommand &)ctx->get_current_command();
 
             // TODO: Record Command
+            command.next_subpass();
+            vkCmdDraw(command.get_command_buffer(), 3, 2, 0, 0);
 
             ctx->end_frame();
         }

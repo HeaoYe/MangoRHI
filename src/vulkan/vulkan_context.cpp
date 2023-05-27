@@ -23,6 +23,19 @@ namespace MangoRHI {
         this->swapchain.get_render_target().set_clear_color(ClearValue { .color = clear_color });
     }
 
+    Shader *VulkanContext::create_shader(const char *filename) {
+        auto *shader = new VulkanShader();
+        shaders.push_back(shader);
+        shader->set_filename(filename);
+        return shader;
+    }
+
+    ShaderProgram *VulkanContext::create_shader_program() {
+        auto *shader_program = new VulkanShaderProgram();
+        shader_programs.push_back(shader_program);
+        return shader_program;
+    }
+
     void VulkanContext::resize(const u32 width, const u32 height) {
         // No Impl For Vulkan
     }
@@ -58,12 +71,19 @@ namespace MangoRHI {
         device.create();
         swapchain.create();
         render_pass.create();
+        for (auto &shader : shaders) {
+            shader->create();
+        }
+        for (auto &shader_program : shader_programs) {
+            shader_program->create();
+        }
         framebuffer.create();
         synchronization.create();
         command_pool.create();
-        commands.resize(max_in_flight_frame_count);
-        for (auto &command : commands) {
-            command_pool.allocate(CommandLevel::ePrimary, &command);
+        for (u32 index = 0; index < max_in_flight_frame_count; index++) {
+            auto *command = new VulkanCommand();
+            commands.push_back(command);
+            command_pool.allocate(CommandLevel::ePrimary, command);
         }
 
         return Result::eSuccess;
@@ -75,12 +95,18 @@ namespace MangoRHI {
         VK_CHECK(vkDeviceWaitIdle(device.get_logical_device()))
 
         for (auto &command : commands) {
-            command_pool.free(&command);
+            command_pool.free(command);
         }
         command_pool.destroy();
 
         synchronization.destroy();
         framebuffer.destroy();
+        for (auto &shader_program : shader_programs) {
+            shader_program->destroy();
+        }
+        for (auto &shader : shaders) {
+            shader->destroy();
+        }
         render_pass.destroy();
         swapchain.destroy();
         device.destroy();
@@ -100,7 +126,7 @@ namespace MangoRHI {
             return res;
         }
 
-        auto &command = get_current_command();
+        auto &command = (VulkanCommand &)get_current_command();
         if ((res = command.begin_render()) != Result::eSuccess) {
             RHI_ERROR("Begin command buffer error {}", to_string(res));
             return res;

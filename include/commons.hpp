@@ -39,6 +39,8 @@
     #include <optional>
 #endif
 
+#include <fstream>
+
 namespace MangoRHI {
     typedef int8_t i8;
     typedef int16_t i16;
@@ -205,6 +207,44 @@ namespace MangoRHI {
         eSecondary,
     };
 
+    enum class Topology : u32 {
+        ePointList,
+        eLineList,
+        eTriangleList,
+    };
+
+    enum class PolygonMode : u32 {
+        ePoint,
+        eLine,
+        eFill,
+    };
+
+    enum class FrontFace : u32 {
+        eCouterClockwise,
+        eClockwise,
+    };
+
+    enum class CullMode : u32 {
+        eNone,
+        eBack,
+        eFront,
+        eAll,
+    };
+
+    enum class VertexInputType : u32 {
+        eInt2,
+        eInt3,
+        eInt4,
+        eFloat2,
+        eFloat3,
+        eFloat4,
+    };
+
+    enum class VertexInputRate : u32 {
+        ePerVertex,
+        ePerInstance,
+    };
+
     #define MANGORHI_SURFACE_RENDER_TARGET_NAME "surface"
     #define MANGORHI_EXTERNAL_SUBPASS_NAME "external"
 
@@ -213,6 +253,7 @@ namespace MangoRHI {
     MangoRHI_API Result initialize(API api);
     MangoRHI_API Result quit();
     MangoRHI_API Context *get_context();
+    STL_IMPL::vector<char> read_binary_file(const char *filename);
 }
 
 #include "logger.hpp"

@@ -33,6 +33,12 @@ namespace MangoRHI {
     VkCommandBufferLevel command_level2vk_command_buffer_level(CommandLevel level);
     VkPipelineStageFlags pipeline_stage2vk_pipeline_stage_flags(PipelineStage stage);
     VkAccessFlags access2vk_access_flags(Access access);
+    VkPrimitiveTopology topology2vk_primitive_topology(Topology topology);
+    VkPolygonMode polygon2vk_polygon_mode(PolygonMode polygon);
+    VkFrontFace front_face2vk_front_face(FrontFace front);
+    VkCullModeFlags cull_mode2vk_cull_mode_flags(CullMode cull);
+    VkFormat vertex_input_type2vk_format(VertexInputType type);
+    VkVertexInputRate vertex_input_rate2vk_vertex_input_rate(VertexInputRate rate);
 
     Result initialize_vulkan();
     Result quit_vulkan();
