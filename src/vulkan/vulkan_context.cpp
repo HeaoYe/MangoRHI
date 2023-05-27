@@ -30,12 +30,6 @@ namespace MangoRHI {
         return shader;
     }
 
-    ShaderProgram *VulkanContext::create_shader_program() {
-        auto *shader_program = new VulkanShaderProgram();
-        shader_programs.push_back(shader_program);
-        return shader_program;
-    }
-
     void VulkanContext::resize(const u32 width, const u32 height) {
         // No Impl For Vulkan
     }
@@ -70,13 +64,10 @@ namespace MangoRHI {
 
         device.create();
         swapchain.create();
-        render_pass.create();
         for (auto &shader : shaders) {
             shader->create();
         }
-        for (auto &shader_program : shader_programs) {
-            shader_program->create();
-        }
+        render_pass.create();
         framebuffer.create();
         synchronization.create();
         command_pool.create();
@@ -85,6 +76,10 @@ namespace MangoRHI {
             commands.push_back(command);
             command_pool.allocate(CommandLevel::ePrimary, command);
         }
+        vertex_buffer.set_size(1024 * 1024);
+        index_buffer.set_size(1024 * 1024);
+        vertex_buffer.create();
+        index_buffer.create();
 
         return Result::eSuccess;
     }
@@ -94,6 +89,9 @@ namespace MangoRHI {
 
         VK_CHECK(vkDeviceWaitIdle(device.get_logical_device()))
 
+        vertex_buffer.destroy();
+        index_buffer.destroy();
+
         for (auto &command : commands) {
             command_pool.free(command);
         }
@@ -101,13 +99,10 @@ namespace MangoRHI {
 
         synchronization.destroy();
         framebuffer.destroy();
-        for (auto &shader_program : shader_programs) {
-            shader_program->destroy();
-        }
+        render_pass.destroy();
         for (auto &shader : shaders) {
             shader->destroy();
         }
-        render_pass.destroy();
         swapchain.destroy();
         device.destroy();
 
@@ -120,13 +115,21 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
+    VertexBuffer &VulkanContext::get_vertex_buffer_reference() {
+        return vertex_buffer;
+    }
+
+    IndexBuffer &VulkanContext::get_index_buffer_reference() {
+        return index_buffer;
+    }
+
     Result VulkanContext::begin_frame() {
         Result res;
         if ((res = swapchain.acquire_next_frame()) != Result::eSuccess) {
             return res;
         }
 
-        auto &command = (VulkanCommand &)get_current_command();
+        auto &command = (VulkanCommand &)get_current_command_reference();
         if ((res = command.begin_render()) != Result::eSuccess) {
             RHI_ERROR("Begin command buffer error {}", to_string(res));
             return res;
@@ -142,14 +145,14 @@ namespace MangoRHI {
 
     Result VulkanContext::end_frame() {
         Result res;
-        auto &command = get_current_command();
+        auto &command = get_current_command_reference();
 
         if ((res = render_pass.end_render_pass((VulkanCommand *)&command)) != Result::eSuccess) {
             RHI_ERROR("End render pass error {}", to_string(res));
             return res;
         }
 
-        if ((res = get_current_command().end_render()) != Result::eSuccess) {
+        if ((res = command.end_render()) != Result::eSuccess) {
             RHI_ERROR("End command buffer error {}", to_string(res));
             return res;
         }
@@ -184,5 +187,18 @@ namespace MangoRHI {
         };
         VK_CHECK(vkCreateImageView(device.get_logical_device(), &image_view_create_info, allocator, &image_view))
         return image_view;
+    }
+
+    u32 VulkanContext::find_memory_index(u32 type_filter, VkMemoryPropertyFlags flags) const {
+        VkPhysicalDeviceMemoryProperties properties;
+        vkGetPhysicalDeviceMemoryProperties(device.get_physical_device(), &properties);
+
+        for (u32 i = 0; i < properties.memoryTypeCount; i++) {
+            if (type_filter & (1 << i) && (properties.memoryTypes[i].propertyFlags & flags) == flags) {
+                return i;
+            }
+        }
+        RHI_ERROR("Cannot find suitable memory type")
+        return -1;
     }
 }

@@ -12,7 +12,6 @@ namespace MangoRHI {
 
     class VulkanShaderProgram final : public ShaderProgram {
     public:
-        void bind_subpass(const char *subpass_name) override;
         void set_topology(Topology topology) override;
         void set_polygon_mode(PolygonMode polygon) override;
         void set_front_face(FrontFace front) override;
@@ -27,7 +26,7 @@ namespace MangoRHI {
 
     define_member(VkPipelineLayout, layout, VK_NULL_HANDLE)
     define_member(VkPipeline, pipeline, VK_NULL_HANDLE)
-    define_private_member(u32, subpass_index, MANGO_NO_INIT_VAULE)
+    define_extern_writeable_member(u32, subpass_index, MANGO_NO_INIT_VAULE)
     define_private_member(Topology, topology, Topology::eTriangleList)
     define_private_member(PolygonMode, polygon, PolygonMode::eFill)
     define_private_member(FrontFace, front, FrontFace::eClockwise)

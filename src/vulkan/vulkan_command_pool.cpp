@@ -23,7 +23,7 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
-    void VulkanCommandPool::allocate(CommandLevel level, VulkanCommand *command) {
+    void VulkanCommandPool::allocate(CommandLevel level, VulkanCommand *command) const {
         VkCommandBuffer command_buffer;
         VkCommandBufferAllocateInfo command_buffer_allocate_info { .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
         command_buffer_allocate_info.commandPool = command_pool;
@@ -36,13 +36,13 @@ namespace MangoRHI {
         command->set_single_use(MG_FALSE);
     }
 
-    void VulkanCommandPool::allocate_single_use(VulkanCommand *command) {
+    void VulkanCommandPool::allocate_single_use(VulkanCommand *command) const {
         allocate(CommandLevel::ePrimary, command);
         command->set_single_use(MG_TRUE);
         command->begin_render();
     }
 
-    void VulkanCommandPool::free(VulkanCommand *command) {
+    void VulkanCommandPool::free(VulkanCommand *command) const {
         if (command->get_is_single_use() == MG_TRUE) {
             command->end_render();
         }

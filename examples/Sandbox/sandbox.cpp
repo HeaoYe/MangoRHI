@@ -1,5 +1,11 @@
 #include "MangoRHI.hpp"
 #include "GLFW/glfw3.h"
+#include "glm/glm.hpp"
+
+struct Vertex {
+    glm::vec3 pos;
+    glm::vec3 color;
+};
 
 int main() {
     glfwInit();
@@ -25,14 +31,19 @@ int main() {
     ctx->set_clear_color(MangoRHI::ColorClearValue { .r = 0.05f, .g = 0.1f, .b = 0.08f, .a = 1.0f } );
     auto &rp = ctx->get_render_pass_reference();
     rp.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
-    rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
+    auto *main_shader_program = rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
     rp.add_dependency({ MANGORHI_EXTERNAL_SUBPASS_NAME, MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eNone }, { "main", MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eColorRenderTargetWrite });
 
-    auto *main_shader_program = ctx->create_shader_program();
-    main_shader_program->bind_subpass("main");
+    // main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(float) * 3);
+    // main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(float) * 3);
+    // main_shader_program->add_vertex_binding(MangoRHI::VertexInputRate::ePerVertex);
     main_shader_program->attach_vertex_shader(ctx->create_shader("examples/Sandbox/assets/vert.spv"), "main");
     main_shader_program->attach_fragment_shader(ctx->create_shader("examples/Sandbox/assets/frag.spv"), "main");
     main_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
+
+    auto &vertex_buffer = ctx->get_vertex_buffer_reference();
+    auto &index_buffer = ctx->get_index_buffer_reference();
+    vertex_buffer.set_vertex_size(sizeof(Vertex));
     
     ctx->create();
 
@@ -40,7 +51,7 @@ int main() {
         glfwPollEvents();
 
         if (ctx->begin_frame() == MangoRHI::Result::eSuccess) {
-            auto &command = (MangoRHI::VulkanCommand &)ctx->get_current_command();
+            auto &command = (MangoRHI::VulkanCommand &)ctx->get_current_command_reference();
 
             // TODO: Record Command
             command.next_subpass();

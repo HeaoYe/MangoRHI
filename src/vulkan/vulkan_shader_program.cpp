@@ -2,11 +2,6 @@
 #include "vulkan_context.hpp"
 
 namespace MangoRHI {
-    void VulkanShaderProgram::bind_subpass(const char *subpass_name) {
-        this->subpass_index = vulkan_context->get_render_pass().get_subpass_index_by_name(subpass_name);
-        vulkan_context->get_render_pass().get_subpasses()[this->subpass_index].bind_shader_program(this);
-    }
-
     void VulkanShaderProgram::set_topology(Topology topology) {
         this->topology = topology;
     }

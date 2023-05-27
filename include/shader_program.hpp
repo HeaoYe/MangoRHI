@@ -6,7 +6,6 @@
 namespace MangoRHI {
     class ShaderProgram : public RuntimeComponent {
     public:
-        virtual void bind_subpass(const char *subpass_name) = 0;
         virtual void set_topology(Topology topology) = 0;
         virtual void set_polygon_mode(PolygonMode polygon) = 0;
         virtual void set_front_face(FrontFace front) = 0;
