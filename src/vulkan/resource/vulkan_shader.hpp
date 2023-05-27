@@ -12,5 +12,7 @@ namespace MangoRHI {
     
     define_private_readonly_pointer(char, filename, "")
     define_member(VkShaderModule, shader_module, VK_NULL_HANDLE)
+
+    no_copy_and_move_construction(VulkanShader)
     };
 }

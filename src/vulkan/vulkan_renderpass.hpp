@@ -9,7 +9,6 @@
 namespace MangoRHI {
     class VulkanSubpass {
     public:
-        VulkanSubpass() = default;
         VulkanSubpass(VulkanSubpass &&other);
         void build(const char *name, PipelineBindPoint bind_point, u32 index);
     
@@ -22,6 +21,8 @@ namespace MangoRHI {
     define_extern_writeable_member(STL_IMPL::optional<VkAttachmentReference>, depth_attachment, MANGO_NO_INIT_VAULE)
     define_extern_writeable_member(STL_IMPL::optional<VkAttachmentReference>, resolve_attachment, MANGO_NO_INIT_VAULE)
     define_extern_writeable_pointer(VulkanShaderProgram, shader_program, MANGO_NO_INIT_VAULE)
+
+    no_copy_construction(VulkanSubpass)
     };
 
     class VulkanRenderPass final : public RenderPass {
@@ -53,5 +54,7 @@ namespace MangoRHI {
     define_private_member(STL_IMPL::vector<VkSubpassDependency>, dependencies, MANGO_NO_INIT_VAULE)
     define_member(VkRenderPass, render_pass, VK_NULL_HANDLE)
     define_private_member(VulkanSubpass, temp_subpass, MANGO_NO_INIT_VAULE)
+
+    no_copy_and_move_construction(VulkanRenderPass)
     };
 }

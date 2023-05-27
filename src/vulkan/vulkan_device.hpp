@@ -11,6 +11,9 @@ namespace MangoRHI {
 
         void query_swapchain_details(SwapchainDetails &details) const;
 
+    private:
+        Bool check_physical_device_suitable(const VkPhysicalDevice &physical_device);
+    
     define_readonly_pointer(char, name, "")
     define_member(VkPhysicalDevice, physical_device, VK_NULL_HANDLE)
     define_member(VkDevice, logical_device, VK_NULL_HANDLE)
@@ -22,7 +25,7 @@ namespace MangoRHI {
     define_member(VkQueue, present_queue, VK_NULL_HANDLE)
     define_member(VkQueue, transfer_queue, VK_NULL_HANDLE)
     define_member(VkQueue, compute_queue, VK_NULL_HANDLE)
-    private:
-        Bool check_physical_device_suitable(const VkPhysicalDevice &physical_device);
+    
+    no_copy_and_move_construction(VulkanDevice)
     };
 }

@@ -22,5 +22,7 @@ namespace MangoRHI {
     define_private_member(STL_IMPL::vector<VkImageView>, image_views, MANGO_NO_INIT_VAULE)
     define_extern_writeable_member(VulkanRenderTarget, render_target, MANGO_NO_INIT_VAULE)
     define_private_member(VkSwapchainKHR, swapchain, VK_NULL_HANDLE)
+
+    no_copy_and_move_construction(VulkanSwapchain)
     };
 }

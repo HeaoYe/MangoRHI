@@ -27,7 +27,9 @@ namespace MangoRHI {
         if (is_single_use == MG_TRUE) {
             begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
         }
-        VK_CHECK(vkResetCommandBuffer(command_buffer, 0))
+        else {
+            VK_CHECK(vkResetCommandBuffer(command_buffer, 0))
+        }
         VK_CHECK(vkBeginCommandBuffer(command_buffer, &begin_info))
         _current_subpass = 0;
         
@@ -38,18 +40,23 @@ namespace MangoRHI {
         VK_CHECK(vkEndCommandBuffer(command_buffer))
 
         VkSubmitInfo submit_info { .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO };
-        submit_info.pWaitSemaphores = &vulkan_context->get_synchronization().get_image_available_semaphores()[vulkan_context->get_current_in_flight_frame_index()];
-        submit_info.waitSemaphoreCount = 1;
-        VkPipelineStageFlags stages[] = {
-            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        };
-        submit_info.pWaitDstStageMask = stages;
         submit_info.pCommandBuffers = &command_buffer;
         submit_info.commandBufferCount = 1;
-        submit_info.pSignalSemaphores = &vulkan_context->get_synchronization().get_render_finished_semaphores()[vulkan_context->get_current_in_flight_frame_index()];
-        submit_info.signalSemaphoreCount = 1;
-
-        VK_CHECK(vkQueueSubmit(vulkan_context->get_device().get_graphics_queue(), 1, &submit_info, vulkan_context->get_synchronization().get_fences()[vulkan_context->get_current_in_flight_frame_index()]))
+        if (is_single_use == MG_FALSE) {
+            submit_info.pWaitSemaphores = &vulkan_context->get_synchronization().get_image_available_semaphores()[vulkan_context->get_current_in_flight_frame_index()];
+            submit_info.waitSemaphoreCount = 1;
+            VkPipelineStageFlags stages[] = {
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+            };
+            submit_info.pWaitDstStageMask = stages;
+            submit_info.pSignalSemaphores = &vulkan_context->get_synchronization().get_render_finished_semaphores()[vulkan_context->get_current_in_flight_frame_index()];
+            submit_info.signalSemaphoreCount = 1;
+            VK_CHECK(vkQueueSubmit(vulkan_context->get_device().get_graphics_queue(), 1, &submit_info, vulkan_context->get_synchronization().get_fences()[vulkan_context->get_current_in_flight_frame_index()]))
+        }
+        else {
+            VK_CHECK(vkQueueSubmit(vulkan_context->get_device().get_transfer_queue(), 1, &submit_info, VK_NULL_HANDLE))
+            VK_CHECK(vkQueueWaitIdle(vulkan_context->get_device().get_transfer_queue()))
+        }
 
         return Result::eSuccess;
     }
@@ -62,5 +69,42 @@ namespace MangoRHI {
         if (_current_subpass < vulkan_context->get_render_pass().get_subpasses().size()) {
             vkCmdNextSubpass(command_buffer, VK_SUBPASS_CONTENTS_INLINE);
         }
+    }
+
+    void VulkanCommand::bind_vertex_buffer(const VertexBuffer *vertex_buffer) {
+        VkDeviceSize offset = 0;
+        vkCmdBindVertexBuffers(command_buffer, 0, 1, &((VulkanVertexBuffer *)vertex_buffer)->get_buffer().get_buffer(), &offset);
+    }
+
+    void VulkanCommand::bind_index_buffer(const IndexBuffer *index_buffer) {
+        vkCmdBindIndexBuffer(command_buffer, ((VulkanIndexBuffer *)index_buffer)->get_buffer().get_buffer(), 0, VK_INDEX_TYPE_UINT32);
+    }
+
+    void VulkanCommand::draw_instances(u32 vertex_count, u32 instance_count, u32 first_vertex, u32 first_instance) {
+        vkCmdDraw(command_buffer, vertex_count, instance_count, first_vertex, first_instance);
+    }
+
+    void VulkanCommand::draw_indexed_instances(u32 index_count, u32 instance_count, u32 first_index, u32 first_instance, u32 vertex_offset) {
+        vkCmdDrawIndexed(command_buffer, index_count, instance_count, first_index, vertex_offset, first_instance);
+    }
+
+    void VulkanCommand::set_viewport(Viewport &viewport) {
+        VkViewport vk_viewport {
+            .x = viewport.x,
+            .y = viewport.y,
+            .width = viewport.width,
+            .height = viewport.height,
+            .minDepth = viewport.min_depth,
+            .maxDepth = viewport.max_depth,
+        };
+        vkCmdSetViewport(command_buffer, 0, 1, &vk_viewport);
+    }
+
+    void VulkanCommand::set_scissor(Scissor &scissor) {
+        VkRect2D vk_scissor{
+            .offset = { .x = scissor.x, .y = scissor.y },
+            .extent = { .width = scissor.width, .height = scissor.height },
+        };
+        vkCmdSetScissor(command_buffer, 0, 1, &vk_scissor);
     }
 }

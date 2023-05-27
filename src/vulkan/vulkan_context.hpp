@@ -22,6 +22,8 @@ namespace MangoRHI {
         void set_clear_color(ColorClearValue clear_color) override;
         Shader *create_shader(const char *filename) override;
         void resize(const u32 width, const u32 height) override;
+        const u32 get_width() const override { return extent.width; }
+        const u32 get_height() const override { return extent.height; }
         Result create() override;
         Result destroy() override;
 
@@ -53,6 +55,8 @@ namespace MangoRHI {
     define_private_member(STL_IMPL::vector<VulkanShader *>, shaders, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanCommand *>, commands, MANGO_NO_INIT_VAULE)
     define_member(u32, current_in_flight_frame_index, 0)
+
+    no_copy_and_move_construction(VulkanContext)
     };
 
     extern VulkanContext *vulkan_context;

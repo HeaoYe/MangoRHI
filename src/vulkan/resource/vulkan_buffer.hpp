@@ -22,6 +22,8 @@ namespace MangoRHI {
     define_member(VkDeviceMemory, memory, VK_NULL_HANDLE)
     define_extern_writeable_member(VkBufferUsageFlags, usage, 0)
     define_extern_writeable_member(VkMemoryPropertyFlags, properties, 0)
+
+    no_copy_and_move_construction(VulkanBuffer)
     };
 
     class VulkanVertexBuffer final : public VertexBuffer {
@@ -39,6 +41,8 @@ namespace MangoRHI {
     define_private_member(u32, type_size, MANGO_NO_INIT_VAULE)
     define_member(VulkanBuffer, staging, MANGO_NO_INIT_VAULE)
     define_member(VulkanBuffer, buffer, MANGO_NO_INIT_VAULE)
+
+    no_copy_and_move_construction(VulkanVertexBuffer)
     };
 
     class VulkanIndexBuffer final : public IndexBuffer {
@@ -55,5 +59,7 @@ namespace MangoRHI {
     define_private_member(u32, type_size, sizeof(u32))
     define_member(VulkanBuffer, staging, MANGO_NO_INIT_VAULE)
     define_member(VulkanBuffer, buffer, MANGO_NO_INIT_VAULE)
+
+    no_copy_and_move_construction(VulkanIndexBuffer)
     };
 }

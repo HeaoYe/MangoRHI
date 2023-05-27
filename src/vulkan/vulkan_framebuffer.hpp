@@ -10,5 +10,7 @@ namespace MangoRHI {
         Result destroy() override;
     
     define_member(STL_IMPL::vector<VkFramebuffer>, framebuffers, MANGO_NO_INIT_VAULE)
+
+    no_copy_and_move_construction(VulkanFrameBuffer)
     };
 }

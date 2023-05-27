@@ -74,7 +74,6 @@ namespace MangoRHI {
     }
 
     void VulkanBuffer::copy_from(const Buffer *other, const u64 src_offset, const u64 dst_offset, const u64 size) {
-        vkQueueWaitIdle(vulkan_context->get_device().get_transfer_queue());
         VulkanCommand command;
         vulkan_context->get_command_pool().allocate_single_use(&command);
         VkBufferCopy copy;
@@ -143,7 +142,7 @@ namespace MangoRHI {
         staging.get_usage() = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
         staging.get_properties() = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
         buffer.set_size(size);
-        buffer.get_usage() = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        buffer.get_usage() = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
         buffer.get_properties() = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
         staging.create();
         buffer.create();

@@ -38,5 +38,7 @@ namespace MangoRHI {
     define_private_member(VulkanShaderInfo, vertex_shader, MANGO_NO_INIT_VAULE)
     define_private_member(VulkanShaderInfo, fragment_shader, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkDynamicState>, dynamic_states, MANGO_NO_INIT_VAULE)
+
+    no_copy_and_move_construction(VulkanShaderProgram)
     };
 }

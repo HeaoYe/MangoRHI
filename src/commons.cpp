@@ -97,6 +97,7 @@ namespace MangoRHI {
         buffer.resize(size);
         file.seekg(0);
         file.read(buffer.data(), size);
+        file.close();
         return STL_IMPL::move(buffer);
     }
 }

@@ -17,6 +17,8 @@ namespace MangoRHI {
         virtual void set_clear_color(ColorClearValue clear_color) = 0;
         virtual Shader *create_shader(const char *filename) = 0;
         virtual void resize(const u32 width, const u32 height) = 0;
+        virtual const u32 get_width() const = 0;
+        virtual const u32 get_height() const = 0;
         virtual RenderPass &get_render_pass_reference() = 0;
         virtual Command &get_current_command_reference() = 0;
 
