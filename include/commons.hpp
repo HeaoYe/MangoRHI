@@ -36,6 +36,7 @@
     #include <vector>
     #include <set>
     #include <unordered_map>
+    #include <optional>
 #endif
 
 namespace MangoRHI {
@@ -176,7 +177,6 @@ namespace MangoRHI {
 
     enum class RenderTargetLayout : u32 {
         eUndefined,
-        ePresentSrc,
         eColor
     };
 
@@ -212,7 +212,7 @@ namespace MangoRHI {
 
     MangoRHI_API Result initialize(API api);
     MangoRHI_API Result quit();
-    MangoRHI_API Context* create_context();
+    MangoRHI_API Context* get_context();
 }
 
 #include "logger.hpp"

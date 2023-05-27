@@ -10,7 +10,7 @@ namespace MangoRHI {
 
         virtual void add_input_render_target(const char *render_target_name, RenderTargetLayout ref_layout) = 0;
         virtual void add_output_render_target(const char *render_target_name, RenderTargetLayout ref_layout) = 0;
-        virtual void add_preserve_render_target(const char *render_target_name, RenderTargetLayout ref_layout) = 0;
+        virtual void add_preserve_render_target(const char *render_target_name) = 0;
         virtual void set_depth_render_target(const char *render_target_name, RenderTargetLayout ref_layout) = 0;
         virtual void set_resolve_render_target(const char *render_target_name, RenderTargetLayout ref_layout) = 0;
         virtual void add_subpass(const char *subpass_name, PipelineBindPoint bind_point) = 0;

@@ -1,13 +1,16 @@
 #include "vulkan_commons.hpp"
+#include "vulkan_context.hpp"
 
 namespace MangoRHI {
     Result initialize_vulkan() {
-        RHI_DEBUG("initialize vulkan")
+        RHI_INFO("Initialize vulkan")
+        vulkan_context = new VulkanContext();
         return Result::eSuccess;
     }
 
     Result quit_vulkan() {
-        RHI_DEBUG("quit vulkan")
+        vulkan_context->destroy();
+        RHI_INFO("Quit vulkan")
         return Result::eSuccess;
     }
 
@@ -24,8 +27,6 @@ namespace MangoRHI {
             return VK_IMAGE_LAYOUT_UNDEFINED;
         case RenderTargetLayout::eColor:
             return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        case RenderTargetLayout::ePresentSrc:
-            return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
         }
     }
 

@@ -8,7 +8,7 @@ int main() {
 
     MangoRHI::set_logger_level(MangoRHI::LogLevel::eDebug);
     MangoRHI::initialize(MangoRHI::API::eVulkan);
-    MangoRHI::Context *ctx = MangoRHI::create_context();
+    MangoRHI::Context *ctx = MangoRHI::get_context();
 
     MangoRHI::VulkanContextInfo info;
     info.extensions = glfwGetRequiredInstanceExtensions(&info.extension_count);
@@ -17,23 +17,18 @@ int main() {
         glfwCreateWindowSurface(instance, glfwWindow, allocator, &surface);
         return surface;
     };
-    ctx->set_application_name("MangoRHI Sanbox App");
-    ctx->set_device_name("NVIDIA GeForce RTX 4090");
+    info.app_name = "MangoRHI Sanbox App";
+    info.engine_name = "No Engine";
     ctx->set_api_info(&info);
+    ctx->set_device_name("NVIDIA GeForce RTX 4090");
 
-    ctx->set_clear_color(MangoRHI::ColorClearValue { .r = 0.04f, .g = 0.04f, .b = 0.04f, .a = 1.0f } );
+    ctx->set_clear_color(MangoRHI::ColorClearValue { .r = 0.05f, .g = 0.1f, .b = 0.08f, .a = 1.0f } );
     auto &rp = ctx->get_render_pass_reference();
     rp.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
     rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
     rp.add_dependency({ MANGORHI_EXTERNAL_SUBPASS_NAME, MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eNone }, { "main", MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eColorRenderTargetWrite });
     
     ctx->create();
-
-    glfwSetWindowUserPointer(glfwWindow, ctx);
-    glfwSetFramebufferSizeCallback(glfwWindow, [](GLFWwindow *window, int w, int h) {
-        MangoRHI::Context *ctx = (MangoRHI::Context *)glfwGetWindowUserPointer(window);
-        ctx->resize(static_cast<MangoRHI::u32>(w), static_cast<MangoRHI::u32>(h));
-    });
 
     while (!glfwWindowShouldClose(glfwWindow)) {
         glfwPollEvents();
@@ -47,7 +42,6 @@ int main() {
         }
     }
 
-    ctx->destroy();
     MangoRHI::quit();
 
     glfwDestroyWindow(glfwWindow);

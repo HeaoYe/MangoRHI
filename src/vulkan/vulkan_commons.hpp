@@ -14,9 +14,11 @@ namespace MangoRHI {
 
     using SurfaceCreateFunc = std::function<VkSurfaceKHR(VkInstance &, VkAllocationCallbacks *)>;
     struct VulkanContextInfo {
-        const char **extensions;
-        u32 extension_count;
-        SurfaceCreateFunc surface_create_callback;
+        const char **extensions = nullptr;
+        u32 extension_count = 0;
+        const char *app_name = "";
+        const char *engine_name = "";
+        SurfaceCreateFunc surface_create_callback {};
     };
 
     struct SwapchainDetails {

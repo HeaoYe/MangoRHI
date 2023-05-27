@@ -53,14 +53,14 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
-    MangoRHI_API Context* create_context() {
+    MangoRHI_API Context* get_context() {
         switch (g_api) {
         case API::eNone:
             return nullptr;
         case API::eOpenGL:
             return nullptr;
         case API::eVulkan:
-            return new VulkanContext();
+            return vulkan_context;
         case API::eDirectX:
             return nullptr;
         case API::eMetal:
