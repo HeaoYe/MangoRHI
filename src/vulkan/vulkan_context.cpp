@@ -19,8 +19,8 @@ namespace MangoRHI {
         this->swapchain.set_image_count(count);
     }
 
-    void VulkanContext::set_max_in_flight_image_count(const u32 count) {
-        this->max_in_flight_image_count = count;
+    void VulkanContext::set_max_in_flight_frame_count(const u32 count) {
+        this->max_in_flight_frame_count = count;
     }
 
     void VulkanContext::set_clear_color(ColorClearValue clear_color) {
@@ -28,8 +28,6 @@ namespace MangoRHI {
     }
 
     void VulkanContext::resize(const u32 width, const u32 height) {
-        swapchain.recreate();
-        framebuffer.recreate();
         RHI_DEBUG("Resize to [{}, {}]", extent.width, extent.height)
     }
 
@@ -65,8 +63,9 @@ namespace MangoRHI {
         swapchain.create();
         render_pass.create();
         framebuffer.create();
+        synchronization.create();
         command_pool.create();
-        commands.resize(max_in_flight_image_count);
+        commands.resize(max_in_flight_frame_count);
         for (auto &command : commands) {
             command_pool.allocate(CommandLevel::ePrimary, &command);
         }
@@ -77,11 +76,14 @@ namespace MangoRHI {
     Result VulkanContext::destroy() {
         component_destroy()
 
+        VK_CHECK(vkDeviceWaitIdle(device.get_logical_device()))
+
         for (auto &command : commands) {
             command_pool.free(&command);
         }
         command_pool.destroy();
 
+        synchronization.destroy();
         framebuffer.destroy();
         render_pass.destroy();
         swapchain.destroy();
@@ -104,10 +106,12 @@ namespace MangoRHI {
 
         auto &command = get_current_command();
         if ((res = command.begin_render()) != Result::eSuccess) {
+            RHI_ERROR("Begin command buffer error {}", to_string(res));
             return res;
         }
 
         if ((res = render_pass.begin_render_pass((VulkanCommand *)&command)) != Result::eSuccess) {
+            RHI_ERROR("Begin render pass error {}", to_string(res));
             return res;
         }
         
@@ -119,10 +123,12 @@ namespace MangoRHI {
         auto &command = get_current_command();
 
         if ((res = render_pass.end_render_pass((VulkanCommand *)&command)) != Result::eSuccess) {
+            RHI_ERROR("End render pass error {}", to_string(res));
             return res;
         }
 
         if ((res = get_current_command().end_render()) != Result::eSuccess) {
+            RHI_ERROR("End command buffer error {}", to_string(res));
             return res;
         }
 
@@ -130,7 +136,7 @@ namespace MangoRHI {
             return res;
         }
 
-        _current_in_flight_index = (_current_in_flight_index + 1) % max_in_flight_image_count;
+        current_in_flight_frame_index = (current_in_flight_frame_index + 1) % max_in_flight_frame_count;
 
         return Result::eSuccess;
     }

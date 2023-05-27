@@ -8,17 +8,17 @@
 namespace MangoRHI {
     class VulkanSubpass {
     public:
-        void set_name(const char *name);
         VulkanSubpass() = default;
         VulkanSubpass(VulkanSubpass &&other);
+        void build(const char *name, PipelineBindPoint bind_point);
     
     define_readonly_pointer(char, name, "")
     define_extern_writeable_member(VkSubpassDescription, description, MANGO_NO_INIT_VAULE)
     define_extern_writeable_member(STL_IMPL::vector<VkAttachmentReference>, input_attachment, MANGO_NO_INIT_VAULE)
     define_extern_writeable_member(STL_IMPL::vector<VkAttachmentReference>, output_attachment, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(STL_IMPL::vector<VkAttachmentReference>, preserve_attachment, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(VkAttachmentReference, depth_attachment, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(VkAttachmentReference, resolve_attachment, MANGO_NO_INIT_VAULE)
+    define_extern_writeable_member(STL_IMPL::vector<u32>, preserve_attachment, MANGO_NO_INIT_VAULE)
+    define_extern_writeable_member(STL_IMPL::optional<VkAttachmentReference>, depth_attachment, MANGO_NO_INIT_VAULE)
+    define_extern_writeable_member(STL_IMPL::optional<VkAttachmentReference>, resolve_attachment, MANGO_NO_INIT_VAULE)
     };
 
     class VulkanRenderPass final : public RenderPass {
@@ -27,7 +27,7 @@ namespace MangoRHI {
         
         void add_input_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
         void add_output_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
-        void add_preserve_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
+        void add_preserve_render_target(const char *render_target_name) override;
         void set_depth_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
         void set_resolve_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
         void add_subpass(const char *subpass_name, PipelineBindPoint bind_point) override;

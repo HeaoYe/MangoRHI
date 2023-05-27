@@ -21,7 +21,7 @@ int main() {
     ctx->set_device_name("NVIDIA GeForce RTX 4090");
     ctx->set_api_info(&info);
 
-    ctx->set_clear_color(MangoRHI::ColorClearValue { .r = 0.04f, .g = 0.04f, .b = 0.04f, .a = 1.0f } );
+    ctx->set_clear_color(MangoRHI::ColorClearValue { .r = 1.0f, .g = 1.0f, .b = 0.04f, .a = 1.0f } );
     auto &rp = ctx->get_render_pass_reference();
     rp.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
     rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
@@ -42,6 +42,7 @@ int main() {
             auto &command = ctx->get_current_command();
 
             // TODO: Record Command
+            // vkCmdClearAttachments(((MangoRHI::VulkanCommand &)command).get_command_buffer(), 0, nullptr, 0, nullptr);
 
             ctx->end_frame();
         }

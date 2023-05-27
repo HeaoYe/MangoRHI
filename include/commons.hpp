@@ -36,6 +36,7 @@
     #include <vector>
     #include <set>
     #include <unordered_map>
+    #include <optional>
 #endif
 
 namespace MangoRHI {
@@ -176,7 +177,6 @@ namespace MangoRHI {
 
     enum class RenderTargetLayout : u32 {
         eUndefined,
-        ePresentSrc,
         eColor
     };
 

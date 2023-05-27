@@ -88,7 +88,6 @@ namespace MangoRHI {
         }
 
         render_target.set_name(MANGORHI_SURFACE_RENDER_TARGET_NAME);
-        render_target.set_clear_color(ClearValue { .color = { .r = 0.0f, .g = 0.0f, .b= 0.0f, .a = 1.0f } });
         render_target.set_usage(RenderTargetUsage::eColor);
 
         for (count = 0; count < image_count; count++) {
@@ -141,26 +140,29 @@ namespace MangoRHI {
     };
 
     Result VulkanSwapchain::acquire_next_frame() {
-        image_index = (image_index + 1) % image_count;
-        // auto res = vkAcquireNextImageKHR(vulkan_context->get_device().get_logical_device(), swapchain, UINT64_MAX, VK_NULL_HANDLE, VK_NULL_HANDLE, &image_index);
-        // VK_CHECK(vkDeviceWaitIdle(vulkan_context->get_device().get_logical_device()))
-        // if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR) {
-        //     recreate();
-        //     return Result::eFailed;
-        // }
+        VK_CHECK(vkWaitForFences(vulkan_context->get_device().get_logical_device(), 1, &vulkan_context->get_synchronization().get_fences()[vulkan_context->get_current_in_flight_frame_index()], VK_TRUE, UINT64_MAX))
+
+        auto res = vkAcquireNextImageKHR(vulkan_context->get_device().get_logical_device(), swapchain, UINT64_MAX, vulkan_context->get_synchronization().get_image_available_semaphores()[vulkan_context->get_current_in_flight_frame_index()], VK_NULL_HANDLE, &image_index);
+        if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR) {
+            recreate();
+            vulkan_context->get_framebuffer().recreate();
+            return Result::eFailed;
+        }
+
+        VK_CHECK(vkResetFences(vulkan_context->get_device().get_logical_device(), 1, &vulkan_context->get_synchronization().get_fences()[vulkan_context->get_current_in_flight_frame_index()]))
 
         return Result::eSuccess;
     };
 
     Result VulkanSwapchain::present() {
-        // VkPresentInfoKHR present_info { .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
-        // present_info.pSwapchains = &swapchain;
-        // present_info.swapchainCount = 1;
-        // present_info.pWaitSemaphores = nullptr;
-        // present_info.waitSemaphoreCount = 0;
-        // present_info.pImageIndices = &image_index;
-        // present_info.pResults = nullptr;
-        // vkQueuePresentKHR(vulkan_context->get_device().get_present_queue(), &present_info);
+        VkPresentInfoKHR present_info { .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
+        present_info.pSwapchains = &swapchain;
+        present_info.swapchainCount = 1;
+        present_info.pWaitSemaphores = &vulkan_context->get_synchronization().get_render_finished_semaphores()[vulkan_context->get_current_in_flight_frame_index()];
+        present_info.waitSemaphoreCount = 1;
+        present_info.pImageIndices = &image_index;
+        present_info.pResults = nullptr;
+        vkQueuePresentKHR(vulkan_context->get_device().get_present_queue(), &present_info);
 
         return Result::eSuccess;
     };

@@ -24,8 +24,6 @@ namespace MangoRHI {
             return VK_IMAGE_LAYOUT_UNDEFINED;
         case RenderTargetLayout::eColor:
             return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        case RenderTargetLayout::ePresentSrc:
-            return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
         }
     }
 

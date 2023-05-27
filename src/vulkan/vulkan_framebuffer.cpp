@@ -23,7 +23,7 @@ namespace MangoRHI {
             framebuffer_create_info.pAttachments = attachments.data();
             framebuffer_create_info.attachmentCount = attachments.size();
             VK_CHECK(vkCreateFramebuffer(vulkan_context->get_device().get_logical_device(), &framebuffer_create_info, vulkan_context->get_allocator(), &framebuffers[index]))
-            RHI_DEBUG("Create vulkan framebuffer -> 0x{:x}", (AddrType)framebuffers[index])
+            RHI_DEBUG("Create vulkan framebuffer({}) -> 0x{:x}", index, (AddrType)framebuffers[index])
         }
 
         return Result::eSuccess;
@@ -32,9 +32,9 @@ namespace MangoRHI {
     Result VulkanFrameBuffer::destroy() {
         component_destroy()
 
-        for (auto &framebuffer : framebuffers) {
-            RHI_DEBUG("Destroy vulkan framebuffer -> 0x{:x}", (AddrType)framebuffer)
-            vkDestroyFramebuffer(vulkan_context->get_device().get_logical_device(), framebuffer, vulkan_context->get_allocator());
+        for (u32 index = 0; index < vulkan_context->get_swapchain().get_image_count(); index++) {
+            RHI_DEBUG("Destroy vulkan framebuffer({}) -> 0x{:x}", index, (AddrType)framebuffers[index])
+            vkDestroyFramebuffer(vulkan_context->get_device().get_logical_device(), framebuffers[index], vulkan_context->get_allocator());
         }
 
         return Result::eSuccess;
