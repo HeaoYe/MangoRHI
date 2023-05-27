@@ -71,9 +71,9 @@ namespace MangoRHI {
         }
     }
 
-    void VulkanCommand::bind_vertex_buffer(const VertexBuffer *vertex_buffer) {
+    void VulkanCommand::bind_vertex_buffer(const VertexBuffer *vertex_buffer, u32 binding) {
         VkDeviceSize offset = 0;
-        vkCmdBindVertexBuffers(command_buffer, 0, 1, &((VulkanVertexBuffer *)vertex_buffer)->get_buffer().get_buffer(), &offset);
+        vkCmdBindVertexBuffers(command_buffer, binding, 1, &((VulkanVertexBuffer *)vertex_buffer)->get_buffer().get_buffer(), &offset);
     }
 
     void VulkanCommand::bind_index_buffer(const IndexBuffer *index_buffer) {
@@ -88,7 +88,7 @@ namespace MangoRHI {
         vkCmdDrawIndexed(command_buffer, index_count, instance_count, first_index, vertex_offset, first_instance);
     }
 
-    void VulkanCommand::set_viewport(Viewport &viewport) {
+    void VulkanCommand::set_viewport(const Viewport &viewport) {
         VkViewport vk_viewport {
             .x = viewport.x,
             .y = viewport.y,
@@ -100,7 +100,7 @@ namespace MangoRHI {
         vkCmdSetViewport(command_buffer, 0, 1, &vk_viewport);
     }
 
-    void VulkanCommand::set_scissor(Scissor &scissor) {
+    void VulkanCommand::set_scissor(const Scissor &scissor) {
         VkRect2D vk_scissor{
             .offset = { .x = scissor.x, .y = scissor.y },
             .extent = { .width = scissor.width, .height = scissor.height },

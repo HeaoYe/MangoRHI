@@ -1,4 +1,4 @@
-#include "MangoRHI.hpp"
+#include "MangoRHI/MangoRHI.hpp"
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
 
@@ -77,7 +77,7 @@ int main() {
             auto scissor = MangoRHI::Scissor { 0, 0, ctx->get_width(), ctx->get_height() };
             command.set_viewport(viewport);
             command.set_scissor(scissor);
-            command.bind_vertex_buffer(&vertex_buffer);
+            command.bind_vertex_buffer(&vertex_buffer, 0);
             command.bind_index_buffer(&index_buffer);
             command.draw_indexed_instances(6, 1, 0, 0,  0);
 

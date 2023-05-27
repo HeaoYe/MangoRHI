@@ -42,6 +42,10 @@ if(NOT TARGET spdlog)
     find_package(spdlog REQUIRED)
 endif()
 
+if(NOT TARGET Vulkan)
+    find_package(Vulkan REQUIRED)
+endif()
+
 project(MangoRHI)
 file(GLOB MangoRHIInclude include/*.hpp)
 file(GLOB MangoRHISource src/*.cpp)

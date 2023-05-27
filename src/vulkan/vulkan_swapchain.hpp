@@ -1,7 +1,7 @@
 #pragma once
 
 #include "vulkan_commons.hpp"
-#include "swapchain.hpp"
+#include "MangoRHI/swapchain.hpp"
 #include "resource/vulkan_render_target.hpp"
 
 namespace MangoRHI {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "vulkan_commons.hpp"
-#include "shader_program.hpp"
+#include "MangoRHI/shader_program.hpp"
 #include "resource/vulkan_shader.hpp"
 
 namespace MangoRHI {
@@ -18,8 +18,8 @@ namespace MangoRHI {
         void set_cull_mode(CullMode cull) override;
         void add_vertex_attribute(VertexInputType type, u32 stride) override;
         void add_vertex_binding(VertexInputRate rate) override;
-        void attach_vertex_shader(Shader *shader, const char *entry) override;
-        void attach_fragment_shader(Shader *shader, const char *entry) override;
+        void attach_vertex_shader(const Shader *shader, const char *entry) override;
+        void attach_fragment_shader(const Shader *shader, const char *entry) override;
 
         Result create() override;
         Result destroy() override;

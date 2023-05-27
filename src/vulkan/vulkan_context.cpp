@@ -11,11 +11,11 @@ namespace MangoRHI {
         this->device.set_name(name);
     }
 
-    void VulkanContext::set_swapchain_image_count(const u32 count) {
+    void VulkanContext::set_swapchain_image_count(u32 count) {
         this->swapchain.set_image_count(count);
     }
 
-    void VulkanContext::set_max_in_flight_frame_count(const u32 count) {
+    void VulkanContext::set_max_in_flight_frame_count(u32 count) {
         this->max_in_flight_frame_count = count;
     }
 
@@ -30,7 +30,7 @@ namespace MangoRHI {
         return shader;
     }
 
-    void VulkanContext::resize(const u32 width, const u32 height) {
+    void VulkanContext::resize(u32 width, u32 height) {
         // No Impl For Vulkan
     }
 

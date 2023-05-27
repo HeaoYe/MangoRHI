@@ -1,6 +1,6 @@
 #pragma once
 
-#include "context.hpp"
+#include "MangoRHI/context.hpp"
 #include "vulkan_commons.hpp"
 #include "vulkan_device.hpp"
 #include "vulkan_swapchain.hpp"
@@ -17,11 +17,11 @@ namespace MangoRHI {
     public:
         void set_api_info(const void *info) override;
         void set_device_name(const char *name) override;
-        void set_swapchain_image_count(const u32 count) override;
-        void set_max_in_flight_frame_count(const u32 count) override;
+        void set_swapchain_image_count(u32 count) override;
+        void set_max_in_flight_frame_count(u32 count) override;
         void set_clear_color(ColorClearValue clear_color) override;
         Shader *create_shader(const char *filename) override;
-        void resize(const u32 width, const u32 height) override;
+        void resize(u32 width, u32 height) override;
         const u32 get_width() const override { return extent.width; }
         const u32 get_height() const override { return extent.height; }
         Result create() override;

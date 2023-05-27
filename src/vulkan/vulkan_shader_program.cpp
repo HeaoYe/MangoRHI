@@ -39,14 +39,14 @@ namespace MangoRHI {
         _current_offset = 0;
     }
 
-    void VulkanShaderProgram::attach_vertex_shader(Shader *shader, const char *entry) {
+    void VulkanShaderProgram::attach_vertex_shader(const Shader *shader, const char *entry) {
         this->vertex_shader = VulkanShaderInfo {
             .shader = (VulkanShader *)shader,
             .entry = entry,
         };
     }
 
-    void VulkanShaderProgram::attach_fragment_shader(Shader *shader, const char *entry) {
+    void VulkanShaderProgram::attach_fragment_shader(const Shader *shader, const char *entry) {
         this->fragment_shader = VulkanShaderInfo {
             .shader = (VulkanShader *)shader,
             .entry = entry,

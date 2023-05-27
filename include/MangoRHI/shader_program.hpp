@@ -12,7 +12,7 @@ namespace MangoRHI {
         virtual void set_cull_mode(CullMode cull) = 0;
         virtual void add_vertex_attribute(VertexInputType type, u32 stride) = 0;
         virtual void add_vertex_binding(VertexInputRate rate) = 0;
-        virtual void attach_vertex_shader(Shader *shader, const char *entry) = 0;
-        virtual void attach_fragment_shader(Shader *shader, const char *entry) = 0;
+        virtual void attach_vertex_shader(const Shader *shader, const char *entry) = 0;
+        virtual void attach_fragment_shader(const Shader *shader, const char *entry) = 0;
     };
 }
