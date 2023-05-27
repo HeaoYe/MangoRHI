@@ -53,7 +53,7 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
-    MangoRHI_API Context* get_context() {
+    MangoRHI_API Context *get_context() {
         switch (g_api) {
         case API::eNone:
             return nullptr;
