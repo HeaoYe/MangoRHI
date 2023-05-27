@@ -4,7 +4,7 @@
 
 struct Vertex {
     glm::vec3 pos;
-    // glm::vec3 color;
+    glm::vec3 color;
 };
 
 int main() {
@@ -15,6 +15,10 @@ int main() {
     MangoRHI::set_logger_level(MangoRHI::LogLevel::eDebug);
     MangoRHI::initialize(MangoRHI::API::eVulkan);
     MangoRHI::Context *ctx = MangoRHI::get_context();
+
+    #ifdef MANGO_DEBUG
+    RHI_WARN("Debug Mode")
+    #endif
 
     MangoRHI::VulkanContextInfo info;
     info.extensions = glfwGetRequiredInstanceExtensions(&info.extension_count);
@@ -36,8 +40,8 @@ int main() {
     auto *main_shader_program = rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
     rp.add_dependency({ MANGORHI_EXTERNAL_SUBPASS_NAME, MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eNone }, { "main", MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eColorRenderTargetWrite });
 
-    main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, 12);
-    // main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, 12);
+    main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
+    main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
     main_shader_program->add_vertex_binding(MangoRHI::VertexInputRate::ePerVertex);
     main_shader_program->attach_vertex_shader(ctx->create_shader("examples/Sandbox/assets/vert.spv"), "main");
     main_shader_program->attach_fragment_shader(ctx->create_shader("examples/Sandbox/assets/frag.spv"), "main");
@@ -49,23 +53,17 @@ int main() {
     
     ctx->create();
 
-    // Vertex vertices[] = {
-    //     { { 1, 1, 0 },   { 0, 1, 0 } },
-    //     { { -1, 1, 0 },  { 0, 1, 1 } },
-    //     { { -1, -1, 0 }, { 1, 0, 1 } },
-    //     { { 1, -1, 0 },  { 1, 0, 0 } },
-    // };
-    Vertex vertices[] = {
-        { { 1, 1, 0 } },
-        { { -1, 1, 0 } },
-        { { -1, -1, 0 } },
-        { { 1, -1, 0 } },
+    const std::vector<Vertex> vertices = {
+        { { 0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f } },
+        { { 0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
+        { { -0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
+        { { -0.5f, 0.5f, 0.0f }, { 0.0f, 1.0f, 1.0f } }
     };
     MangoRHI::u32 indices[] = {
         0, 1, 2, 
         0, 3, 2,
     };
-    vertex_buffer.write_data(vertices, 4, 0);
+    vertex_buffer.write_data(vertices.data(), vertices.size(), 0);
     index_buffer.write_data(indices, 6, 0);
 
     while (!glfwWindowShouldClose(glfwWindow)) {
@@ -81,8 +79,7 @@ int main() {
             command.set_scissor(scissor);
             command.bind_vertex_buffer(&vertex_buffer);
             command.bind_index_buffer(&index_buffer);
-            command.draw_indexed_instances(3, 1, 0, 0, 0);
-            // command.draw_indexed_instances(6, 1, 0, 0,  0);
+            command.draw_indexed_instances(6, 1, 0, 0,  0);
 
             ctx->end_frame();
         }
