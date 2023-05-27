@@ -7,6 +7,8 @@ namespace MangoRHI {
     public:
         virtual Result begin_render() = 0;
         virtual Result end_render() = 0;
+
+        virtual void next_subpass() = 0;
         // virtual void set_viewport() = 0;
         // virtual void set_scissor() = 0;
     };

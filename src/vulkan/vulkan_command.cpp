@@ -29,6 +29,7 @@ namespace MangoRHI {
         }
         VK_CHECK(vkResetCommandBuffer(command_buffer, 0))
         VK_CHECK(vkBeginCommandBuffer(command_buffer, &begin_info))
+        _current_subpass = 0;
         
         return Result::eSuccess;
     }
@@ -51,5 +52,15 @@ namespace MangoRHI {
         VK_CHECK(vkQueueSubmit(vulkan_context->get_device().get_graphics_queue(), 1, &submit_info, vulkan_context->get_synchronization().get_fences()[vulkan_context->get_current_in_flight_frame_index()]))
 
         return Result::eSuccess;
+    }
+
+    void VulkanCommand::next_subpass() {
+        const auto &subpass = vulkan_context->get_render_pass().get_subpasses()[_current_subpass];
+        vkCmdBindPipeline(command_buffer, subpass.get_bind_point(), subpass.get_shader_program()->get_pipeline());
+
+        _current_subpass++;
+        if (_current_subpass < vulkan_context->get_render_pass().get_subpasses().size()) {
+            vkCmdNextSubpass(command_buffer, VK_SUBPASS_CONTENTS_INLINE);
+        }
     }
 }

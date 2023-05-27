@@ -4,6 +4,7 @@
 #include "swapchain.hpp"
 #include "renderpass.hpp"
 #include "command.hpp"
+#include "shader_program.hpp"
 
 namespace MangoRHI {
     class Context : public RuntimeComponent {
@@ -13,6 +14,8 @@ namespace MangoRHI {
         virtual void set_swapchain_image_count(const u32 count) = 0;
         virtual void set_max_in_flight_frame_count(const u32 count) = 0;
         virtual void set_clear_color(ColorClearValue clear_color) = 0;
+        virtual Shader *create_shader(const char *filename) = 0;
+        virtual ShaderProgram *create_shader_program() = 0;
         virtual void resize(const u32 width, const u32 height) = 0;
         virtual RenderPass &get_render_pass_reference() = 0;
         virtual Command &get_current_command() = 0;

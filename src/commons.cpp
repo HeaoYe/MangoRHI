@@ -53,7 +53,7 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
-    MangoRHI_API Context* get_context() {
+    MangoRHI_API Context *get_context() {
         switch (g_api) {
         case API::eNone:
             return nullptr;
@@ -85,4 +85,18 @@ namespace MangoRHI {
     }
     
     #undef case_result
+
+    STL_IMPL::vector<char> read_binary_file(const char *filename) {
+        std::ifstream file(filename, std::ios::binary | std::ios::ate);
+        STL_IMPL::vector<char> buffer(0);
+        if (!file.is_open()) {
+            RHI_ERROR("Failed open binary file {}", filename)
+            return STL_IMPL::move(buffer);
+        }
+        u32 size = file.tellg();
+        buffer.resize(size);
+        file.seekg(0);
+        file.read(buffer.data(), size);
+        return STL_IMPL::move(buffer);
+    }
 }

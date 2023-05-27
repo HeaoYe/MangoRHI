@@ -14,10 +14,12 @@ namespace MangoRHI {
         Result begin_render() override;
         Result end_render() override;
 
+        void next_subpass() override;
         // void set_viewport() override;
         // void set_scissor() override;
     
     define_member(VkCommandBuffer, command_buffer, VK_NULL_HANDLE)
     define_member(Bool, is_single_use, MG_FALSE)
+    define_private_member(u32, _current_subpass, 0)
     };
 }

@@ -11,9 +11,9 @@ namespace MangoRHI {
         this->input_attachment = STL_IMPL::move(other.input_attachment);
         this->output_attachment = STL_IMPL::move(other.output_attachment);
         this->preserve_attachment = STL_IMPL::move(other.preserve_attachment);
-        this->depth_attachment = other.depth_attachment;
+        this->depth_attachment = STL_IMPL::move(other.depth_attachment);
         other.depth_attachment = VkAttachmentReference {};
-        this->resolve_attachment = other.resolve_attachment;
+        this->resolve_attachment = STL_IMPL::move(other.resolve_attachment);
         other.resolve_attachment = VkAttachmentReference {};
     }
 
@@ -31,7 +31,12 @@ namespace MangoRHI {
         if (resolve_attachment.has_value()) {
             description.pResolveAttachments = &resolve_attachment.value();
         }
-        description.pipelineBindPoint = pipeline_bind_point2vk_pipeline_bind_point(bind_point);
+        this->bind_point = pipeline_bind_point2vk_pipeline_bind_point(bind_point);
+        description.pipelineBindPoint = this->bind_point;
+    }
+
+    void VulkanSubpass::bind_shader_program(VulkanShaderProgram *shader_program) {
+        this->shader_program = shader_program;
     }
 
     u32 VulkanRenderPass::get_render_target_index_by_name(const char *render_target_name) {

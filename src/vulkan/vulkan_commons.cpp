@@ -63,4 +63,74 @@ namespace MangoRHI {
             return VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
         }
     }
+
+    VkPrimitiveTopology topology2vk_primitive_topology(Topology topology) {
+        switch (topology) {
+        case Topology::ePointList:
+            return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+        case Topology::eLineList:
+            return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+        case Topology::eTriangleList:
+            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        }
+    }
+    
+    VkPolygonMode polygon2vk_polygon_mode(PolygonMode polygon) {
+        switch (polygon) {
+        case PolygonMode::ePoint:
+            return VK_POLYGON_MODE_POINT;
+        case PolygonMode::eLine:
+            return VK_POLYGON_MODE_LINE;
+        case PolygonMode::eFill:
+            return VK_POLYGON_MODE_FILL;
+        }
+    }
+    
+    VkFrontFace front_face2vk_front_face(FrontFace front) {
+        switch (front) {
+        case FrontFace::eCouterClockwise:
+            return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+        case FrontFace::eClockwise:
+            return VK_FRONT_FACE_CLOCKWISE;
+        }
+    }
+
+    VkCullModeFlags cull_mode2vk_cull_mode_flags(CullMode cull) {
+        switch (cull) {
+        case CullMode::eNone:
+            return VK_CULL_MODE_NONE;
+        case CullMode::eBack:
+            return VK_CULL_MODE_BACK_BIT;
+        case CullMode::eFront:
+            return VK_CULL_MODE_FRONT_BIT;
+        case CullMode::eAll:
+            return VK_CULL_MODE_FRONT_AND_BACK;
+        }
+    }
+
+    VkFormat vertex_input_type2vk_format(VertexInputType type) {
+        switch (type) {
+        case VertexInputType::eInt2:
+            return VK_FORMAT_R32G32_SINT;
+        case VertexInputType::eInt3:
+            return VK_FORMAT_R32G32B32_SINT;
+        case VertexInputType::eInt4:
+            return VK_FORMAT_R32G32B32A32_SINT;
+        case VertexInputType::eFloat2:
+            return VK_FORMAT_R32G32_SFLOAT;
+        case VertexInputType::eFloat3:
+            return VK_FORMAT_R32G32B32_SFLOAT;
+        case VertexInputType::eFloat4:
+            return VK_FORMAT_R32G32B32A32_SFLOAT;
+        }
+    }
+
+    VkVertexInputRate vertex_input_rate2vk_vertex_input_rate(VertexInputRate rate) {
+        switch (rate) {
+        case VertexInputRate::ePerVertex:
+            return VK_VERTEX_INPUT_RATE_VERTEX;
+        case VertexInputRate::ePerInstance:
+            return VK_VERTEX_INPUT_RATE_INSTANCE;
+        }
+    }
 }
