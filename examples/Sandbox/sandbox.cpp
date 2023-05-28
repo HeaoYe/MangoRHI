@@ -35,15 +35,31 @@ int main() {
     auto *main_shader_program = rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
     rp.add_dependency({ MANGORHI_EXTERNAL_SUBPASS_NAME, MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eNone }, { "main", MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eColorRenderTargetWrite });
 
+    auto *sampler = ctx->create_sampler();
+    auto *t_61 = ctx->create_texture();
+    auto *t_paper_plane= ctx->create_texture();
+    auto *t_dance = ctx->create_texture();
+    auto *t_dhl = ctx->create_texture();
+    t_61->set_filename("examples/Sandbox/assets/textures/61.png");
+    t_61->bind_sampler(sampler);
+    t_paper_plane->set_filename("examples/Sandbox/assets/textures/paper plane.png");
+    t_paper_plane->bind_sampler(sampler);
+    t_dance->set_filename("examples/Sandbox/assets/textures/dance.png");
+    t_dance->bind_sampler(sampler);
+    t_dhl->set_filename("examples/Sandbox/assets/textures/dhl.png");
+    t_dhl->bind_sampler(sampler);
+    MangoRHI::Texture* textures[] = { t_61, t_paper_plane, t_dance, t_dhl };
+
     main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
     main_shader_program->add_vertex_binding(MangoRHI::VertexInputRate::ePerVertex);
     main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
     main_shader_program->add_vertex_binding(MangoRHI::VertexInputRate::ePerInstance);
-    main_shader_program->attach_vertex_shader(ctx->create_shader("examples/Sandbox/assets/vert.spv"), "main");
-    main_shader_program->attach_fragment_shader(ctx->create_shader("examples/Sandbox/assets/frag.spv"), "main");
+    main_shader_program->attach_vertex_shader(ctx->create_shader("examples/Sandbox/assets/shaders/vert.spv"), "main");
+    main_shader_program->attach_fragment_shader(ctx->create_shader("examples/Sandbox/assets/shaders/frag.spv"), "main");
     main_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
     auto *ds = main_shader_program->create_descriptor_set();
     ds->add_uniform(MangoRHI::DescriptorStage::eVertex, sizeof(float) * 2, 2);
+    ds->add_textures(MangoRHI::DescriptorStage::eFragment, textures, 4);
 
     auto *vertex_buffer = ctx->create_vertex_buffer();
     auto *color_buffer = ctx->create_vertex_buffer();

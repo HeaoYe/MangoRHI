@@ -15,7 +15,10 @@ vec2 pos[] = vec2[](
     vec2(-1, 1)
 );
 
+
 layout(location = 0) out vec3 frag_color;
+layout(location = 1) out vec2 frag_uv;
+layout(location = 2) out float tex_index;
 
 void main() {
     vec3 offset = vec3(pos[gl_InstanceIndex], 0) ;
@@ -31,4 +34,6 @@ void main() {
     );
     gl_Position = vec4((rotate0 * in_pos * srt[0].scale + rotate1 * offset * srt[1].scale), 1);
     frag_color = in_color;
+    frag_uv = in_pos.xy + 0.5;
+    tex_index = gl_InstanceIndex;
 }

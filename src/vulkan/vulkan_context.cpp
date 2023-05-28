@@ -44,6 +44,18 @@ namespace MangoRHI {
         return index_buffer;
     }
 
+    Sampler *VulkanContext::create_sampler() {
+        auto *sampler = new VulkanSampler();
+        samplers.push_back(sampler);
+        return sampler;
+    }
+
+    Texture *VulkanContext::create_texture() {
+        auto *texture = new VulkanTexture();
+        textures.push_back(texture);
+        return texture;
+    }
+
     void VulkanContext::resize(u32 width, u32 height) {
         // No Impl For Vulkan
     }
@@ -78,14 +90,20 @@ namespace MangoRHI {
 
         device.create();
         swapchain.create();
+        command_pool.create();
         for (auto &shader : shaders) {
             shader->create();
+        }
+        for (auto &sampler : samplers) {
+            sampler->create();
+        }
+        for (auto &texture : textures) {
+            texture->create();
         }
         descriptor_pool.create();
         render_pass.create();
         framebuffer.create();
         synchronization.create();
-        command_pool.create();
         for (u32 index = 0; index < max_in_flight_frame_count; index++) {
             auto *command = new VulkanCommand();
             commands.push_back(command);
@@ -119,10 +137,16 @@ namespace MangoRHI {
         synchronization.destroy();
         framebuffer.destroy();
         render_pass.destroy();
-        command_pool.destroy();
+        for (auto &texture : textures) {
+            texture->destroy();
+        }
+        for (auto &sampler : samplers) {
+            sampler->destroy();
+        }
         for (auto &shader : shaders) {
             shader->destroy();
         }
+        command_pool.destroy();
         swapchain.destroy();
         device.destroy();
 
@@ -212,5 +236,45 @@ namespace MangoRHI {
         }
         RHI_ERROR("Cannot find suitable memory type")
         return -1;
+    }
+
+    void VulkanContext::transition_image_layout(VkImage image, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout) const {
+        VkAccessFlags src_access, dst_access;
+        VkPipelineStageFlags src_stage, dst_stage;
+        if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+            src_access = 0;
+            dst_stage = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+            src_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            dst_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        } else if (old_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && new_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+            src_access = VK_ACCESS_TRANSFER_WRITE_BIT;
+            dst_stage = VK_ACCESS_SHADER_READ_BIT;
+
+            src_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+            dst_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        } else {
+            RHI_ERROR("Unsupported layout transition");
+        }
+
+        VulkanCommand command;
+        command_pool.allocate_single_use(&command);
+        VkImageMemoryBarrier barrier { .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+        barrier.oldLayout = old_layout;
+        barrier.newLayout = new_layout;
+        barrier.srcAccessMask = src_access;
+        barrier.dstAccessMask = dst_access;
+        barrier.image = image;
+        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.subresourceRange = VkImageSubresourceRange {
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1,
+        };
+        vkCmdPipelineBarrier(command.get_command_buffer(), src_stage, dst_stage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+        command_pool.free(&command);
     }
 }

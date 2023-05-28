@@ -20,10 +20,10 @@ namespace MangoRHI {
 
         VkMemoryRequirements requirements;
         vkGetBufferMemoryRequirements(vulkan_context->get_device().get_logical_device(), buffer, &requirements);
-        VkMemoryAllocateInfo allocateInfo { .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-        allocateInfo.allocationSize = requirements.size;
-        allocateInfo.memoryTypeIndex = vulkan_context->find_memory_index(requirements.memoryTypeBits, properties);
-        VK_CHECK(vkAllocateMemory(vulkan_context->get_device().get_logical_device(), &allocateInfo, vulkan_context->get_allocator(), &memory));
+        VkMemoryAllocateInfo allocate_info { .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+        allocate_info.allocationSize = requirements.size;
+        allocate_info.memoryTypeIndex = vulkan_context->find_memory_index(requirements.memoryTypeBits, properties);
+        VK_CHECK(vkAllocateMemory(vulkan_context->get_device().get_logical_device(), &allocate_info, vulkan_context->get_allocator(), &memory));
         RHI_DEBUG("Allocate vulkan device memory -> 0x{:x}", (AddrType)memory)
 
         vkBindBufferMemory(vulkan_context->get_device().get_logical_device(), buffer, memory, 0);

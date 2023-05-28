@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <stb/stb_image.h>
 
 #if defined (USE_EASTL)
     #define STL_IMPL eastl
@@ -249,6 +250,27 @@ namespace MangoRHI {
         eVertex,
         eFragment,
         eVertexAndFragment,
+    };
+
+    enum class SamplerFilter : u32 {
+        eNearest,
+        eLinear,
+    };
+
+    enum class SamplerAddressMode : u32 {
+        eRepeat,
+        eMirroredRepeat,
+        eClampToEdge,
+        eClampToBorder,
+    };
+
+    enum class SamplerBorderColor : u32 {
+        eFloatTransparentBlack,
+        eIntTransparentBlack,
+        eFloatOpaqueBlack,
+        eIntOpaqueBlack,
+        eFloatOpaqueWhite,
+        eIntOpaqueWhite,
     };
 
     struct Viewport {

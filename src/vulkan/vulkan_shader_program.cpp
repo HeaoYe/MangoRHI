@@ -123,10 +123,10 @@ namespace MangoRHI {
         depth_stencil_state.stencilTestEnable = VK_FALSE;
         depth_stencil_state.depthTestEnable = VK_FALSE;
 
-        VkPipelineColorBlendStateCreateInfo color_blend_state { .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
         VkPipelineColorBlendAttachmentState color_blend_attachment {};
         color_blend_attachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
         color_blend_attachment.blendEnable = VK_FALSE;
+        VkPipelineColorBlendStateCreateInfo color_blend_state { .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
         color_blend_state.logicOpEnable = VK_FALSE;
         color_blend_state.attachmentCount = 1;
         color_blend_state.pAttachments = &color_blend_attachment;
