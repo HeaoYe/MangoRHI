@@ -133,4 +133,15 @@ namespace MangoRHI {
             return VK_VERTEX_INPUT_RATE_INSTANCE;
         }
     }
+
+    VkShaderStageFlags descriptor_stage2vk_shader_stage_flags(DescriptorStage stage) {
+        switch (stage) {
+        case DescriptorStage::eVertex:
+            return VK_SHADER_STAGE_VERTEX_BIT;
+        case DescriptorStage::eFragment:
+            return VK_SHADER_STAGE_FRAGMENT_BIT;
+        case DescriptorStage::eVertexAndFragment:
+            return VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+        }
+    }
 }

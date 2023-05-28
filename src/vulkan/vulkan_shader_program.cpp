@@ -53,6 +53,12 @@ namespace MangoRHI {
         };
     }
 
+    DescriptorSet *VulkanShaderProgram::create_descriptor_set() {
+        auto *descriptor_set = new VulkanDescriptorSet();
+        vulkan_descriptor_sets.push_back(descriptor_set);
+        return descriptor_set;
+    }
+
     Result VulkanShaderProgram::create() {
         component_create()
 
@@ -132,9 +138,14 @@ namespace MangoRHI {
         dynamic_state.pDynamicStates = dynamic_states.data();
         dynamic_state.dynamicStateCount = dynamic_states.size();
 
+        for (const auto &descriptor_set : vulkan_descriptor_sets) {
+            descriptor_set_layouts.push_back(descriptor_set->get_layout());
+            descriptor_sets.push_back(descriptor_set->get_descriptor_set());
+        }
+
         VkPipelineLayoutCreateInfo layout_create_info { .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-        layout_create_info.pSetLayouts = nullptr;
-        layout_create_info.setLayoutCount = 0;
+        layout_create_info.pSetLayouts = descriptor_set_layouts.data();
+        layout_create_info.setLayoutCount = descriptor_set_layouts.size();
         layout_create_info.pPushConstantRanges = nullptr;
         layout_create_info.pushConstantRangeCount = 0;
         VK_CHECK(vkCreatePipelineLayout(vulkan_context->get_device().get_logical_device(), &layout_create_info, vulkan_context->get_allocator(), &layout))

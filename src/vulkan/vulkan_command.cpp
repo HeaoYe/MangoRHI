@@ -63,7 +63,11 @@ namespace MangoRHI {
 
     void VulkanCommand::next_subpass() {
         const auto &subpass = vulkan_context->get_render_pass().get_subpasses()[_current_subpass];
-        vkCmdBindPipeline(command_buffer, subpass.get_bind_point(), subpass.get_shader_program()->get_pipeline());
+        const auto *shader_program = subpass.get_shader_program();
+        vkCmdBindPipeline(command_buffer, subpass.get_bind_point(), shader_program->get_pipeline());
+        if (shader_program->get_descriptor_sets().size() > 0) {
+            vkCmdBindDescriptorSets(command_buffer, subpass.get_bind_point(), shader_program->get_layout(), 0, shader_program->get_descriptor_sets().size(), shader_program->get_descriptor_sets().data(), 0, 0);
+        }
 
         _current_subpass++;
         if (_current_subpass < vulkan_context->get_render_pass().get_subpasses().size()) {

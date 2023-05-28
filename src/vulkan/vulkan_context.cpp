@@ -67,6 +67,7 @@ namespace MangoRHI {
         for (auto &shader : shaders) {
             shader->create();
         }
+        descriptor_pool.create();
         render_pass.create();
         framebuffer.create();
         synchronization.create();
@@ -89,17 +90,16 @@ namespace MangoRHI {
 
         VK_CHECK(vkDeviceWaitIdle(device.get_logical_device()))
 
+        descriptor_pool.destroy();
         vertex_buffer.destroy();
         index_buffer.destroy();
-
         for (auto &command : commands) {
             command_pool.free(command);
         }
-        command_pool.destroy();
-
         synchronization.destroy();
         framebuffer.destroy();
         render_pass.destroy();
+        command_pool.destroy();
         for (auto &shader : shaders) {
             shader->destroy();
         }

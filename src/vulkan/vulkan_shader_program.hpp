@@ -3,6 +3,7 @@
 #include "vulkan_commons.hpp"
 #include "MangoRHI/shader_program.hpp"
 #include "resource/vulkan_shader.hpp"
+#include "vulkan_descriptor_set.hpp"
 
 namespace MangoRHI {
     struct VulkanShaderInfo {
@@ -20,13 +21,17 @@ namespace MangoRHI {
         void add_vertex_binding(VertexInputRate rate) override;
         void attach_vertex_shader(const Shader *shader, const char *entry) override;
         void attach_fragment_shader(const Shader *shader, const char *entry) override;
+        DescriptorSet *create_descriptor_set() override;
 
         Result create() override;
         Result destroy() override;
 
     define_member(VkPipelineLayout, layout, VK_NULL_HANDLE)
     define_member(VkPipeline, pipeline, VK_NULL_HANDLE)
+    define_member(STL_IMPL::vector<VkDescriptorSetLayout>, descriptor_set_layouts, MANGO_NO_INIT_VAULE)
+    define_member(STL_IMPL::vector<VkDescriptorSet>, descriptor_sets, MANGO_NO_INIT_VAULE)
     define_extern_writeable_member(u32, subpass_index, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<VulkanDescriptorSet *>, vulkan_descriptor_sets, MANGO_NO_INIT_VAULE)
     define_private_member(Topology, topology, Topology::eTriangleList)
     define_private_member(PolygonMode, polygon, PolygonMode::eFill)
     define_private_member(FrontFace, front, FrontFace::eClockwise)

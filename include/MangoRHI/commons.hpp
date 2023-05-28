@@ -245,6 +245,16 @@ namespace MangoRHI {
         ePerInstance,
     };
 
+    enum class DescriptorUsage : u32 {
+        eUniform,
+    };
+    
+    enum class DescriptorStage : u32 {
+        eVertex,
+        eFragment,
+        eVertexAndFragment,
+    };
+
     struct Viewport {
         f32 x, y;
         f32 width, height;

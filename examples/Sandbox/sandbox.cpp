@@ -46,6 +46,8 @@ int main() {
     main_shader_program->attach_vertex_shader(ctx->create_shader("examples/Sandbox/assets/vert.spv"), "main");
     main_shader_program->attach_fragment_shader(ctx->create_shader("examples/Sandbox/assets/frag.spv"), "main");
     main_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
+    auto *ds = main_shader_program->create_descriptor_set();
+    ds->add_descriptor(MangoRHI::DescriptorUsage::eUniform, MangoRHI::DescriptorStage::eVertex, 1);
 
     auto &vertex_buffer = ctx->get_vertex_buffer_reference();
     auto &index_buffer = ctx->get_index_buffer_reference();
