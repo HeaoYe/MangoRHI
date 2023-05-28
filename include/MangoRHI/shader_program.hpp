@@ -11,6 +11,8 @@ namespace MangoRHI {
         virtual void set_polygon_mode(PolygonMode polygon) = 0;
         virtual void set_front_face(FrontFace front) = 0;
         virtual void set_cull_mode(CullMode cull) = 0;
+        virtual void set_depth_test_enabled(Bool enabled) = 0;
+        virtual void set_depth_compare_op(DepthCompareOp op) = 0;
         virtual void add_vertex_attribute(VertexInputType type, u32 stride) = 0;
         virtual void add_vertex_binding(VertexInputRate rate) = 0;
         virtual void attach_vertex_shader(const Shader *shader, const char *entry) = 0;

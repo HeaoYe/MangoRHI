@@ -23,6 +23,12 @@ namespace MangoRHI {
         this->swapchain.get_render_target().set_clear_color(ClearValue { .color = clear_color });
     }
 
+    RenderTarget *VulkanContext::create_render_target() {
+        auto *render_target = new VulkanRenderTarget();
+        render_targets.push_back(render_target);
+        return render_target;
+    }
+
     Shader *VulkanContext::create_shader(const char *filename) {
         auto *shader = new VulkanShader();
         shaders.push_back(shader);
@@ -91,6 +97,9 @@ namespace MangoRHI {
         device.create();
         swapchain.create();
         command_pool.create();
+        for (auto &render_target : render_targets) {
+            render_target->create();
+        }
         for (auto &shader : shaders) {
             shader->create();
         }
@@ -145,6 +154,9 @@ namespace MangoRHI {
         }
         for (auto &shader : shaders) {
             shader->destroy();
+        }
+        for (auto &render_target : render_targets) {
+            render_target->destroy();
         }
         command_pool.destroy();
         swapchain.destroy();
@@ -239,8 +251,8 @@ namespace MangoRHI {
     }
 
     void VulkanContext::transition_image_layout(VkImage image, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout) const {
-        VkAccessFlags src_access, dst_access;
-        VkPipelineStageFlags src_stage, dst_stage;
+        VkAccessFlags src_access = 0, dst_access = 0;
+        VkPipelineStageFlags src_stage = 0, dst_stage = 0;
         if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
             src_access = 0;
             dst_stage = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -253,6 +265,12 @@ namespace MangoRHI {
 
             src_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
             dst_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        } else if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+            src_access = 0;
+            dst_access = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+            src_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            dst_stage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         } else {
             RHI_ERROR("Unsupported layout transition");
         }
@@ -268,12 +286,19 @@ namespace MangoRHI {
         barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.subresourceRange = VkImageSubresourceRange {
-            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
             .baseMipLevel = 0,
             .levelCount = 1,
             .baseArrayLayer = 0,
             .layerCount = 1,
         };
+        if (new_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+            barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+            // if (hasStencilComponent(format)) {
+            //     barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+            // }
+        } else {
+            barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        }
         vkCmdPipelineBarrier(command.get_command_buffer(), src_stage, dst_stage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
         command_pool.free(&command);
     }

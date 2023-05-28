@@ -18,6 +18,14 @@ namespace MangoRHI {
         this->cull = cull;
     }
 
+    void VulkanShaderProgram::set_depth_test_enabled(Bool enabled) {
+        this->depth_test_enabled = enabled;
+    }
+
+    void VulkanShaderProgram::set_depth_compare_op(DepthCompareOp op) {
+        this->compare_op = op;
+    }
+
     void VulkanShaderProgram::add_vertex_attribute(VertexInputType type, u32 stride) {
         this->attributes.push_back(VkVertexInputAttributeDescription {
             .location = _current_location,
@@ -120,8 +128,15 @@ namespace MangoRHI {
         multisample_state.sampleShadingEnable = VK_FALSE;
 
         VkPipelineDepthStencilStateCreateInfo depth_stencil_state { .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
+        if (depth_test_enabled == MG_TRUE) {
+            depth_stencil_state.depthTestEnable = VK_TRUE;
+            depth_stencil_state.depthWriteEnable = VK_TRUE;
+            depth_stencil_state.depthCompareOp = depth_compare_op2vk_compare_op(compare_op);
+            depth_stencil_state.depthBoundsTestEnable = VK_FALSE;
+        } else {
+            depth_stencil_state.depthTestEnable = VK_FALSE;
+        }
         depth_stencil_state.stencilTestEnable = VK_FALSE;
-        depth_stencil_state.depthTestEnable = VK_FALSE;
 
         VkPipelineColorBlendAttachmentState color_blend_attachment {};
         color_blend_attachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;

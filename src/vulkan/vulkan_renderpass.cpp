@@ -3,22 +3,6 @@
 #include "vulkan_context.hpp"
 
 namespace MangoRHI {
-    VulkanSubpass::VulkanSubpass(VulkanSubpass &&other) {
-        this->name = other.name;
-        other.name = nullptr;
-        this->description = other.description;
-        other.description = VkSubpassDescription {};
-        this->input_attachment = STL_IMPL::move(other.input_attachment);
-        this->output_attachment = STL_IMPL::move(other.output_attachment);
-        this->preserve_attachment = STL_IMPL::move(other.preserve_attachment);
-        this->depth_attachment = STL_IMPL::move(other.depth_attachment);
-        other.depth_attachment = VkAttachmentReference {};
-        this->resolve_attachment = STL_IMPL::move(other.resolve_attachment);
-        other.resolve_attachment = VkAttachmentReference {};
-        this->shader_program = other.shader_program;
-        other.shader_program = nullptr;
-    }
-
     void VulkanSubpass::build(const char *name, PipelineBindPoint bind_point, u32 index) {
         this->name = name;
         description.pInputAttachments = input_attachment.data();
@@ -55,7 +39,7 @@ namespace MangoRHI {
 
     VkAttachmentReference VulkanRenderPass::get_render_target_ref(const char *render_target_name, RenderTargetLayout ref_layout) {
         u32 attachment = get_render_target_index_by_name(render_target_name);
-        if (attachment != 0 && attachment == render_targets.size()) {
+        if (attachment != 0 && attachment == render_targets.size() + 1) {
             RHI_ERROR("RenderTarget {} not found", render_target_name)
         }
         return VkAttachmentReference {
@@ -70,7 +54,7 @@ namespace MangoRHI {
         }
         u32 index = 0;
         for (const auto &subpass : subpasses) {
-            if (strcmp(subpass.get_name(), subpass_name) == 0) {
+            if (strcmp(subpass->get_name(), subpass_name) == 0) {
                 break;
             }
             index++;
@@ -88,23 +72,23 @@ namespace MangoRHI {
     }
 
     void VulkanRenderPass::add_input_render_target(const char *render_target_name, RenderTargetLayout ref_layout) {
-        temp_subpass.get_input_attachment().push_back(get_render_target_ref(render_target_name, ref_layout));
+        temp_subpass->get_input_attachment().push_back(get_render_target_ref(render_target_name, ref_layout));
     }
 
     void VulkanRenderPass::add_output_render_target(const char *render_target_name, RenderTargetLayout ref_layout) {
-        temp_subpass.get_output_attachment().push_back(get_render_target_ref(render_target_name, ref_layout));
+        temp_subpass->get_output_attachment().push_back(get_render_target_ref(render_target_name, ref_layout));
     }
 
     void VulkanRenderPass::add_preserve_render_target(const char *render_target_name) {
-        temp_subpass.get_preserve_attachment().push_back(get_render_target_index_by_name(render_target_name));
+        temp_subpass->get_preserve_attachment().push_back(get_render_target_index_by_name(render_target_name));
     }
 
     void VulkanRenderPass::set_depth_render_target(const char *render_target_name, RenderTargetLayout ref_layout) {
-        temp_subpass.get_depth_attachment() = get_render_target_ref(render_target_name, ref_layout);
+        temp_subpass->get_depth_attachment() = get_render_target_ref(render_target_name, ref_layout);
     }
 
     void VulkanRenderPass::set_resolve_render_target(const char *render_target_name, RenderTargetLayout ref_layout) {
-        temp_subpass.get_resolve_attachment() = get_render_target_ref(render_target_name, ref_layout);
+        temp_subpass->get_resolve_attachment() = get_render_target_ref(render_target_name, ref_layout);
     }
 
     ShaderProgram *VulkanRenderPass::add_subpass(const char *subpass_name, PipelineBindPoint bind_point) {
@@ -112,9 +96,10 @@ namespace MangoRHI {
         if (index == VK_SUBPASS_EXTERNAL || index < subpasses.size()) {
             RHI_ERROR("Subpass {} is existed", subpass_name)
         }
-        temp_subpass.build(subpass_name, bind_point, index);
-        subpasses.push_back(STL_IMPL::move(temp_subpass));
-        return subpasses[subpasses.size() - 1].get_shader_program();
+        temp_subpass->build(subpass_name, bind_point, index);
+        subpasses.push_back(temp_subpass);
+        temp_subpass = new VulkanSubpass();
+        return subpasses[subpasses.size() - 1]->get_shader_program();
     }
 
     void VulkanRenderPass::add_dependency(SubpassStageInfo src_subpass_info, SubpassStageInfo dst_subpass_info) {
@@ -145,7 +130,7 @@ namespace MangoRHI {
             attachment_descriptions.push_back(render_target->get_description());
         }
         for (const auto &subpass : subpasses) {
-            subpass_descriptions.push_back(subpass.get_description());
+            subpass_descriptions.push_back(subpass->get_description());
         }
 
         VkRenderPassCreateInfo render_pass_create_info { .sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO };
@@ -160,7 +145,7 @@ namespace MangoRHI {
         RHI_DEBUG("Create vulkan render pass -> 0x{:x}", (AddrType)render_pass)
 
         for (auto &subpass : subpasses) {
-            subpass.get_shader_program()->create();
+            subpass->get_shader_program()->create();
         }
 
         return Result::eSuccess;
@@ -170,7 +155,7 @@ namespace MangoRHI {
         component_destroy()
 
         for (auto &subpass : subpasses) {
-            subpass.get_shader_program()->destroy();
+            subpass->get_shader_program()->destroy();
         }
 
         RHI_DEBUG("Destroy vulkan render pass -> 0x{:x}", (AddrType)render_pass)

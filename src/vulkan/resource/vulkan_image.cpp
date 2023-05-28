@@ -7,10 +7,6 @@ namespace MangoRHI {
         this->height = height;
     }
 
-    void VulkanImage::set_staging_buffer(VulkanBuffer *staging) {
-        this->staging = staging;
-    }
-
     Result VulkanImage::create() {
         component_create()
 
@@ -40,7 +36,7 @@ namespace MangoRHI {
 
         vkBindImageMemory(vulkan_context->get_device().get_logical_device(), image, memory, 0);
 
-        image_view = vulkan_context->create_image_view(image, format, VK_IMAGE_ASPECT_COLOR_BIT);
+        image_view = vulkan_context->create_image_view(image, format, aspect);
         RHI_DEBUG("Create vulkan image view -> 0x{:x}", (AddrType)image_view)
 
         return Result::eSuccess;

@@ -57,6 +57,7 @@ namespace MangoRHI {
     constexpr Bool MG_FALSE = 0;
     constexpr Bool MG_TRUE = 1;
     typedef u64 AddrType;
+    #define BIT(x) (1 << x)
 
     enum class API : u32 {
         eNone,
@@ -180,7 +181,8 @@ namespace MangoRHI {
 
     enum class RenderTargetLayout : u32 {
         eUndefined,
-        eColor
+        eColor,
+        eDepth,
     };
 
     enum class PipelineBindPoint : u32 {
@@ -189,18 +191,23 @@ namespace MangoRHI {
     };
     
     enum class PipelineStage : u32 {
-        eColorOutput,
+        eNone = BIT(0),
+        eColorOutput = BIT(1),
+        eEarlyFragmentTest = BIT(2),
     };
+    typedef u32 PipelineStageFlags;
 
     enum class Access : u32 {
-        eNone,
-        eColorRenderTargetWrite,
+        eNone = BIT(0),
+        eColorRenderTargetWrite = BIT(1),
+        eDepthStencilRenderTargetWrite = BIT(2),
     };
+    typedef u32 AccessFlags;
 
     struct SubpassStageInfo {
         const char *name;
-        PipelineStage stage;
-        Access access;
+        PipelineStageFlags stage;
+        AccessFlags access;
     };
 
     enum class CommandLevel : u32 {
@@ -232,6 +239,11 @@ namespace MangoRHI {
         eAll,
     };
 
+    enum class DepthCompareOp : u32 {
+        eLess,
+        eLessOrEqual,
+    };
+
     enum class VertexInputType : u32 {
         eInt2,
         eInt3,
@@ -247,10 +259,11 @@ namespace MangoRHI {
     };
 
     enum class DescriptorStage : u32 {
-        eVertex,
-        eFragment,
-        eVertexAndFragment,
+        eNone = BIT(0),
+        eVertex = BIT(1),
+        eFragment = BIT(2),
     };
+    typedef u32 DescriptorStageFlags;
 
     enum class SamplerFilter : u32 {
         eNearest,
@@ -321,6 +334,18 @@ namespace MangoRHI {
     MangoRHI_API Result quit();
     MangoRHI_API Context *get_context();
     STL_IMPL::vector<char> read_binary_file(const char *filename);
+
+    u32 concat_args();
+
+    template<typename ...EnumClass>
+    u32 concat_args(u32 value, EnumClass... args) {
+        return value | concat_args(args...);
+    }
+    
+    template<typename ...EnumClass>
+    u32 concat(EnumClass... args) {
+        return concat_args((u32)args...);
+    }
 }
 
 #include "logger.hpp"

@@ -17,6 +17,8 @@ namespace MangoRHI {
         void set_polygon_mode(PolygonMode polygon) override;
         void set_front_face(FrontFace front) override;
         void set_cull_mode(CullMode cull) override;
+        void set_depth_test_enabled(Bool enabled) override;
+        void set_depth_compare_op(DepthCompareOp op) override;
         void add_vertex_attribute(VertexInputType type, u32 stride) override;
         void add_vertex_binding(VertexInputRate rate) override;
         void attach_vertex_shader(const Shader *shader, const char *entry) override;
@@ -36,6 +38,8 @@ namespace MangoRHI {
     define_private_member(PolygonMode, polygon, PolygonMode::eFill)
     define_private_member(FrontFace, front, FrontFace::eClockwise)
     define_private_member(CullMode, cull, CullMode::eBack)
+    define_private_member(Bool, depth_test_enabled, MG_FALSE)
+    define_private_member(DepthCompareOp, compare_op, DepthCompareOp::eLess)
     define_private_member(STL_IMPL::vector<VkVertexInputAttributeDescription>, attributes, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkVertexInputBindingDescription>, bindings, MANGO_NO_INIT_VAULE)
     define_private_member(u32, _current_location, 0)

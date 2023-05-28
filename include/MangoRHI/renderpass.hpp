@@ -7,7 +7,7 @@
 namespace MangoRHI {
     class RenderPass : public RuntimeComponent {
     public:
-        void attach_render_target(RenderTarget *render_target);
+        virtual void attach_render_target(RenderTarget *render_target) = 0;
 
         virtual void add_input_render_target(const char *render_target_name, RenderTargetLayout ref_layout) = 0;
         virtual void add_output_render_target(const char *render_target_name, RenderTargetLayout ref_layout) = 0;

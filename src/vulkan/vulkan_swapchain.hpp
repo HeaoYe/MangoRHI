@@ -14,6 +14,9 @@ namespace MangoRHI {
         Result acquire_next_frame() override;
         Result present() override;
 
+    private:
+        void recreate_all();
+
     define_member(u32, image_count, 3)
     define_member(u32, image_index, MANGO_NO_INIT_VAULE)
     define_member(VkSurfaceFormatKHR, format, MANGO_NO_INIT_VAULE)

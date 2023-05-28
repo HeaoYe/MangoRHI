@@ -100,6 +100,10 @@ namespace MangoRHI {
         file.close();
         return STL_IMPL::move(buffer);
     }
+
+    u32 concat_args() {
+        return 0;
+    }
 }
 
 #define STB_IMAGE_IMPLEMENTATION
