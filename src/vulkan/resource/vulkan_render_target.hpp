@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../vulkan_commons.hpp"
-#include "resource/render_target.hpp"
+#include "MangoRHI/resource/render_target.hpp"
 
 namespace MangoRHI {
     class VulkanRenderTarget final : public RenderTarget {

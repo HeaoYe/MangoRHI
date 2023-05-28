@@ -11,11 +11,11 @@ namespace MangoRHI {
         this->device.set_name(name);
     }
 
-    void VulkanContext::set_swapchain_image_count(const u32 count) {
+    void VulkanContext::set_swapchain_image_count(u32 count) {
         this->swapchain.set_image_count(count);
     }
 
-    void VulkanContext::set_max_in_flight_frame_count(const u32 count) {
+    void VulkanContext::set_max_in_flight_frame_count(u32 count) {
         this->max_in_flight_frame_count = count;
     }
 
@@ -30,7 +30,7 @@ namespace MangoRHI {
         return shader;
     }
 
-    void VulkanContext::resize(const u32 width, const u32 height) {
+    void VulkanContext::resize(u32 width, u32 height) {
         // No Impl For Vulkan
     }
 
@@ -67,6 +67,7 @@ namespace MangoRHI {
         for (auto &shader : shaders) {
             shader->create();
         }
+        descriptor_pool.create();
         render_pass.create();
         framebuffer.create();
         synchronization.create();
@@ -89,17 +90,16 @@ namespace MangoRHI {
 
         VK_CHECK(vkDeviceWaitIdle(device.get_logical_device()))
 
+        descriptor_pool.destroy();
         vertex_buffer.destroy();
         index_buffer.destroy();
-
         for (auto &command : commands) {
             command_pool.free(command);
         }
-        command_pool.destroy();
-
         synchronization.destroy();
         framebuffer.destroy();
         render_pass.destroy();
+        command_pool.destroy();
         for (auto &shader : shaders) {
             shader->destroy();
         }

@@ -2,7 +2,7 @@
 #include "../vulkan_context.hpp"
 
 namespace MangoRHI {
-    void VulkanBuffer::set_size(const u32 size) {
+    void VulkanBuffer::set_size(u32 size) {
         this->size = size;
     }
 

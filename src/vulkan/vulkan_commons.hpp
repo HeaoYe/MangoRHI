@@ -1,6 +1,6 @@
 #pragma once
 
-#include "commons.hpp"
+#include "MangoRHI/commons.hpp"
 #include <vulkan/vulkan.h>
 
 namespace MangoRHI {
@@ -39,6 +39,7 @@ namespace MangoRHI {
     VkCullModeFlags cull_mode2vk_cull_mode_flags(CullMode cull);
     VkFormat vertex_input_type2vk_format(VertexInputType type);
     VkVertexInputRate vertex_input_rate2vk_vertex_input_rate(VertexInputRate rate);
+    VkShaderStageFlags descriptor_stage2vk_shader_stage_flags(DescriptorStage stage);
 
     Result initialize_vulkan();
     Result quit_vulkan();

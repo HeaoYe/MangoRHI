@@ -1,6 +1,6 @@
 #pragma once
 
-#include "context.hpp"
+#include "MangoRHI/context.hpp"
 #include "vulkan_commons.hpp"
 #include "vulkan_device.hpp"
 #include "vulkan_swapchain.hpp"
@@ -11,17 +11,18 @@
 #include "vulkan_synchronization.hpp"
 #include "vulkan_command_pool.hpp"
 #include "resource/vulkan_buffer.hpp"
+#include "vulkan_descriptor_pool.hpp"
 
 namespace MangoRHI {
     class VulkanContext final : public Context {
     public:
         void set_api_info(const void *info) override;
         void set_device_name(const char *name) override;
-        void set_swapchain_image_count(const u32 count) override;
-        void set_max_in_flight_frame_count(const u32 count) override;
+        void set_swapchain_image_count(u32 count) override;
+        void set_max_in_flight_frame_count(u32 count) override;
         void set_clear_color(ColorClearValue clear_color) override;
         Shader *create_shader(const char *filename) override;
-        void resize(const u32 width, const u32 height) override;
+        void resize(u32 width, u32 height) override;
         const u32 get_width() const override { return extent.width; }
         const u32 get_height() const override { return extent.height; }
         Result create() override;
@@ -47,6 +48,7 @@ namespace MangoRHI {
     define_extern_writeable_member(VulkanFrameBuffer, framebuffer, MANGO_NO_INIT_VAULE)
     define_member(VulkanVertexBuffer, vertex_buffer, MANGO_NO_INIT_VAULE)
     define_member(VulkanIndexBuffer, index_buffer, MANGO_NO_INIT_VAULE)
+    define_member(VulkanDescriptorPool, descriptor_pool, MANGO_NO_INIT_VAULE)
     define_member(VulkanSynchronization, synchronization, MANGO_NO_INIT_VAULE)
     define_member(VulkanCommandPool, command_pool, MANGO_NO_INIT_VAULE)
     define_extern_writeable_member(VkExtent2D, extent, MANGO_NO_INIT_VAULE)

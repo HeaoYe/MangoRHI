@@ -1,4 +1,4 @@
-#include "logger.hpp"
+#include "MangoRHI/logger.hpp"
 
 namespace MangoRHI {
     Logger g_logger;

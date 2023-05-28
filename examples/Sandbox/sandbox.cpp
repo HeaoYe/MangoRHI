@@ -1,4 +1,4 @@
-#include "MangoRHI.hpp"
+#include "MangoRHI/MangoRHI.hpp"
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
 
@@ -46,6 +46,8 @@ int main() {
     main_shader_program->attach_vertex_shader(ctx->create_shader("examples/Sandbox/assets/vert.spv"), "main");
     main_shader_program->attach_fragment_shader(ctx->create_shader("examples/Sandbox/assets/frag.spv"), "main");
     main_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
+    auto *ds = main_shader_program->create_descriptor_set();
+    ds->add_uniform(MangoRHI::DescriptorStage::eVertex, sizeof(float), 1);
 
     auto &vertex_buffer = ctx->get_vertex_buffer_reference();
     auto &index_buffer = ctx->get_index_buffer_reference();
@@ -53,6 +55,7 @@ int main() {
     
     ctx->create();
 
+    float *uniform_buffer_pointer = (float *)ds->map_uniform_buffer_pointer(0);
     const std::vector<Vertex> vertices = {
         { { 0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f } },
         { { 0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
@@ -73,11 +76,14 @@ int main() {
             auto &command = ctx->get_current_command_reference();
 
             command.next_subpass();
+            static float t = 0;
+            t += 0.01f;
+            *uniform_buffer_pointer = glm::sin(t) + 0.2f;
             auto viewport = MangoRHI::Viewport { 0, 0, static_cast<float>(ctx->get_width()), static_cast<float>(ctx->get_height()), 0.0f, 1.0f };
             auto scissor = MangoRHI::Scissor { 0, 0, ctx->get_width(), ctx->get_height() };
             command.set_viewport(viewport);
             command.set_scissor(scissor);
-            command.bind_vertex_buffer(&vertex_buffer);
+            command.bind_vertex_buffer(&vertex_buffer, 0);
             command.bind_index_buffer(&index_buffer);
             command.draw_indexed_instances(6, 1, 0, 0,  0);
 

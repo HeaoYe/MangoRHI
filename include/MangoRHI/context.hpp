@@ -12,11 +12,11 @@ namespace MangoRHI {
     public:
         virtual void set_api_info(const void *info) = 0;
         virtual void set_device_name(const char *name) = 0;
-        virtual void set_swapchain_image_count(const u32 count) = 0;
-        virtual void set_max_in_flight_frame_count(const u32 count) = 0;
+        virtual void set_swapchain_image_count(u32 count) = 0;
+        virtual void set_max_in_flight_frame_count(u32 count) = 0;
         virtual void set_clear_color(ColorClearValue clear_color) = 0;
         virtual Shader *create_shader(const char *filename) = 0;
-        virtual void resize(const u32 width, const u32 height) = 0;
+        virtual void resize(u32 width, u32 height) = 0;
         virtual const u32 get_width() const = 0;
         virtual const u32 get_height() const = 0;
         virtual RenderPass &get_render_pass_reference() = 0;

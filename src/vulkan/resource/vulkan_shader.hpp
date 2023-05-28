@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../vulkan_commons.hpp"
-#include "resource/shader.hpp"
+#include "MangoRHI/resource/shader.hpp"
 
 namespace MangoRHI {
     class VulkanShader final : public Shader {
