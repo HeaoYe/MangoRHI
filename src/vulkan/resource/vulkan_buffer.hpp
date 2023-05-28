@@ -20,6 +20,7 @@ namespace MangoRHI {
     define_member(u32, size, MANGO_NO_INIT_VAULE)
     define_member(VkBuffer, buffer, VK_NULL_HANDLE)
     define_member(VkDeviceMemory, memory, VK_NULL_HANDLE)
+    define_private_pointer(void, ptr, MANGO_NO_INIT_VAULE)
     define_extern_writeable_member(VkBufferUsageFlags, usage, 0)
     define_extern_writeable_member(VkMemoryPropertyFlags, properties, 0)
 

@@ -43,7 +43,7 @@ int main() {
     main_shader_program->attach_fragment_shader(ctx->create_shader("examples/Sandbox/assets/frag.spv"), "main");
     main_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
     auto *ds = main_shader_program->create_descriptor_set();
-    ds->add_uniform(MangoRHI::DescriptorStage::eVertex, sizeof(float) * 2, 1);
+    ds->add_uniform(MangoRHI::DescriptorStage::eVertex, sizeof(float) * 2, 2);
 
     auto *vertex_buffer = ctx->create_vertex_buffer();
     auto *color_buffer = ctx->create_vertex_buffer();
@@ -53,7 +53,8 @@ int main() {
     
     ctx->create();
 
-    float *uniform_buffer_pointer = (float *)ds->map_uniform_buffer_pointer(0);
+    float *uniform_buffer_pointer0 = (float *)ds->map_uniform_buffer_pointer(0, 0);
+    float *uniform_buffer_pointer1 = (float *)ds->map_uniform_buffer_pointer(0, 1);
     const std::vector<glm::vec3> vertices = {
         { 0.5f, 0.5f, 0.0f },
         { 0.5f, -0.5f, 0.0f },
@@ -81,11 +82,13 @@ int main() {
             auto &command = ctx->get_current_command_reference();
 
             command.next_subpass();
-            static float t = 0;
+            static float t = 0.0f;
             t += 0.01f;
-            *uniform_buffer_pointer = glm::sin(t) + 0.2f;
-            *(uniform_buffer_pointer + 1) = t * 1.5;
-            ctx->set_clear_color(MangoRHI::ColorClearValue { .r = (glm::sin(t) + 1.0f) / 2.0f, .g = (glm::sin(t + 3.14159265358979f / 3.0f) + 1.0f) / 2.0f, .b = (glm::sin(t + 3.14159265358979f * 2.0f / 3.0f) + 1.0f) / 2.0f, .a = 1.0f } );
+            *(uniform_buffer_pointer0 + 0) = (glm::sin(t) + 0.2f) * 0.5f;
+            *(uniform_buffer_pointer0 + 1) = t * 1.5f;
+            *(uniform_buffer_pointer1 + 0) = glm::abs((glm::sin(t) + 1.2f) * 0.3f);
+            *(uniform_buffer_pointer1 + 1) = -t * 2.0f;
+            ctx->set_clear_color(MangoRHI::ColorClearValue { .r = (glm::sin(t) + 1.0f) / 2.0f, .g = (glm::sin(t + 3.14159265358979f * 2.0f / 3.0f) + 1.0f) / 2.0f, .b = (glm::sin(t + 3.14159265358979f * 4.0f / 3.0f) + 1.0f) / 2.0f, .a = 1.0f } );
             auto viewport = MangoRHI::Viewport { 0, 0, static_cast<float>(ctx->get_width()), static_cast<float>(ctx->get_height()), 0.0f, 1.0f };
             auto scissor = MangoRHI::Scissor { 0, 0, ctx->get_width(), ctx->get_height() };
             command.set_viewport(viewport);

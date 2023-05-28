@@ -10,7 +10,13 @@ namespace MangoRHI {
     Result VulkanUniformDescriptor::create() {
         component_create()
 
-        buffer.set_size(size);
+        u32 align = 0x40;
+        while (align < size) {
+            align *= 2;
+        }
+        size = align;
+
+        buffer.set_size(size * count);
         buffer.get_usage() = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
         buffer.get_properties() = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
         buffer.create();
@@ -27,13 +33,14 @@ namespace MangoRHI {
     }
 
     void VulkanUniformDescriptor::update(VulkanDescriptorSet *descriptor_set) {
-        VkDescriptorBufferInfo descriptor_buffer_info {
-            .buffer = buffer.get_buffer(),
-            .offset = 0,
-            .range = size,
+        STL_IMPL::vector<VkDescriptorBufferInfo> descriptor_buffer_infos(count);
+        for (u32 index = 0; index < count; index++) {
+            descriptor_buffer_infos[index].buffer = buffer.get_buffer();
+            descriptor_buffer_infos[index].offset = index * size;
+            descriptor_buffer_infos[index].range = size;
         };
         VkWriteDescriptorSet write_descriptor_set { .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-        write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
+        write_descriptor_set.pBufferInfo = descriptor_buffer_infos.data();
         write_descriptor_set.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         write_descriptor_set.descriptorCount = count;
         write_descriptor_set.dstSet = descriptor_set->get_descriptor_set();
@@ -92,8 +99,9 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
-    void *VulkanDescriptorSet::map_uniform_buffer_pointer(u32 binding) {
-        return ((VulkanUniformDescriptor *)descriptors[binding])->get_buffer().map();
+    void *VulkanDescriptorSet::map_uniform_buffer_pointer(u32 binding, u32 index) {
+        auto *descriptor = (VulkanUniformDescriptor *)descriptors[binding];
+        return (void*)(((u8 *)descriptor->get_buffer().map()) + index * descriptor->get_size());
     }
 
     void VulkanDescriptorSet::update() {

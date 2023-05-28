@@ -29,6 +29,14 @@ namespace MangoRHI {
     no_copy_and_move_construction(VulkanUniformDescriptor)
     };
 
+    class VulkanTextureDescriptor final : public VulkanDescriptor {
+    public:
+        Result create() override;
+        Result destroy() override;
+
+        void update(VulkanDescriptorSet *descriptor_set) override;
+    };
+
     extern STL_IMPL::unordered_map<VkDescriptorType, u32> g_descriptor_info;
 
     class VulkanDescriptorSet final : public DescriptorSet {
@@ -39,7 +47,7 @@ namespace MangoRHI {
         Result create() override;
         Result destroy() override;
         
-        void *map_uniform_buffer_pointer(u32 binding) override;
+        void *map_uniform_buffer_pointer(u32 binding, u32 index) override;
         void update();
     
     define_member(STL_IMPL::vector<VulkanDescriptor *>, descriptors, MANGO_NO_INIT_VAULE)

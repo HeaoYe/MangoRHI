@@ -44,13 +44,17 @@ namespace MangoRHI {
     }
 
     void *VulkanBuffer::map() {
-        void *data;
-        vkMapMemory(vulkan_context->get_device().get_logical_device(), memory, 0, size, 0, &data);
-        return data;
+        if (ptr == nullptr) {
+            vkMapMemory(vulkan_context->get_device().get_logical_device(), memory, 0, size, 0, &ptr);
+        }
+        return ptr;
     }
 
     void VulkanBuffer::unmap() {
-        vkUnmapMemory(vulkan_context->get_device().get_logical_device(), memory);
+        if (ptr != nullptr) {
+            vkUnmapMemory(vulkan_context->get_device().get_logical_device(), memory);
+            ptr = nullptr;
+        }
     }
 
     void VulkanBuffer::write_data(const void *data, const u32 size, const u32 offset) {
