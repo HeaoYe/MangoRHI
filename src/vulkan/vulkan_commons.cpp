@@ -144,4 +144,52 @@ namespace MangoRHI {
             return VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
         }
     }
+
+    VkFilter smapler_filter2vk_filter(SamplerFilter filter) {
+        switch (filter) {
+        case SamplerFilter::eNearest:
+            return VK_FILTER_NEAREST;
+        case SamplerFilter::eLinear:
+            return VK_FILTER_LINEAR;
+        }
+    }
+
+    VkSamplerAddressMode sampler_address_mode2vk_sampler_address_mode(SamplerAddressMode mode) {
+        switch (mode) {
+        case SamplerAddressMode::eRepeat:
+            return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        case SamplerAddressMode::eMirroredRepeat:
+            return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+        case SamplerAddressMode::eClampToEdge:
+            return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        case SamplerAddressMode::eClampToBorder:
+            return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+        }
+    }
+
+    VkBorderColor sampler_border_color2vk_border_color(SamplerBorderColor color) {
+        switch (color) {
+        case SamplerBorderColor::eFloatTransparentBlack:
+            return VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
+        case SamplerBorderColor::eIntTransparentBlack:
+            return VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
+        case SamplerBorderColor::eFloatOpaqueBlack:
+            return VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+        case SamplerBorderColor::eIntOpaqueBlack:
+            return VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+        case SamplerBorderColor::eFloatOpaqueWhite:
+            return VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+        case SamplerBorderColor::eIntOpaqueWhite:
+            return VK_BORDER_COLOR_INT_OPAQUE_WHITE;
+        }
+    }
+
+    VkSamplerMipmapMode sampler_filter2vk_sampler_mipmap_mode(SamplerFilter filter) {
+        switch (filter) {
+        case SamplerFilter::eNearest:
+            return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+        case SamplerFilter::eLinear:
+            return VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        }
+    }
 }

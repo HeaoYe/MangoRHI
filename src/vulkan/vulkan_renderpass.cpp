@@ -140,9 +140,9 @@ namespace MangoRHI {
         STL_IMPL::vector<VkAttachmentDescription> attachment_descriptions;
         STL_IMPL::vector<VkSubpassDescription> subpass_descriptions;
         render_targets.insert(render_targets.begin(), &vulkan_context->get_swapchain().get_render_target());
+        clear_values.resize(render_targets.size());
         for (const auto &render_target : render_targets) {
             attachment_descriptions.push_back(render_target->get_description());
-            clear_values.push_back(render_target->get_clear_value());
         }
         for (const auto &subpass : subpasses) {
             subpass_descriptions.push_back(subpass.get_description());
@@ -180,6 +180,9 @@ namespace MangoRHI {
     }
 
     Result VulkanRenderPass::begin_render_pass(VulkanCommand *command) {
+        for (u32 index = 0; index < render_targets.size(); index++) {
+            clear_values[index] = render_targets[index]->get_clear_value();
+        }
         VkRenderPassBeginInfo render_pass_begin_info { .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
         render_pass_begin_info.renderPass = render_pass;
         render_pass_begin_info.renderArea = VkRect2D { .offset = { .x = 0, .y = 0 }, .extent = vulkan_context->get_extent() };

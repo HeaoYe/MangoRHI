@@ -40,6 +40,10 @@ namespace MangoRHI {
     VkFormat vertex_input_type2vk_format(VertexInputType type);
     VkVertexInputRate vertex_input_rate2vk_vertex_input_rate(VertexInputRate rate);
     VkShaderStageFlags descriptor_stage2vk_shader_stage_flags(DescriptorStage stage);
+    VkFilter smapler_filter2vk_filter(SamplerFilter filter);
+    VkSamplerAddressMode sampler_address_mode2vk_sampler_address_mode(SamplerAddressMode mode);
+    VkBorderColor sampler_border_color2vk_border_color(SamplerBorderColor color);
+    VkSamplerMipmapMode sampler_filter2vk_sampler_mipmap_mode(SamplerFilter filter);
 
     Result initialize_vulkan();
     Result quit_vulkan();

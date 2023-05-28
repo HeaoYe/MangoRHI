@@ -20,10 +20,10 @@ namespace MangoRHI {
 
         VkMemoryRequirements requirements;
         vkGetBufferMemoryRequirements(vulkan_context->get_device().get_logical_device(), buffer, &requirements);
-        VkMemoryAllocateInfo allocateInfo { .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-        allocateInfo.allocationSize = requirements.size;
-        allocateInfo.memoryTypeIndex = vulkan_context->find_memory_index(requirements.memoryTypeBits, properties);
-        VK_CHECK(vkAllocateMemory(vulkan_context->get_device().get_logical_device(), &allocateInfo, vulkan_context->get_allocator(), &memory));
+        VkMemoryAllocateInfo allocate_info { .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+        allocate_info.allocationSize = requirements.size;
+        allocate_info.memoryTypeIndex = vulkan_context->find_memory_index(requirements.memoryTypeBits, properties);
+        VK_CHECK(vkAllocateMemory(vulkan_context->get_device().get_logical_device(), &allocate_info, vulkan_context->get_allocator(), &memory));
         RHI_DEBUG("Allocate vulkan device memory -> 0x{:x}", (AddrType)memory)
 
         vkBindBufferMemory(vulkan_context->get_device().get_logical_device(), buffer, memory, 0);
@@ -44,13 +44,17 @@ namespace MangoRHI {
     }
 
     void *VulkanBuffer::map() {
-        void *data;
-        vkMapMemory(vulkan_context->get_device().get_logical_device(), memory, 0, size, 0, &data);
-        return data;
+        if (ptr == nullptr) {
+            vkMapMemory(vulkan_context->get_device().get_logical_device(), memory, 0, size, 0, &ptr);
+        }
+        return ptr;
     }
 
     void VulkanBuffer::unmap() {
-        vkUnmapMemory(vulkan_context->get_device().get_logical_device(), memory);
+        if (ptr != nullptr) {
+            vkUnmapMemory(vulkan_context->get_device().get_logical_device(), memory);
+            ptr = nullptr;
+        }
     }
 
     void VulkanBuffer::write_data(const void *data, const u32 size, const u32 offset) {
@@ -89,12 +93,13 @@ namespace MangoRHI {
     }
 
     void VulkanVertexBuffer::set_size(const u32 count) {
-        this->size = count * type_size;
+        this->count = count;
     }
 
     Result VulkanVertexBuffer::create() {
         component_create()
 
+        size = count * type_size;
         staging.set_size(size);
         staging.get_usage() = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
         staging.get_properties() = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -132,12 +137,13 @@ namespace MangoRHI {
     }
 
     void VulkanIndexBuffer::set_size(const u32 count) {
-        this->size = count * type_size;
+        this->count = count;
     }
 
     Result VulkanIndexBuffer::create() {
         component_create()
 
+        size = count * type_size;
         staging.set_size(size);
         staging.get_usage() = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
         staging.get_properties() = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;

@@ -16,14 +16,17 @@ namespace MangoRHI {
         virtual void set_max_in_flight_frame_count(u32 count) = 0;
         virtual void set_clear_color(ColorClearValue clear_color) = 0;
         virtual Shader *create_shader(const char *filename) = 0;
+        virtual VertexBuffer *create_vertex_buffer() = 0;
+        virtual IndexBuffer *create_index_buffer() = 0;
+        virtual Sampler *create_sampler() = 0;
+        virtual Texture *create_texture() = 0;
+        
         virtual void resize(u32 width, u32 height) = 0;
         virtual const u32 get_width() const = 0;
         virtual const u32 get_height() const = 0;
         virtual RenderPass &get_render_pass_reference() = 0;
         virtual Command &get_current_command_reference() = 0;
 
-        virtual VertexBuffer &get_vertex_buffer_reference() = 0;
-        virtual IndexBuffer &get_index_buffer_reference() = 0;
 
         virtual Result begin_frame() = 0;
         virtual Result end_frame() = 0;
