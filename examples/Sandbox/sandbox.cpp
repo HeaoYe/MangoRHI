@@ -55,22 +55,25 @@ int main() {
 
     float *uniform_buffer_pointer0 = (float *)ds->map_uniform_buffer_pointer(0, 0);
     float *uniform_buffer_pointer1 = (float *)ds->map_uniform_buffer_pointer(0, 1);
-    const std::vector<glm::vec3> vertices = {
+    std::vector<glm::vec3> vertices = {
         { 0.5f, 0.5f, 0.0f },
         { 0.5f, -0.5f, 0.0f },
         { -0.5f, -0.5f, 0.0f },
         { -0.5f, 0.5f, 0.0f },
     };
-    const std::vector<glm::vec3> colors = {
-        { 0.0f, 0.0f, 1.0f },
-        { 1.0f, 0.0f, 0.0f },
-        { 0.0f, 1.0f, 0.0f },
-        { 0.0f, 1.0f, 1.0f },
+    std::vector<glm::vec3> colors = {
+        { 245.0f, 245.0f, 245.0f },
+        { 255.0f, 245.0f, 238.0f },
+        { 255.0f, 250.0f, 240.0f },
+        { 255.0f, 255.0f, 240.0f },
     };
-    const std::vector<MangoRHI::u32> indices = {
+    std::vector<MangoRHI::u32> indices = {
         0, 1, 2, 
         0, 3, 2,
     };
+    for (auto &color : colors) {
+        color = (color - 127.5f) / 127.5f;
+    }
     vertex_buffer->write_data(vertices.data(), vertices.size(), 0);
     color_buffer->write_data(colors.data(), colors.size(), 0);
     index_buffer->write_data(indices.data(), indices.size(), 0);
@@ -88,7 +91,11 @@ int main() {
             *(uniform_buffer_pointer0 + 1) = t * 1.5f;
             *(uniform_buffer_pointer1 + 0) = glm::abs((glm::sin(t) + 1.2f) * 0.3f);
             *(uniform_buffer_pointer1 + 1) = -t * 2.0f;
-            ctx->set_clear_color(MangoRHI::ColorClearValue { .r = (glm::sin(t) + 1.0f) / 2.0f, .g = (glm::sin(t + 3.14159265358979f * 2.0f / 3.0f) + 1.0f) / 2.0f, .b = (glm::sin(t + 3.14159265358979f * 4.0f / 3.0f) + 1.0f) / 2.0f, .a = 1.0f } );
+            ctx->set_clear_color(MangoRHI::ColorClearValue { 
+                .r = (glm::sin(t) + 1.0f) / 2.0f, 
+                .g = (glm::sin(t + 3.14159265358979f * 1.0f / 30.0f) + 1.0f) / 2.0f, 
+                .b = (glm::sin(t + 3.14159265358979f * 2.0f / 30.0f) + 1.0f) / 2.0f, 
+                .a = 1.0f } );
             auto viewport = MangoRHI::Viewport { 0, 0, static_cast<float>(ctx->get_width()), static_cast<float>(ctx->get_height()), 0.0f, 1.0f };
             auto scissor = MangoRHI::Scissor { 0, 0, ctx->get_width(), ctx->get_height() };
             command.set_viewport(viewport);

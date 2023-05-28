@@ -30,5 +30,5 @@ void main() {
         0, 0, 1
     );
     gl_Position = vec4((rotate0 * in_pos * srt[0].scale + rotate1 * offset * srt[1].scale), 1);
-    frag_color = in_color * (gl_VertexIndex + 1) / 3;
+    frag_color = in_color;
 }
