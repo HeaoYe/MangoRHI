@@ -2,11 +2,6 @@
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
 
-struct Vertex {
-    glm::vec3 pos;
-    glm::vec3 color;
-};
-
 int main() {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -41,33 +36,43 @@ int main() {
     rp.add_dependency({ MANGORHI_EXTERNAL_SUBPASS_NAME, MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eNone }, { "main", MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eColorRenderTargetWrite });
 
     main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
-    main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
     main_shader_program->add_vertex_binding(MangoRHI::VertexInputRate::ePerVertex);
+    main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
+    main_shader_program->add_vertex_binding(MangoRHI::VertexInputRate::ePerInstance);
     main_shader_program->attach_vertex_shader(ctx->create_shader("examples/Sandbox/assets/vert.spv"), "main");
     main_shader_program->attach_fragment_shader(ctx->create_shader("examples/Sandbox/assets/frag.spv"), "main");
     main_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
     auto *ds = main_shader_program->create_descriptor_set();
-    ds->add_uniform(MangoRHI::DescriptorStage::eVertex, sizeof(float), 1);
+    ds->add_uniform(MangoRHI::DescriptorStage::eVertex, sizeof(float) * 2, 1);
 
-    auto &vertex_buffer = ctx->get_vertex_buffer_reference();
-    auto &index_buffer = ctx->get_index_buffer_reference();
-    vertex_buffer.set_vertex_size(sizeof(Vertex));
+    auto *vertex_buffer = ctx->create_vertex_buffer();
+    auto *color_buffer = ctx->create_vertex_buffer();
+    auto *index_buffer = ctx->create_index_buffer();
+    vertex_buffer->set_vertex_size(sizeof(glm::vec3));
+    color_buffer->set_vertex_size(sizeof(glm::vec3));
     
     ctx->create();
 
     float *uniform_buffer_pointer = (float *)ds->map_uniform_buffer_pointer(0);
-    const std::vector<Vertex> vertices = {
-        { { 0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f } },
-        { { 0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
-        { { -0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
-        { { -0.5f, 0.5f, 0.0f }, { 0.0f, 1.0f, 1.0f } }
+    const std::vector<glm::vec3> vertices = {
+        { 0.5f, 0.5f, 0.0f },
+        { 0.5f, -0.5f, 0.0f },
+        { -0.5f, -0.5f, 0.0f },
+        { -0.5f, 0.5f, 0.0f },
     };
-    MangoRHI::u32 indices[] = {
+    const std::vector<glm::vec3> colors = {
+        { 0.0f, 0.0f, 1.0f },
+        { 1.0f, 0.0f, 0.0f },
+        { 0.0f, 1.0f, 0.0f },
+        { 0.0f, 1.0f, 1.0f },
+    };
+    const std::vector<MangoRHI::u32> indices = {
         0, 1, 2, 
         0, 3, 2,
     };
-    vertex_buffer.write_data(vertices.data(), vertices.size(), 0);
-    index_buffer.write_data(indices, 6, 0);
+    vertex_buffer->write_data(vertices.data(), vertices.size(), 0);
+    color_buffer->write_data(colors.data(), colors.size(), 0);
+    index_buffer->write_data(indices.data(), indices.size(), 0);
 
     while (!glfwWindowShouldClose(glfwWindow)) {
         glfwPollEvents();
@@ -79,13 +84,16 @@ int main() {
             static float t = 0;
             t += 0.01f;
             *uniform_buffer_pointer = glm::sin(t) + 0.2f;
+            *(uniform_buffer_pointer + 1) = t * 1.5;
+            ctx->set_clear_color(MangoRHI::ColorClearValue { .r = (glm::sin(t) + 1.0f) / 2.0f, .g = (glm::sin(t + 3.14159265358979f / 3.0f) + 1.0f) / 2.0f, .b = (glm::sin(t + 3.14159265358979f * 2.0f / 3.0f) + 1.0f) / 2.0f, .a = 1.0f } );
             auto viewport = MangoRHI::Viewport { 0, 0, static_cast<float>(ctx->get_width()), static_cast<float>(ctx->get_height()), 0.0f, 1.0f };
             auto scissor = MangoRHI::Scissor { 0, 0, ctx->get_width(), ctx->get_height() };
             command.set_viewport(viewport);
             command.set_scissor(scissor);
-            command.bind_vertex_buffer(&vertex_buffer, 0);
-            command.bind_index_buffer(&index_buffer);
-            command.draw_indexed_instances(6, 1, 0, 0,  0);
+            command.bind_vertex_buffer(vertex_buffer, 0);
+            command.bind_vertex_buffer(color_buffer, 1);
+            command.bind_index_buffer(index_buffer);
+            command.draw_indexed_instances(6, 4, 0, 0,  0);
 
             ctx->end_frame();
         }

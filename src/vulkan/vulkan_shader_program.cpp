@@ -35,7 +35,6 @@ namespace MangoRHI {
             .stride = _current_offset,
             .inputRate = vertex_input_rate2vk_vertex_input_rate(rate),
         });
-        _current_location = 0;
         _current_offset = 0;
     }
 

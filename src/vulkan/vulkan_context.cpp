@@ -30,6 +30,20 @@ namespace MangoRHI {
         return shader;
     }
 
+    VertexBuffer *VulkanContext::create_vertex_buffer() {
+        auto *vertex_buffer = new VulkanVertexBuffer();
+        vertex_buffer->set_size(1024);
+        vertex_buffers.push_back(vertex_buffer);
+        return vertex_buffer;
+    }
+
+    IndexBuffer *VulkanContext::create_index_buffer() {
+        auto *index_buffer = new VulkanIndexBuffer();
+        index_buffer->set_size(1024);
+        index_buffers.push_back(index_buffer);
+        return index_buffer;
+    }
+
     void VulkanContext::resize(u32 width, u32 height) {
         // No Impl For Vulkan
     }
@@ -77,10 +91,12 @@ namespace MangoRHI {
             commands.push_back(command);
             command_pool.allocate(CommandLevel::ePrimary, command);
         }
-        vertex_buffer.set_size(1024 * 1024);
-        index_buffer.set_size(1024 * 1024);
-        vertex_buffer.create();
-        index_buffer.create();
+        for (auto &vertex_buffer : vertex_buffers) {
+            vertex_buffer->create();
+        }
+        for (auto &index_buffer : index_buffers) {
+            index_buffer->create();
+        }
 
         return Result::eSuccess;
     }
@@ -91,8 +107,12 @@ namespace MangoRHI {
         VK_CHECK(vkDeviceWaitIdle(device.get_logical_device()))
 
         descriptor_pool.destroy();
-        vertex_buffer.destroy();
-        index_buffer.destroy();
+        for (auto &vertex_buffer : vertex_buffers) {
+            vertex_buffer->destroy();
+        }
+        for (auto &index_buffer : index_buffers) {
+            index_buffer->destroy();
+        }
         for (auto &command : commands) {
             command_pool.free(command);
         }
@@ -113,14 +133,6 @@ namespace MangoRHI {
         vkDestroyInstance(instance, allocator);
 
         return Result::eSuccess;
-    }
-
-    VertexBuffer &VulkanContext::get_vertex_buffer_reference() {
-        return vertex_buffer;
-    }
-
-    IndexBuffer &VulkanContext::get_index_buffer_reference() {
-        return index_buffer;
     }
 
     Result VulkanContext::begin_frame() {

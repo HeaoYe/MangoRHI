@@ -89,12 +89,13 @@ namespace MangoRHI {
     }
 
     void VulkanVertexBuffer::set_size(const u32 count) {
-        this->size = count * type_size;
+        this->count = count;
     }
 
     Result VulkanVertexBuffer::create() {
         component_create()
 
+        size = count * type_size;
         staging.set_size(size);
         staging.get_usage() = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
         staging.get_properties() = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -132,12 +133,13 @@ namespace MangoRHI {
     }
 
     void VulkanIndexBuffer::set_size(const u32 count) {
-        this->size = count * type_size;
+        this->count = count;
     }
 
     Result VulkanIndexBuffer::create() {
         component_create()
 
+        size = count * type_size;
         staging.set_size(size);
         staging.get_usage() = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
         staging.get_properties() = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
