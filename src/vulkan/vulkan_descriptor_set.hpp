@@ -21,8 +21,9 @@ namespace MangoRHI {
 
         void update(VulkanDescriptorSet *descriptor_set) override;
 
-    define_member(VulkanBuffer, buffer, MANGO_NO_INIT_VAULE)
+    define_extern_writeable_member(VulkanBuffer, buffer, MANGO_NO_INIT_VAULE)
     define_extern_writeable_member(u32, n_binding, MANGO_NO_INIT_VAULE)
+    define_extern_writeable_member(u32, size, MANGO_NO_INIT_VAULE)
     define_extern_writeable_member(u32, count, MANGO_NO_INIT_VAULE)
     
     no_copy_and_move_construction(VulkanUniformDescriptor)
@@ -33,11 +34,12 @@ namespace MangoRHI {
     class VulkanDescriptorSet final : public DescriptorSet {
     public:
         VulkanDescriptorSet();
-        void add_descriptor(DescriptorUsage usage, DescriptorStage stage, u32 count) override;
+        void add_uniform(DescriptorStage stage, u32 size, u32 count) override;
         
         Result create() override;
         Result destroy() override;
-
+        
+        void *map_uniform_buffer_pointer(u32 binding) override;
         void update();
     
     define_member(STL_IMPL::vector<VulkanDescriptor *>, descriptors, MANGO_NO_INIT_VAULE)

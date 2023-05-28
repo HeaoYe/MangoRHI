@@ -245,10 +245,6 @@ namespace MangoRHI {
         ePerInstance,
     };
 
-    enum class DescriptorUsage : u32 {
-        eUniform,
-    };
-    
     enum class DescriptorStage : u32 {
         eVertex,
         eFragment,
