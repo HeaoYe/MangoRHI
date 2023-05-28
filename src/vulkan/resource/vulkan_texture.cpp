@@ -30,9 +30,9 @@ namespace MangoRHI {
         stbi_image_free(pixels);
 
         image.set_extent(width, height);
-        image.set_staging_buffer(&staging);
         image.get_format() = VK_FORMAT_R8G8B8A8_SRGB;
         image.get_usage() = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        image.get_aspect() = VK_IMAGE_ASPECT_COLOR_BIT;
         image.create();
 
         vulkan_context->transition_image_layout(image.get_image(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);

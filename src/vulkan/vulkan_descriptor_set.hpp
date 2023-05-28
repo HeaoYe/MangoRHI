@@ -33,6 +33,7 @@ namespace MangoRHI {
     class VulkanTextureDescriptor final : public VulkanDescriptor {
     public:
         void add_texture(VulkanTexture *texture);
+        void set_texture(u32 index, VulkanTexture *texture);
 
         Result create() override;
         Result destroy() override;
@@ -56,7 +57,8 @@ namespace MangoRHI {
         Result destroy() override;
         
         void *map_uniform_buffer_pointer(u32 binding, u32 index) override;
-        void update();
+        void set_texture(u32 binding, u32 index, Texture *texture) override;
+        void update() override;
 
     private:
         VkDescriptorSetLayoutBinding &setup_descriptor_binding(VulkanDescriptor *descriptor, VkDescriptorType type, DescriptorStage stage, u32 count);

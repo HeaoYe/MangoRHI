@@ -14,6 +14,11 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
+    #define CASE_OR(enum_class, condition, input, flag_bit) \
+    if ((((u32)input) & ((u32)enum_class::condition)) != 0) { \
+        flags |= flag_bit; \
+    }
+
     VkClearValue clear_value2vk_clear_value(ClearValue clear_value) {
         VkClearValue vk_clear_value {
             .color = { .float32 = { clear_value.color.r, clear_value.color.g, clear_value.color.b, clear_value.color.a } }
@@ -27,6 +32,8 @@ namespace MangoRHI {
             return VK_IMAGE_LAYOUT_UNDEFINED;
         case RenderTargetLayout::eColor:
             return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        case RenderTargetLayout::eDepth:
+            return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         }
     }
 
@@ -48,20 +55,26 @@ namespace MangoRHI {
         }
     }
 
+    VkPipelineStageFlags pipeline_stage2vk_pipeline_stage_flags(PipelineStageFlags stage) {
+        VkPipelineStageFlags flags = 0;
+        CASE_OR(PipelineStage, eColorOutput, stage, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT)
+        CASE_OR(PipelineStage, eEarlyFragmentTest, stage, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT)
+        return flags;
+    }
+
     VkPipelineStageFlags pipeline_stage2vk_pipeline_stage_flags(PipelineStage stage) {
-        switch (stage) {
-        case PipelineStage::eColorOutput:
-            return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        }
+        return pipeline_stage2vk_pipeline_stage_flags((PipelineStageFlags)stage);
+    }
+
+    VkAccessFlags access2vk_access_flags(AccessFlags access) {
+        VkAccessFlags flags = 0;
+        CASE_OR(Access, eColorRenderTargetWrite, access, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
+        CASE_OR(Access, eDepthStencilRenderTargetWrite, access, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)
+        return flags;
     }
 
     VkAccessFlags access2vk_access_flags(Access access) {
-        switch (access) {
-        case Access::eNone:
-            return VK_ACCESS_NONE;
-        case Access::eColorRenderTargetWrite:
-            return VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        }
+        return access2vk_access_flags((AccessFlags)access);
     }
 
     VkPrimitiveTopology topology2vk_primitive_topology(Topology topology) {
@@ -108,6 +121,15 @@ namespace MangoRHI {
         }
     }
 
+    VkCompareOp depth_compare_op2vk_compare_op(DepthCompareOp op) {
+        switch (op) {
+        case DepthCompareOp::eLess:
+            return VK_COMPARE_OP_LESS;
+        case DepthCompareOp::eLessOrEqual:
+            return VK_COMPARE_OP_LESS_OR_EQUAL;
+        }
+    }
+
     VkFormat vertex_input_type2vk_format(VertexInputType type) {
         switch (type) {
         case VertexInputType::eInt2:
@@ -134,15 +156,15 @@ namespace MangoRHI {
         }
     }
 
+    VkShaderStageFlags descriptor_stage2vk_shader_stage_flags(DescriptorStageFlags stage) {
+        VkShaderStageFlags flags = 0;
+        CASE_OR(DescriptorStage, eVertex, stage, VK_SHADER_STAGE_VERTEX_BIT)
+        CASE_OR(DescriptorStage, eFragment, stage, VK_SHADER_STAGE_FRAGMENT_BIT)
+        return flags;
+    }
+
     VkShaderStageFlags descriptor_stage2vk_shader_stage_flags(DescriptorStage stage) {
-        switch (stage) {
-        case DescriptorStage::eVertex:
-            return VK_SHADER_STAGE_VERTEX_BIT;
-        case DescriptorStage::eFragment:
-            return VK_SHADER_STAGE_FRAGMENT_BIT;
-        case DescriptorStage::eVertexAndFragment:
-            return VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-        }
+        return descriptor_stage2vk_shader_stage_flags((DescriptorStageFlags)stage);
     }
 
     VkFilter smapler_filter2vk_filter(SamplerFilter filter) {
@@ -192,4 +214,6 @@ namespace MangoRHI {
             return VK_SAMPLER_MIPMAP_MODE_LINEAR;
         }
     }
+
+    #undef CASE_OR
 }

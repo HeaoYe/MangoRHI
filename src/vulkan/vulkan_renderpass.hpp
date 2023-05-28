@@ -9,7 +9,6 @@
 namespace MangoRHI {
     class VulkanSubpass {
     public:
-        VulkanSubpass(VulkanSubpass &&other);
         void build(const char *name, PipelineBindPoint bind_point, u32 index);
     
     define_readonly_pointer(char, name, "")
@@ -22,12 +21,12 @@ namespace MangoRHI {
     define_extern_writeable_member(STL_IMPL::optional<VkAttachmentReference>, resolve_attachment, MANGO_NO_INIT_VAULE)
     define_extern_writeable_pointer(VulkanShaderProgram, shader_program, MANGO_NO_INIT_VAULE)
 
-    no_copy_construction(VulkanSubpass)
+    no_copy_and_move_construction(VulkanSubpass)
     };
 
     class VulkanRenderPass final : public RenderPass {
     public:
-        void attach_render_target(RenderTarget *render_target);
+        void attach_render_target(RenderTarget *render_target) override;
         
         void add_input_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
         void add_output_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
@@ -48,12 +47,12 @@ namespace MangoRHI {
         u32 get_render_target_index_by_name(const char *render_target_name);
         VkAttachmentReference get_render_target_ref(const char *render_target_name, RenderTargetLayout ref_layout);
 
-    define_member(STL_IMPL::vector<const VulkanRenderTarget *>, render_targets, MANGO_NO_INIT_VAULE)
+    define_extern_writeable_member(STL_IMPL::vector<VulkanRenderTarget *>, render_targets, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkClearValue>, clear_values, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(STL_IMPL::vector<VulkanSubpass>, subpasses, MANGO_NO_INIT_VAULE)
+    define_extern_writeable_member(STL_IMPL::vector<VulkanSubpass *>, subpasses, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkSubpassDependency>, dependencies, MANGO_NO_INIT_VAULE)
     define_member(VkRenderPass, render_pass, VK_NULL_HANDLE)
-    define_private_member(VulkanSubpass, temp_subpass, MANGO_NO_INIT_VAULE)
+    define_private_pointer(VulkanSubpass, temp_subpass, new VulkanSubpass())
 
     no_copy_and_move_construction(VulkanRenderPass)
     };

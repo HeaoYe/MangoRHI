@@ -54,6 +54,10 @@ namespace MangoRHI {
         this->textures.push_back(textures);
     }
 
+    void VulkanTextureDescriptor::set_texture(u32 index, VulkanTexture *texture) {
+        this->textures[index] = texture;
+    }
+
     Result VulkanTextureDescriptor::create() {
         component_create()
 
@@ -150,6 +154,11 @@ namespace MangoRHI {
     void *VulkanDescriptorSet::map_uniform_buffer_pointer(u32 binding, u32 index) {
         auto *descriptor = (VulkanUniformDescriptor *)descriptors[binding];
         return (void*)(((u8 *)descriptor->get_buffer().map()) + index * descriptor->get_size());
+    }
+
+    void VulkanDescriptorSet::set_texture(u32 binding, u32 index, Texture *texture) {
+        auto *descriptor = (VulkanTextureDescriptor *)descriptors[binding];
+        descriptor->set_texture(index, (VulkanTexture *)texture);
     }
 
     void VulkanDescriptorSet::update() {

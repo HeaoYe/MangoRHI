@@ -23,6 +23,7 @@ namespace MangoRHI {
         void set_swapchain_image_count(u32 count) override;
         void set_max_in_flight_frame_count(u32 count) override;
         void set_clear_color(ColorClearValue clear_color) override;
+        RenderTarget *create_render_target() override;
         Shader *create_shader(const char *filename) override;
         VertexBuffer *create_vertex_buffer() override;
         IndexBuffer *create_index_buffer() override;
@@ -49,7 +50,7 @@ namespace MangoRHI {
     define_member(VkInstance, instance, VK_NULL_HANDLE)
     define_member(VkSurfaceKHR, surface, VK_NULL_HANDLE)
     define_member(VulkanDevice, device, MANGO_NO_INIT_VAULE)
-    define_member(VulkanSwapchain, swapchain, MANGO_NO_INIT_VAULE)
+    define_extern_writeable_member(VulkanSwapchain, swapchain, MANGO_NO_INIT_VAULE)
     define_extern_writeable_member(VulkanRenderPass, render_pass, MANGO_NO_INIT_VAULE)
     define_extern_writeable_member(VulkanFrameBuffer, framebuffer, MANGO_NO_INIT_VAULE)
     define_member(VulkanDescriptorPool, descriptor_pool, MANGO_NO_INIT_VAULE)
@@ -58,6 +59,7 @@ namespace MangoRHI {
     define_extern_writeable_member(VkExtent2D, extent, MANGO_NO_INIT_VAULE)
     define_member(u32, max_in_flight_frame_count, 2)
     define_private_readonly_pointer(VulkanContextInfo, info, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<VulkanRenderTarget *>, render_targets, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanShader *>, shaders, MANGO_NO_INIT_VAULE)
     define_member(STL_IMPL::vector<VulkanVertexBuffer *>, vertex_buffers, MANGO_NO_INIT_VAULE)
     define_member(STL_IMPL::vector<VulkanIndexBuffer *>, index_buffers, MANGO_NO_INIT_VAULE)

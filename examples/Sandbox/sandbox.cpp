@@ -29,11 +29,17 @@ int main() {
     ctx->set_swapchain_image_count(3);
     ctx->set_max_in_flight_frame_count(2);
 
-    ctx->set_clear_color(MangoRHI::ColorClearValue { .r = 0.05f, .g = 0.1f, .b = 0.08f, .a = 1.0f } );
+    auto *depth = ctx->create_render_target();
+    depth->set_name("depth");
+    depth->set_usage(MangoRHI::RenderTargetUsage::eDepth);
+    depth->set_clear_color(MangoRHI::ClearValue { .depth_stencil = { .depth = 1.0f, .stencil = 0 } });
+    
     auto &rp = ctx->get_render_pass_reference();
+    rp.attach_render_target(depth);
     rp.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
+    rp.set_depth_render_target("depth", MangoRHI::RenderTargetLayout::eDepth);
     auto *main_shader_program = rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
-    rp.add_dependency({ MANGORHI_EXTERNAL_SUBPASS_NAME, MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eNone }, { "main", MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eColorRenderTargetWrite });
+    rp.add_dependency({ MANGORHI_EXTERNAL_SUBPASS_NAME, MangoRHI::concat(MangoRHI::PipelineStage::eColorOutput, MangoRHI::PipelineStage::eEarlyFragmentTest), MangoRHI::concat(MangoRHI::Access::eNone) }, { "main", MangoRHI::concat(MangoRHI::PipelineStage::eColorOutput, MangoRHI::PipelineStage::eEarlyFragmentTest), MangoRHI::concat(MangoRHI::Access::eColorRenderTargetWrite, MangoRHI::Access::eDepthStencilRenderTargetWrite) });
 
     auto *sampler = ctx->create_sampler();
     auto *t_61 = ctx->create_texture();
@@ -48,7 +54,7 @@ int main() {
     t_dance->bind_sampler(sampler);
     t_dhl->set_filename("examples/Sandbox/assets/textures/dhl.png");
     t_dhl->bind_sampler(sampler);
-    MangoRHI::Texture* textures[] = { t_61, t_paper_plane, t_dance, t_dhl };
+    MangoRHI::Texture* textures[] = { t_61, t_paper_plane, t_dance, t_dance };
 
     main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
     main_shader_program->add_vertex_binding(MangoRHI::VertexInputRate::ePerVertex);
@@ -57,6 +63,8 @@ int main() {
     main_shader_program->attach_vertex_shader(ctx->create_shader("examples/Sandbox/assets/shaders/vert.spv"), "main");
     main_shader_program->attach_fragment_shader(ctx->create_shader("examples/Sandbox/assets/shaders/frag.spv"), "main");
     main_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
+    main_shader_program->set_depth_test_enabled(MangoRHI::MG_TRUE);
+    main_shader_program->set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);
     auto *ds = main_shader_program->create_descriptor_set();
     ds->add_uniform(MangoRHI::DescriptorStage::eVertex, sizeof(float) * 2, 2);
     ds->add_textures(MangoRHI::DescriptorStage::eFragment, textures, 4);
@@ -71,11 +79,13 @@ int main() {
 
     float *uniform_buffer_pointer0 = (float *)ds->map_uniform_buffer_pointer(0, 0);
     float *uniform_buffer_pointer1 = (float *)ds->map_uniform_buffer_pointer(0, 1);
+    ds->set_texture(1, 3, t_dhl);
+    ds->update();
     std::vector<glm::vec3> vertices = {
-        { 0.5f, 0.5f, 0.0f },
-        { 0.5f, -0.5f, 0.0f },
-        { -0.5f, -0.5f, 0.0f },
-        { -0.5f, 0.5f, 0.0f },
+        { 0.5f, 0.5f, 0.1f },
+        { 0.5f, -0.5f, 0.2f },
+        { -0.5f, -0.5f, 0.3f },
+        { -0.5f, 0.5f, 0.4f },
     };
     std::vector<glm::vec3> colors = {
         { 245.0f, 245.0f, 245.0f },

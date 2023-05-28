@@ -136,13 +136,25 @@ namespace MangoRHI {
         return Result::eSuccess;
     };
 
+    void VulkanSwapchain::recreate_all() {
+        recreate();
+        u32 index = 0;
+        for (auto &render_target : vulkan_context->get_render_pass().get_render_targets()) {
+            if (index != 0) {
+                render_target->destroy();
+                render_target->create();
+            }
+            index++;
+        }
+        vulkan_context->get_framebuffer().recreate();
+    }
+
     Result VulkanSwapchain::acquire_next_frame() {
         VK_CHECK(vkWaitForFences(vulkan_context->get_device().get_logical_device(), 1, &vulkan_context->get_synchronization().get_fences()[vulkan_context->get_current_in_flight_frame_index()], VK_TRUE, UINT64_MAX))
 
         auto res = vkAcquireNextImageKHR(vulkan_context->get_device().get_logical_device(), swapchain, UINT64_MAX, vulkan_context->get_synchronization().get_image_available_semaphores()[vulkan_context->get_current_in_flight_frame_index()], VK_NULL_HANDLE, &image_index);
         if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR) {
-            recreate();
-            vulkan_context->get_framebuffer().recreate();
+            recreate_all();
             return Result::eFailed;
         }
 
@@ -161,8 +173,7 @@ namespace MangoRHI {
         present_info.pResults = nullptr;
         auto res = vkQueuePresentKHR(vulkan_context->get_device().get_present_queue(), &present_info);
         if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR) {
-            recreate();
-            vulkan_context->get_framebuffer().recreate();
+            recreate_all();
             return Result::eFailed;
         }
 

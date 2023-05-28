@@ -15,6 +15,7 @@ namespace MangoRHI {
         virtual void set_swapchain_image_count(u32 count) = 0;
         virtual void set_max_in_flight_frame_count(u32 count) = 0;
         virtual void set_clear_color(ColorClearValue clear_color) = 0;
+        virtual RenderTarget *create_render_target() = 0;
         virtual Shader *create_shader(const char *filename) = 0;
         virtual VertexBuffer *create_vertex_buffer() = 0;
         virtual IndexBuffer *create_index_buffer() = 0;

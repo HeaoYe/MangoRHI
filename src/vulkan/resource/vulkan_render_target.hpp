@@ -2,6 +2,7 @@
 
 #include "../vulkan_commons.hpp"
 #include "MangoRHI/resource/render_target.hpp"
+#include "vulkan_image.hpp"
 
 namespace MangoRHI {
     class VulkanRenderTarget final : public RenderTarget {
@@ -18,6 +19,9 @@ namespace MangoRHI {
     define_member(VkClearValue, clear_value, MANGO_NO_INIT_VAULE)
     define_member(STL_IMPL::vector<VkImage>, images, MANGO_NO_INIT_VAULE)
     define_member(STL_IMPL::vector<VkImageView>, image_views, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<VulkanImage *>, vulkan_images, MANGO_NO_INIT_VAULE)
+    define_private_member(VkImageUsageFlags, usage, MANGO_NO_INIT_VAULE)
+    define_private_member(VkImageAspectFlags, aspect, MANGO_NO_INIT_VAULE)
     define_member(VkAttachmentDescription, description, MANGO_NO_INIT_VAULE)
     define_extern_writeable_member(u32, index, MANGO_NO_INIT_VAULE)
     define_member(Bool, is_each_frame_render_target, MG_FALSE)

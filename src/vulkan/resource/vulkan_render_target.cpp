@@ -21,16 +21,20 @@ namespace MangoRHI {
             description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            this->usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+            this->aspect = VK_IMAGE_ASPECT_COLOR_BIT;
             break;
         case RenderTargetUsage::eDepth:
             description.format = VK_FORMAT_D32_SFLOAT;
             description.samples = VK_SAMPLE_COUNT_1_BIT;
             description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+            description.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
             description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
             description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            this->usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+            this->aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
             break;
         }
     }
@@ -47,10 +51,22 @@ namespace MangoRHI {
         component_create()
 
         if (images.size() == 0) {
-            // TODO create images and image_views
             if (is_each_frame_render_target == MG_TRUE) {
-                // TODO create for all frame buffer
+                vulkan_images.resize(vulkan_context->get_swapchain().get_image_count());
+            } else {
+                vulkan_images.resize(1);
             }
+        }
+        for (auto &image : vulkan_images) {
+            image = new VulkanImage();
+            image->set_extent(vulkan_context->get_width(), vulkan_context->get_height());
+            image->get_format() = description.format;
+            image->get_usage() = usage;
+            image->get_aspect() = aspect;
+            image->create();
+            vulkan_context->transition_image_layout(image->get_image(), image->get_format(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+            images.push_back(image->get_image());
+            image_views.push_back(image->get_image_view());
         }
 
         return Result::eSuccess;
@@ -59,9 +75,12 @@ namespace MangoRHI {
     Result VulkanRenderTarget::destroy() {
         component_destroy()
 
+        for (auto &image : vulkan_images) {
+            image->destroy();
+        }
+
         this->images.clear();
         this->image_views.clear();
-        is_each_frame_render_target = MG_FALSE;
 
         return Result::eSuccess;
     }
