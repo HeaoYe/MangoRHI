@@ -23,10 +23,12 @@ namespace MangoRHI {
         Result destroy() override;
 
         void update(VulkanDescriptorSet *descriptor_set) override;
+        void *get_current_mapped_pointer() const;
     
     define_member(MANGO_CONST_GETTER, MANGO_SETTER_BASIC, u32, size, MANGO_NO_INIT_VAULE)
 
-    define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, VulkanBuffer, buffer, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<VulkanBuffer *>, in_flight_buffers, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<void *>, mapped_pointers, MANGO_NO_INIT_VAULE)
     
     declare_component_cls(VulkanUniformDescriptor)
     };
@@ -60,7 +62,7 @@ namespace MangoRHI {
         Result create() override;
         Result destroy() override;
         
-        void *map_uniform_buffer_pointer(u32 binding, u32 index) override;
+        void *get_uniform_buffer_pointer(u32 binding, u32 index) override;
         void set_texture(u32 binding, u32 index, Texture *texture) override;
         void update() override;
 
@@ -68,7 +70,7 @@ namespace MangoRHI {
         void setup_descriptor_binding(VulkanDescriptor *descriptor, VkDescriptorType type, DescriptorStage stage, u32 count);
     
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkDescriptorSetLayout, layout, VK_NULL_HANDLE)
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkDescriptorSet, descriptor_set, VK_NULL_HANDLE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkDescriptorSet>, in_flight_descriptor_sets, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanDescriptor *>, descriptors, MANGO_NO_INIT_VAULE)
     define_private_member(u32, _current_binding, 0)
     };

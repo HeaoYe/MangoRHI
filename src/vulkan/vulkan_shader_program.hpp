@@ -22,6 +22,8 @@ namespace MangoRHI {
         Result create() override;
         Result destroy() override;
 
+        const STL_IMPL::vector<VkDescriptorSet> &get_current_in_flight_descriptor_sets() const;
+
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, u32, subpass_index, MANGO_NO_INIT_VAULE)
     define_member_with_translator(MANGO_NO_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, Topology, VkPrimitiveTopology, topology, topology2vk_primitive_topology, Topology::eTriangleList)
     define_member_with_translator(MANGO_NO_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, PolygonMode, VkPolygonMode, polygon_mode, polygon_mode2vk_polygon_mode, PolygonMode::eFill)
@@ -42,7 +44,7 @@ namespace MangoRHI {
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkPipelineLayout, layout, VK_NULL_HANDLE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkPipeline, pipeline, VK_NULL_HANDLE)
     define_private_member(STL_IMPL::vector<VkDescriptorSetLayout>, descriptor_set_layouts, MANGO_NO_INIT_VAULE)
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkDescriptorSet>, descriptor_sets, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<STL_IMPL::vector<VkDescriptorSet>>, in_flight_descriptor_sets, MANGO_NO_INIT_VAULE)
 
     declare_component_cls(VulkanShaderProgram)
     };
