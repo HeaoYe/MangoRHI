@@ -141,16 +141,16 @@ int main() {
     vertex_buffer->write_data(vertices.data(), vertices.size(), 0);
     color_buffer->write_data(colors.data(), colors.size(), 0);
     index_buffer->write_data(indices.data(), indices.size(), 0);
-    float *uniform_buffer_pointer0 = (float *)ds->map_uniform_buffer_pointer(0, 0);
-    float *uniform_buffer_pointer1 = (float *)ds->map_uniform_buffer_pointer(0, 1);
 
     while (!glfwWindowShouldClose(glfwWindow)) {
         glfwPollEvents();
 
         if (ctx->begin_frame() == MangoRHI::Result::eSuccess) {
             auto &command = ctx->get_current_command_reference();
-
             command.next_subpass();
+
+            float *uniform_buffer_pointer0 = (float *)ds->get_uniform_buffer_pointer(0, 0);
+            float *uniform_buffer_pointer1 = (float *)ds->get_uniform_buffer_pointer(0, 1);
             static float t1 = 0.0f, t2 = 0.0f;
             t1 += 0.01f;
             *(uniform_buffer_pointer0 + 0) = (glm::sin(t1) + 0.2f) * 0.5f;

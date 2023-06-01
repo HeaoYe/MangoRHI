@@ -128,9 +128,12 @@ namespace MangoRHI {
         dynamic_state.pDynamicStates = dynamic_states.data();
         dynamic_state.dynamicStateCount = dynamic_states.size();
 
+        in_flight_descriptor_sets.resize(vulkan_context->get_max_in_flight_frame_count());
         for (const auto &descriptor_set : vulkan_descriptor_sets) {
             descriptor_set_layouts.push_back(descriptor_set->get_layout());
-            descriptor_sets.push_back(descriptor_set->get_descriptor_set());
+            for(u32 in_flight_index = 0; in_flight_index < vulkan_context->get_max_in_flight_frame_count(); in_flight_index++) {
+                in_flight_descriptor_sets[in_flight_index].push_back(descriptor_set->get_in_flight_descriptor_sets()[in_flight_index]);
+            }
         }
 
         VkPipelineLayoutCreateInfo layout_create_info { .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
@@ -174,6 +177,12 @@ namespace MangoRHI {
         RHI_DEBUG("Destroy vulkan pipeline layout -> 0x{:x}", (AddrType)layout)
         vkDestroyPipelineLayout(vulkan_context->get_device().get_logical_device(), layout, vulkan_context->get_allocator());
 
+        in_flight_descriptor_sets.clear();
+
         return Result::eSuccess;
+    }
+
+    const STL_IMPL::vector<VkDescriptorSet> &VulkanShaderProgram::get_current_in_flight_descriptor_sets() const {
+        return in_flight_descriptor_sets[vulkan_context->get_current_in_flight_frame_index()];
     }
 }
