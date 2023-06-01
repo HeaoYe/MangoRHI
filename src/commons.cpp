@@ -2,6 +2,22 @@
 #include "vulkan/vulkan_context.hpp"
 
 namespace MangoRHI {
+    Result RuntimeComponent::recreate() {
+        if (is_destroyed()) {
+            return Result::eAlreadyDestroyed;
+        }
+        Result res;
+        if ((res = destroy()) != Result::eSuccess) {
+            RHI_ERROR("Vulkan runtime component recreate error when destroy -- {}", to_string(res))
+            return res;
+        }
+        if ((res = create()) != Result::eSuccess) {
+            RHI_ERROR("Vulkan runtime component recreate error when create -- {}", to_string(res))
+            return res;
+        }
+        return Result::eSuccess;
+    }
+
     #define invoke_backend_func(backend, func) \
     { \
         auto res = func##_##backend(); \
@@ -81,6 +97,8 @@ namespace MangoRHI {
         case_result(AlreadyDestroyed)
         case_result(NotImplemented)
         case_result(DeviceNotFound)
+        case_result(NeedToRecreate)
+        case_result(Recreating)
         }
     }
     

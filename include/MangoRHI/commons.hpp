@@ -18,8 +18,16 @@
 
 #if defined (NDEBUG)
     #define MANGO_DEBUG
+
+    #define MANGO_ASSERT(expr) \
+    if(!(expr)) { \
+        RHI_FATAL("Mango Assert Failed {} -> {}", __FILE__, __LINE__) \
+        throw ::std::runtime_error("Mango Assert Failed"); \
+    }
 #else
     #define MANGO_RELEASE
+
+    #define MANGO_ASSERT(expr)
 #endif
 
 #include <stdint.h>
@@ -33,7 +41,7 @@
     #include <EASTL/set.h>
     #include <EASTL/unordered_map.h>
 #else
-    #define STL_IMPL std
+    #define STL_IMPL ::std
     #include <vector>
     #include <set>
     #include <unordered_map>
@@ -82,6 +90,8 @@ namespace MangoRHI {
         eAlreadyDestroyed,
         eNotImplemented,
         eDeviceNotFound,
+        eNeedToRecreate,
+        eRecreating,
     };
     std::string to_string(Result res);
 
@@ -90,60 +100,108 @@ namespace MangoRHI {
         virtual Result create() = 0;
         virtual Result destroy() = 0;
         virtual Bool is_destroyed() final { return destroyed; }
+        
+        virtual Result recreate();
     protected:
         Bool destroyed = MG_TRUE;
     };
 
-    #define MANGO_NULL_MACRO
-    #define MANGO_NO_INIT_VAULE MANGO_NULL_MACRO
-    #define MANGO_READONLY const
-    #define MANGO_READWRITE MANGO_NULL_MACRO
+    #define __MANGO_NULL_MACRO
+    #define __MANGO_READONLY const
+    #define __MANGO_READWRITE __MANGO_NULL_MACRO
 
+    #define __define_member(is_readonly, type, is_pointer, member_name, ...) \
+    private: \
+        is_readonly type is_pointer member_name { __VA_ARGS__ };
 
     #define __define_member_getter(type, type_descriptor, is_const, member_name) \
     public: \
         is_const type type_descriptor get_##member_name() is_const { return member_name; }
+    
+    #define __define_member_setter(is_readonly, type, type_descriptor, is_override, member_name) \
+    public: \
+        void set_##member_name(is_readonly type type_descriptor member_name) is_override { this->member_name = member_name; }
+    
+    #define __define_member_setter_with_translator(SrcType, is_override, member_name, translator) \
+    public: \
+        void set_##member_name(SrcType member_name) is_override { this->member_name = translator(member_name); }
+    
+    #define define_private_member(type, member_name, ...) \
+    __define_member(__MANGO_READWRITE, type, __MANGO_NULL_MACRO, member_name, __VA_ARGS__)
 
-    #define __define_private_member(type, is_readonly, is_pointer, member_name, value) \
+    #define define_private_readonly_member(type, member_name, ...) \
+    __define_member(__MANGO_READONLY, type, __MANGO_NULL_MACRO, member_name, __VA_ARGS__)
+
+    #define define_member(getter, setter, type, member_name, ...) \
+    define_private_member(type, member_name, __VA_ARGS__) \
+    getter(type, &, member_name) \
+    setter(__MANGO_READWRITE, type, &, member_name)
+
+    #define define_member_with_translator(getter, setter, SrcType, DstType, member_name, translator, ...) \
+    define_private_member(DstType, member_name, translator(__VA_ARGS__)) \
+    getter(DstType, &, member_name) \
+    setter(SrcType, member_name, translator)
+
+    #define define_readonly_member(getter, setter, type, member_name, ...) \
+    define_private_readonly_member(type, member_name, __VA_ARGS__) \
+    getter(type, &, member_name) \
+    setter(__MANGO_READONLY, type, &, member_name)
+
+    #define define_private_pointer(type, member_name, ...) \
+    __define_member(__MANGO_READWRITE, type, *, member_name, __VA_ARGS__)
+
+    #define define_private_readonly_pointer(type, member_name, ...) \
+    __define_member(__MANGO_READONLY, type, *, member_name, __VA_ARGS__)
+
+    #define define_pointer(getter, setter, type, member_name, ...) \
+    define_private_pointer(type, member_name, __VA_ARGS__) \
+    getter(type, *, member_name) \
+    setter(__MANGO_READWRITE, type, *, member_name)
+
+    #define define_readonly_pointer(getter, setter, type, member_name, ...) \
+    define_private_readonly_pointer(type, member_name, __VA_ARGS__) \
+    getter(type, *, member_name) \
+    setter(__MANGO_READONLY, type, *, member_name)
+
+    #define MANGO_NO_INIT_VAULE __MANGO_NULL_MACRO
+    
+    #define MANGO_NO_GETTER(...) __MANGO_NULL_MACRO
+
+    #define MANGO_CONST_GETTER(type, type_descriptor, member_name) \
+    __define_member_getter(type, type_descriptor, const, member_name)
+
+    #define MANGO_MUTABLE_GETTER(type, type_descriptor, member_name) \
+    __define_member_getter(type, type_descriptor, const, member_name) \
+    __define_member_getter(type, type_descriptor, __MANGO_NULL_MACRO, member_name)
+
+    #define MANGO_NO_SETTER(...) __MANGO_NULL_MACRO
+
+    #define MANGO_SETTER(is_readonly, type, type_descriptor, member_name) \
+    __define_member_setter(is_readonly, type, type_descriptor, __MANGO_NULL_MACRO, member_name)
+
+    #define MANGO_SETTER_BASIC(is_readonly, type, type_descriptor, member_name) \
+    __define_member_setter(is_readonly, type, __MANGO_NULL_MACRO, __MANGO_NULL_MACRO, member_name)
+
+    #define MANGO_SETTER_OVERRIDE(is_readonly, type, type_descriptor, member_name) \
+    __define_member_setter(is_readonly, type, type_descriptor, override, member_name)
+
+    #define MANGO_SETTER_BASIC_OVERRIDE(is_readonly, type, type_descriptor, member_name) \
+    __define_member_setter(is_readonly, type, __MANGO_NULL_MACRO, override, member_name)
+
+    #define MANGO_SETTER_WITH_TRANSLATOR(SrcType, member_name, translator) \
+    __define_member_setter_with_translator(SrcType, __MANGO_NULL_MACRO, member_name, translator)
+
+    #define MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE(SrcType, member_name, translator) \
+    __define_member_setter_with_translator(SrcType, override, member_name, translator)
+
+    #define declare_component_cls(cls_name) \
+    public: \
+        cls_name() = default; \
     private: \
-        is_readonly type is_pointer member_name { value };
-
-    #define __define_member(type, is_readonly, is_pointer, is_refrence, member_name, value) \
-    __define_private_member(type, is_readonly, is_pointer, member_name, value) \
-    __define_member_getter(type, is_pointer is_refrence, const, member_name)
-
-    #define define_private_member(type, member_name, value) \
-    __define_private_member(type, MANGO_READWRITE, MANGO_NULL_MACRO, member_name, value)
-
-    #define define_member(type, member_name, value) \
-    __define_member(type, MANGO_READWRITE, MANGO_NULL_MACRO, &, member_name, value)
-
-    #define define_private_readonly_member(type, member_name, value) \
-    __define_private_member(type, MANGO_READONLY, MANGO_NULL_MACRO, member_name, value)
-
-    #define define_readonly_member(type, member_name, value) \
-    __define_member(type, MANGO_READONLY, MANGO_NULL_MACRO, &, member_name, value)
-
-    #define define_extern_writeable_member(type, member_name, value) \
-    define_member(type, member_name, value) \
-    __define_member_getter(type, &, MANGO_NULL_MACRO, member_name)
-
-    #define define_private_pointer(type, member_name, value) \
-    __define_private_member(type, MANGO_READWRITE, *, member_name, value)
-
-    #define define_pointer(type, member_name, value) \
-    __define_member(type, MANGO_READWRITE, *, MANGO_NULL_MACRO, member_name, value)
-
-    #define define_private_readonly_pointer(type, member_name, value) \
-    __define_private_member(type, MANGO_READONLY, *, member_name, value)
-
-    #define define_readonly_pointer(type, member_name, value) \
-    __define_member(type, MANGO_READONLY, *, MANGO_NULL_MACRO, member_name, value)
-
-    #define define_extern_writeable_pointer(type, member_name, value) \
-    define_pointer(type, member_name, value) \
-    __define_member_getter(type, *, MANGO_NULL_MACRO, member_name)
-
+        cls_name(const cls_name &) = delete; \
+        cls_name &operator=(const cls_name &) = delete; \
+        cls_name(cls_name &&) = delete; \
+        cls_name &operator=(cls_name &&) = delete;
 
     #define component_create() \
     if (destroyed == ::MangoRHI::MG_FALSE) { \
@@ -299,34 +357,6 @@ namespace MangoRHI {
 
     #define MANGORHI_SURFACE_RENDER_TARGET_NAME "surface"
     #define MANGORHI_EXTERNAL_SUBPASS_NAME "external"
-
-    #define __default_construction(cls) \
-    public: \
-        cls() = default;
-
-    #define __no_copy_construction(cls) \
-    private: \
-        cls(const cls &) = delete; \
-        cls &operator=(const cls &) = delete;
-    
-    #define __no_move_construction(cls) \
-    private: \
-        cls(cls &&) = delete; \
-        cls &operator=(cls &&) = delete;
-
-
-    #define no_copy_construction(cls) \
-    __default_construction(cls) \
-    __no_copy_construction(cls)
-
-    #define no_move_construction(cls) \
-    __default_construction(cls) \
-    __no_move_construction(cls)
-
-    #define no_copy_and_move_construction(cls) \
-    __default_construction(cls) \
-    __no_copy_construction(cls) \
-    __no_move_construction(cls) \
 
     class Context;
 

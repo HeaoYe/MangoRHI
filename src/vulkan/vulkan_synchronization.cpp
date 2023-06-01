@@ -37,4 +37,16 @@ namespace MangoRHI {
 
         return Result::eSuccess;
     }
+
+    const VkSemaphore &VulkanSynchronization::get_current_image_available_semaphore() const {
+        return image_available_semaphores[vulkan_context->get_current_in_flight_frame_index()];
+    }
+
+    const VkSemaphore &VulkanSynchronization::get_current_render_finished_semaphore() const {
+        return render_finished_semaphores[vulkan_context->get_current_in_flight_frame_index()];
+    }
+
+    const VkFence &VulkanSynchronization::get_current_fence() const {
+        return fences[vulkan_context->get_current_in_flight_frame_index()];
+    }
 }

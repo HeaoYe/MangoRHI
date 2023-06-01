@@ -31,14 +31,14 @@ namespace MangoRHI {
         command_buffer_allocate_info.commandBufferCount = 1;
         VK_CHECK(vkAllocateCommandBuffers(vulkan_context->get_device().get_logical_device(), &command_buffer_allocate_info, &command_buffer))
         RHI_DEBUG("Allocate vulkan command buffer -> 0x{:x}", (AddrType)command_buffer)
-        command->set_command_buffer(command_buffer);
-        command->set_single_use(MG_FALSE);
+        command->command_buffer = command_buffer;
+        command->is_single_use = MG_FALSE;
         command->create();
     }
 
     void VulkanCommandPool::allocate_single_use(VulkanCommand *command) const {
         allocate(CommandLevel::ePrimary, command);
-        command->set_single_use(MG_TRUE);
+        command->is_single_use = MG_TRUE;
         command->begin_render();
     }
 

@@ -2,14 +2,6 @@
 #include "vulkan_context.hpp"
 
 namespace MangoRHI {
-    void VulkanCommand::set_single_use(Bool is_single_use) {
-        this->is_single_use = is_single_use;
-    }
-
-    void VulkanCommand::set_command_buffer(VkCommandBuffer command_buffer) {
-        this->command_buffer = command_buffer;
-    }
-
     Result VulkanCommand::create() {
         component_create()
 
@@ -43,15 +35,15 @@ namespace MangoRHI {
         submit_info.pCommandBuffers = &command_buffer;
         submit_info.commandBufferCount = 1;
         if (is_single_use == MG_FALSE) {
-            submit_info.pWaitSemaphores = &vulkan_context->get_synchronization().get_image_available_semaphores()[vulkan_context->get_current_in_flight_frame_index()];
+            submit_info.pWaitSemaphores = &vulkan_context->get_synchronization().get_current_image_available_semaphore();
             submit_info.waitSemaphoreCount = 1;
             VkPipelineStageFlags stages[] = {
                 VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
             };
             submit_info.pWaitDstStageMask = stages;
-            submit_info.pSignalSemaphores = &vulkan_context->get_synchronization().get_render_finished_semaphores()[vulkan_context->get_current_in_flight_frame_index()];
+            submit_info.pSignalSemaphores = &vulkan_context->get_synchronization().get_current_render_finished_semaphore();
             submit_info.signalSemaphoreCount = 1;
-            VK_CHECK(vkQueueSubmit(vulkan_context->get_device().get_graphics_queue(), 1, &submit_info, vulkan_context->get_synchronization().get_fences()[vulkan_context->get_current_in_flight_frame_index()]))
+            VK_CHECK(vkQueueSubmit(vulkan_context->get_device().get_graphics_queue(), 1, &submit_info, vulkan_context->get_synchronization().get_current_fence()))
         }
         else {
             VK_CHECK(vkQueueSubmit(vulkan_context->get_device().get_transfer_queue(), 1, &submit_info, VK_NULL_HANDLE))

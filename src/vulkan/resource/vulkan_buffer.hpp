@@ -6,8 +6,6 @@
 namespace MangoRHI {
     class VulkanBuffer final : public Buffer {
     public:
-        void set_size(u32 size) override;
-
         Result create() override;
         Result destroy() override;
 
@@ -17,52 +15,49 @@ namespace MangoRHI {
         void resize(u32 size) override;
         void copy_from(const Buffer *other, u64 src_offset, u64 dst_offset, u64 size) override;
     
-    define_member(u32, size, MANGO_NO_INIT_VAULE)
-    define_member(VkBuffer, buffer, VK_NULL_HANDLE)
-    define_member(VkDeviceMemory, memory, VK_NULL_HANDLE)
-    define_private_pointer(void, ptr, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(VkBufferUsageFlags, usage, 0)
-    define_extern_writeable_member(VkMemoryPropertyFlags, properties, 0)
+    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, VkBufferUsageFlags, usage, 0)
+    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, VkMemoryPropertyFlags, properties, 0)
+    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC_OVERRIDE, u32, size, MANGO_NO_INIT_VAULE)
 
-    no_copy_and_move_construction(VulkanBuffer)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkBuffer, buffer, VK_NULL_HANDLE)
+    define_private_member(VkDeviceMemory, memory, VK_NULL_HANDLE)
+    define_private_pointer(void, ptr, MANGO_NO_INIT_VAULE)
+
+    declare_component_cls(VulkanBuffer)
     };
 
     class VulkanVertexBuffer final : public VertexBuffer {
     public:
-        void set_vertex_size(u32 size) override;
-        void set_size(u32 count) override;
-        
         Result create() override;
         Result destroy() override;
         void write_data(const void *data, u32 count, u32 offset_count) override;
         void resize(u32 size) override;
         void copy_from(const Buffer *other, u64 src_offset_count, u64 dst_offset_count, u64 count) override;
     
-    define_member(u32, size, MANGO_NO_INIT_VAULE)
-    define_private_member(u32, type_size, MANGO_NO_INIT_VAULE)
-    define_private_member(u32, count, MANGO_NO_INIT_VAULE)
-    define_member(VulkanBuffer, staging, MANGO_NO_INIT_VAULE)
-    define_member(VulkanBuffer, buffer, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC_OVERRIDE, u32, count, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC_OVERRIDE, u32, vertex_size, MANGO_NO_INIT_VAULE)
 
-    no_copy_and_move_construction(VulkanVertexBuffer)
+    define_private_member(VulkanBuffer, staging, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanBuffer, buffer, MANGO_NO_INIT_VAULE)
+
+    declare_component_cls(VulkanVertexBuffer)
     };
+
+    const u32 vulkan_index_type_size = sizeof(u32);
 
     class VulkanIndexBuffer final : public IndexBuffer {
     public:
-        void set_size(u32 count) override;
-        
         Result create() override;
         Result destroy() override;
         void write_data(const void *data, u32 count, u32 offset_count) override;
         void resize(u32 count) override;
         void copy_from(const Buffer *other, u64 src_offset_count, u64 dst_offset_count, u64 count) override;
     
-    define_member(u32, size, MANGO_NO_INIT_VAULE)
-    define_private_member(u32, type_size, sizeof(u32))
-    define_private_member(u32, count, MANGO_NO_INIT_VAULE)
-    define_member(VulkanBuffer, staging, MANGO_NO_INIT_VAULE)
-    define_member(VulkanBuffer, buffer, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC_OVERRIDE, u32, count, MANGO_NO_INIT_VAULE)
 
-    no_copy_and_move_construction(VulkanIndexBuffer)
+    define_private_member(VulkanBuffer, staging, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanBuffer, buffer, MANGO_NO_INIT_VAULE)
+
+    declare_component_cls(VulkanIndexBuffer)
     };
 }

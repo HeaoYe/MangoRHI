@@ -5,12 +5,12 @@
 namespace MangoRHI {
     void VulkanSubpass::build(const char *name, PipelineBindPoint bind_point, u32 index) {
         this->name = name;
-        description.pInputAttachments = input_attachment.data();
-        description.inputAttachmentCount = input_attachment.size();
-        description.pColorAttachments = output_attachment.data();
-        description.colorAttachmentCount = output_attachment.size();
-        description.pPreserveAttachments = preserve_attachment.data();
-        description.preserveAttachmentCount = preserve_attachment.size();
+        description.pInputAttachments = input_attachments.data();
+        description.inputAttachmentCount = input_attachments.size();
+        description.pColorAttachments = output_attachments.data();
+        description.colorAttachmentCount = output_attachments.size();
+        description.pPreserveAttachments = preserve_attachments.data();
+        description.preserveAttachmentCount = preserve_attachments.size();
         if (depth_attachment.has_value()) {
             description.pDepthStencilAttachment = &depth_attachment.value();
         }
@@ -20,7 +20,7 @@ namespace MangoRHI {
         this->bind_point = pipeline_bind_point2vk_pipeline_bind_point(bind_point);
         description.pipelineBindPoint = this->bind_point;
         this->shader_program = new VulkanShaderProgram();
-        shader_program->get_subpass_index() = index;
+        shader_program->set_subpass_index(index);
     }
 
     u32 VulkanRenderPass::get_render_target_index_by_name(const char *render_target_name) {
@@ -64,7 +64,7 @@ namespace MangoRHI {
 
     void VulkanRenderPass::attach_render_target(RenderTarget *render_target) {
         VulkanRenderTarget *vulkan_render_target = (VulkanRenderTarget *)render_target;
-        vulkan_render_target->get_index() = render_targets.size() + 1;
+        vulkan_render_target->set_index(render_targets.size() + 1);
         if (get_render_target_index_by_name(vulkan_render_target->get_name()) < render_targets.size()) {
             RHI_ERROR("RenderTarget {} is existed", vulkan_render_target->get_name());
         }
@@ -72,15 +72,15 @@ namespace MangoRHI {
     }
 
     void VulkanRenderPass::add_input_render_target(const char *render_target_name, RenderTargetLayout ref_layout) {
-        temp_subpass->get_input_attachment().push_back(get_render_target_ref(render_target_name, ref_layout));
+        temp_subpass->get_input_attachments().push_back(get_render_target_ref(render_target_name, ref_layout));
     }
 
     void VulkanRenderPass::add_output_render_target(const char *render_target_name, RenderTargetLayout ref_layout) {
-        temp_subpass->get_output_attachment().push_back(get_render_target_ref(render_target_name, ref_layout));
+        temp_subpass->get_output_attachments().push_back(get_render_target_ref(render_target_name, ref_layout));
     }
 
     void VulkanRenderPass::add_preserve_render_target(const char *render_target_name) {
-        temp_subpass->get_preserve_attachment().push_back(get_render_target_index_by_name(render_target_name));
+        temp_subpass->get_preserve_attachments().push_back(get_render_target_index_by_name(render_target_name));
     }
 
     void VulkanRenderPass::set_depth_render_target(const char *render_target_name, RenderTargetLayout ref_layout) {
@@ -124,6 +124,7 @@ namespace MangoRHI {
 
         STL_IMPL::vector<VkAttachmentDescription> attachment_descriptions;
         STL_IMPL::vector<VkSubpassDescription> subpass_descriptions;
+
         render_targets.insert(render_targets.begin(), &vulkan_context->get_swapchain().get_render_target());
         clear_values.resize(render_targets.size());
         for (const auto &render_target : render_targets) {
@@ -166,7 +167,7 @@ namespace MangoRHI {
 
     Result VulkanRenderPass::begin_render_pass(VulkanCommand *command) {
         for (u32 index = 0; index < render_targets.size(); index++) {
-            clear_values[index] = render_targets[index]->get_clear_value();
+            clear_values[index] = render_targets[index]->get_clear_color();
         }
         VkRenderPassBeginInfo render_pass_begin_info { .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
         render_pass_begin_info.renderPass = render_pass;

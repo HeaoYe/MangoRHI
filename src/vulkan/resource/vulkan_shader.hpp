@@ -6,13 +6,13 @@
 namespace MangoRHI {
     class VulkanShader final : public Shader {
     public:
-        void set_filename(const char *filename) override;
         Result create() override;
         Result destroy() override;
     
-    define_private_readonly_pointer(char, filename, "")
-    define_member(VkShaderModule, shader_module, VK_NULL_HANDLE)
+    define_readonly_pointer(MANGO_NO_GETTER, MANGO_SETTER_OVERRIDE, char, filename, "")
+    
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkShaderModule, shader_module, VK_NULL_HANDLE)
 
-    no_copy_and_move_construction(VulkanShader)
+    declare_component_cls(VulkanShader)
     };
 }

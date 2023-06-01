@@ -6,21 +6,19 @@
 namespace MangoRHI {
     class VulkanImage final : public RuntimeComponent {
     public:
-        void set_extent(u32 width, u32 height);
-
         Result create() override;
         Result destroy() override;
     
-    define_private_member(u32, width, MANGO_NO_INIT_VAULE)
-    define_private_member(u32, height, MANGO_NO_INIT_VAULE)
-    define_private_pointer(VulkanBuffer, staging, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(VkFormat, format, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(VkImageUsageFlags, usage, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(VkImageAspectFlags, aspect, MANGO_NO_INIT_VAULE)
-    define_member(VkImage, image, VK_NULL_HANDLE)
-    define_member(VkDeviceMemory, memory, VK_NULL_HANDLE)
-    define_member(VkImageView, image_view, VK_NULL_HANDLE)
+    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, VkExtent2D, extent, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_SETTER_BASIC, VkFormat, format, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, VkImageUsageFlags, usage, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, VkImageAspectFlags, aspect, MANGO_NO_INIT_VAULE)
 
-    no_copy_and_move_construction(VulkanImage)
+    define_private_pointer(VulkanBuffer, staging, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkImage, image, VK_NULL_HANDLE)
+    define_private_member(VkDeviceMemory, memory, VK_NULL_HANDLE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkImageView, image_view, VK_NULL_HANDLE)
+
+    declare_component_cls(VulkanImage)
     };
 }

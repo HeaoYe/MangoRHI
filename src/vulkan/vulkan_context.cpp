@@ -38,14 +38,14 @@ namespace MangoRHI {
 
     VertexBuffer *VulkanContext::create_vertex_buffer() {
         auto *vertex_buffer = new VulkanVertexBuffer();
-        vertex_buffer->set_size(1024);
+        vertex_buffer->set_count(1024);
         vertex_buffers.push_back(vertex_buffer);
         return vertex_buffer;
     }
 
     IndexBuffer *VulkanContext::create_index_buffer() {
         auto *index_buffer = new VulkanIndexBuffer();
-        index_buffer->set_size(1024);
+        index_buffer->set_count(1024);
         index_buffers.push_back(index_buffer);
         return index_buffer;
     }
@@ -171,9 +171,22 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
+    void VulkanContext::recreate_resources() {
+        VK_CHECK(vkDeviceWaitIdle(device.get_logical_device()))
+        swapchain.recreate();
+        for (auto &render_target : render_targets) {
+            render_target->recreate();
+        }
+        framebuffer.recreate();
+    }
+
     Result VulkanContext::begin_frame() {
         Result res;
         if ((res = swapchain.acquire_next_frame()) != Result::eSuccess) {
+            if (res == Result::eNeedToRecreate) {
+                recreate_resources();
+                return Result::eRecreating;
+            }
             return res;
         }
 
@@ -206,6 +219,10 @@ namespace MangoRHI {
         }
 
         if ((res = swapchain.present()) != Result::eSuccess) {
+            if (res == Result::eNeedToRecreate) {
+                recreate_resources();
+                return Result::eRecreating;
+            }
             return res;
         }
 

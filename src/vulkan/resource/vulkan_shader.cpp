@@ -2,10 +2,6 @@
 #include "../vulkan_context.hpp"
 
 namespace MangoRHI {
-    void VulkanShader::set_filename(const char *filename) {
-        this->filename = filename;
-    }
-
     Result VulkanShader::create() {
         component_create()
 

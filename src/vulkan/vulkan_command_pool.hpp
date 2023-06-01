@@ -13,8 +13,8 @@ namespace MangoRHI {
         void allocate_single_use(VulkanCommand *command) const;
         void free(VulkanCommand *command) const;
     
-    define_member(VkCommandPool, command_pool, VK_NULL_HANDLE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkCommandPool, command_pool, VK_NULL_HANDLE)
 
-    no_copy_and_move_construction(VulkanCommandPool)
+    declare_component_cls(VulkanCommandPool)
     };
 }

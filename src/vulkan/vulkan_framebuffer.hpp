@@ -6,11 +6,10 @@ namespace MangoRHI {
     class VulkanFrameBuffer final : public RuntimeComponent {
     public:
         Result create() override;
-        Result recreate();
         Result destroy() override;
     
-    define_member(STL_IMPL::vector<VkFramebuffer>, framebuffers, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkFramebuffer>, framebuffers, MANGO_NO_INIT_VAULE)
 
-    no_copy_and_move_construction(VulkanFrameBuffer)
+    declare_component_cls(VulkanFrameBuffer)
     };
 }

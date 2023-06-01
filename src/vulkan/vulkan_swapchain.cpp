@@ -2,10 +2,6 @@
 #include "vulkan_context.hpp"
 
 namespace MangoRHI {
-    void VulkanSwapchain::set_image_count(u32 count) {
-        image_count = count;
-    }
-
     Result VulkanSwapchain::create() {
         component_create()
 
@@ -83,16 +79,13 @@ namespace MangoRHI {
             RHI_WARN("Expecting image_count is {} but actually image_count is {}", image_count, count)
             image_count = count;
         }
-
         render_target.set_name(MANGORHI_SURFACE_RENDER_TARGET_NAME);
         render_target.set_usage(RenderTargetUsage::eColor);
-
         for (count = 0; count < image_count; count++) {
             image_views[count] = vulkan_context->create_image_view(images[count], format.format, VK_IMAGE_ASPECT_COLOR_BIT);
             render_target.add_render_target_data(images[count], image_views[count]);
             RHI_DEBUG("Create vulkan swapchain image view({}) -> 0x{:x}", count, (AddrType)image_views[count])
         }
-
         render_target.create();
 
         return Result::eSuccess;
@@ -115,50 +108,15 @@ namespace MangoRHI {
         return Result::eSuccess;
     };
 
-    Result VulkanSwapchain::recreate() {
-        VK_CHECK(vkDeviceWaitIdle(vulkan_context->get_device().get_logical_device()))
-
-        if (is_destroyed()) {
-            return Result::eAlreadyDestroyed;
-        }
-
-        Result res;
-        if ((res = destroy()) != Result::eSuccess) {
-            RHI_DEBUG("Vulkan swapchain recreate error when destroy -- {}", to_string(res))
-            return res;
-        }
-
-        if ((res = create()) != Result::eSuccess) {
-            RHI_DEBUG("Vulkan swapchain recreate error when create -- {}", to_string(res))
-            return res;
-        }
-
-        return Result::eSuccess;
-    };
-
-    void VulkanSwapchain::recreate_all() {
-        recreate();
-        u32 index = 0;
-        for (auto &render_target : vulkan_context->get_render_pass().get_render_targets()) {
-            if (index != 0) {
-                render_target->destroy();
-                render_target->create();
-            }
-            index++;
-        }
-        vulkan_context->get_framebuffer().recreate();
-    }
-
     Result VulkanSwapchain::acquire_next_frame() {
-        VK_CHECK(vkWaitForFences(vulkan_context->get_device().get_logical_device(), 1, &vulkan_context->get_synchronization().get_fences()[vulkan_context->get_current_in_flight_frame_index()], VK_TRUE, UINT64_MAX))
+        VK_CHECK(vkWaitForFences(vulkan_context->get_device().get_logical_device(), 1, &vulkan_context->get_synchronization().get_current_fence(), VK_TRUE, UINT64_MAX))
 
-        auto res = vkAcquireNextImageKHR(vulkan_context->get_device().get_logical_device(), swapchain, UINT64_MAX, vulkan_context->get_synchronization().get_image_available_semaphores()[vulkan_context->get_current_in_flight_frame_index()], VK_NULL_HANDLE, &image_index);
+        auto res = vkAcquireNextImageKHR(vulkan_context->get_device().get_logical_device(), swapchain, UINT64_MAX, vulkan_context->get_synchronization().get_current_image_available_semaphore(), VK_NULL_HANDLE, &image_index);
         if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR) {
-            recreate_all();
-            return Result::eFailed;
+            return Result::eNeedToRecreate;
         }
 
-        VK_CHECK(vkResetFences(vulkan_context->get_device().get_logical_device(), 1, &vulkan_context->get_synchronization().get_fences()[vulkan_context->get_current_in_flight_frame_index()]))
+        VK_CHECK(vkResetFences(vulkan_context->get_device().get_logical_device(), 1, &vulkan_context->get_synchronization().get_current_fence()))
 
         return Result::eSuccess;
     };
@@ -167,14 +125,13 @@ namespace MangoRHI {
         VkPresentInfoKHR present_info { .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
         present_info.pSwapchains = &swapchain;
         present_info.swapchainCount = 1;
-        present_info.pWaitSemaphores = &vulkan_context->get_synchronization().get_render_finished_semaphores()[vulkan_context->get_current_in_flight_frame_index()];
+        present_info.pWaitSemaphores = &vulkan_context->get_synchronization().get_current_render_finished_semaphore();
         present_info.waitSemaphoreCount = 1;
         present_info.pImageIndices = &image_index;
         present_info.pResults = nullptr;
         auto res = vkQueuePresentKHR(vulkan_context->get_device().get_present_queue(), &present_info);
         if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR) {
-            recreate_all();
-            return Result::eFailed;
+            return Result::eNeedToRecreate;
         }
 
         return Result::eSuccess;

@@ -2,30 +2,6 @@
 #include "vulkan_context.hpp"
 
 namespace MangoRHI {
-    void VulkanShaderProgram::set_topology(Topology topology) {
-        this->topology = topology;
-    }
-
-    void VulkanShaderProgram::set_polygon_mode(PolygonMode polygon) {
-        this->polygon = polygon;
-    }
-    
-    void VulkanShaderProgram::set_front_face(FrontFace front) {
-        this->front = front;
-    }
-
-    void VulkanShaderProgram::set_cull_mode(CullMode cull) {
-        this->cull = cull;
-    }
-
-    void VulkanShaderProgram::set_depth_test_enabled(Bool enabled) {
-        this->depth_test_enabled = enabled;
-    }
-
-    void VulkanShaderProgram::set_depth_compare_op(DepthCompareOp op) {
-        this->compare_op = op;
-    }
-
     void VulkanShaderProgram::add_vertex_attribute(VertexInputType type, u32 stride) {
         this->attributes.push_back(VkVertexInputAttributeDescription {
             .location = _current_location,
@@ -92,7 +68,7 @@ namespace MangoRHI {
 
         VkPipelineInputAssemblyStateCreateInfo input_assembly_state { .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
         input_assembly_state.primitiveRestartEnable = VK_FALSE;
-        input_assembly_state.topology = topology2vk_primitive_topology(topology);
+        input_assembly_state.topology = topology;
 
         // TODO: tessellation_state
 
@@ -116,11 +92,11 @@ namespace MangoRHI {
 
         VkPipelineRasterizationStateCreateInfo rasterization_state { .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
         rasterization_state.rasterizerDiscardEnable = VK_FALSE;
-        rasterization_state.polygonMode = polygon2vk_polygon_mode(polygon);
+        rasterization_state.polygonMode = polygon_mode;
         rasterization_state.depthBiasEnable = VK_FALSE;
         rasterization_state.depthClampEnable = VK_FALSE;
-        rasterization_state.frontFace = front_face2vk_front_face(front);
-        rasterization_state.cullMode = cull_mode2vk_cull_mode_flags(cull);
+        rasterization_state.frontFace = front_face;
+        rasterization_state.cullMode = cull_mode;
         rasterization_state.lineWidth = 1.0f;
 
         VkPipelineMultisampleStateCreateInfo multisample_state { .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO };
@@ -131,7 +107,7 @@ namespace MangoRHI {
         if (depth_test_enabled == MG_TRUE) {
             depth_stencil_state.depthTestEnable = VK_TRUE;
             depth_stencil_state.depthWriteEnable = VK_TRUE;
-            depth_stencil_state.depthCompareOp = depth_compare_op2vk_compare_op(compare_op);
+            depth_stencil_state.depthCompareOp = depth_compare_op;
             depth_stencil_state.depthBoundsTestEnable = VK_FALSE;
         } else {
             depth_stencil_state.depthTestEnable = VK_FALSE;

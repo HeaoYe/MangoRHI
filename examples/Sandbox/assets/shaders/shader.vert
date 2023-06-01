@@ -8,11 +8,17 @@ layout(binding = 0) uniform SRT {
     float rotate;
 } srt[2];
 
+float s2 = sqrt(2);
+
 vec2 offsets[] = vec2[](
     vec2(1, 1),
-    vec2(1, -1),
     vec2(-1, -1),
-    vec2(-1, 1)
+    vec2(s2, 0),
+    vec2(-s2, 0),
+    vec2(1, -1),
+    vec2(-1, 1),
+    vec2(0, -s2),
+    vec2(0, s2)
 );
 
 
@@ -22,9 +28,10 @@ layout(location = 2) out float tex_index;
 
 void main() {
     vec3 offset = vec3(offsets[gl_InstanceIndex], 0);
+    int n = int(pow(3, 0));
     mat3 rotate0 = mat3(
-        cos(srt[0].rotate), sin(srt[0].rotate), 0,
-        -sin(srt[0].rotate), cos(srt[0].rotate), 0,
+        cos(srt[0].rotate + n), sin(srt[0].rotate + n), 0,
+        -sin(srt[0].rotate + n), cos(srt[0].rotate + n), 0,
         0, 0, 1
     );
     mat3 rotate1 = mat3(
@@ -37,5 +44,5 @@ void main() {
     gl_Position = vec4((pos + rotate1 * offset * srt[1].scale), 1);
     frag_color = in_color;
     frag_uv = in_pos.xy + 0.5;
-    tex_index = gl_InstanceIndex;
+    tex_index = int(gl_InstanceIndex / 2);
 }

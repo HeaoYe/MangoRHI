@@ -40,7 +40,7 @@ namespace MangoRHI {
         VK_CHECK(vkAllocateDescriptorSets(vulkan_context->get_device().get_logical_device(), &descriptor_set_allocate_info, sets.data()))
         RHI_DEBUG("Allocate {} vulkan descriptor set", sets.size())
         for (u32 index = 0; index < g_vulkan_descriptor_sets.size(); index++) {
-            g_vulkan_descriptor_sets[index]->get_descriptor_set() = sets[index];
+            g_vulkan_descriptor_sets[index]->descriptor_set = sets[index];
             g_vulkan_descriptor_sets[index]->update();
         }
 
