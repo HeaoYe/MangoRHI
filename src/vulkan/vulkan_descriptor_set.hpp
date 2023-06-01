@@ -12,9 +12,9 @@ namespace MangoRHI {
     public:
         virtual void update(VulkanDescriptorSet *descriptor_set) = 0;
     
-    define_extern_writeable_member(VkDescriptorSetLayoutBinding, binding, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(u32, n_binding, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(u32, count, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_SETTER_BASIC, VkDescriptorSetLayoutBinding, binding, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_SETTER_BASIC, u32, binding_index, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_SETTER_BASIC, u32, count, MANGO_NO_INIT_VAULE)
     };
 
     class VulkanUniformDescriptor final : public VulkanDescriptor {
@@ -23,11 +23,12 @@ namespace MangoRHI {
         Result destroy() override;
 
         void update(VulkanDescriptorSet *descriptor_set) override;
-
-    define_extern_writeable_member(VulkanBuffer, buffer, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(u32, size, MANGO_NO_INIT_VAULE)
     
-    no_copy_and_move_construction(VulkanUniformDescriptor)
+    define_member(MANGO_CONST_GETTER, MANGO_SETTER_BASIC, u32, size, MANGO_NO_INIT_VAULE)
+
+    define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, VulkanBuffer, buffer, MANGO_NO_INIT_VAULE)
+    
+    declare_component_cls(VulkanUniformDescriptor)
     };
 
     class VulkanTextureDescriptor final : public VulkanDescriptor {
@@ -40,14 +41,17 @@ namespace MangoRHI {
 
         void update(VulkanDescriptorSet *descriptor_set) override;
     
-    define_member(STL_IMPL::vector<VulkanTexture *>, textures, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<VulkanTexture *>, textures, MANGO_NO_INIT_VAULE)
 
-    no_copy_and_move_construction(VulkanTextureDescriptor)
+    declare_component_cls(VulkanTextureDescriptor)
     };
 
     extern STL_IMPL::unordered_map<VkDescriptorType, u32> g_descriptor_info;
 
+    class VulkanDescriptorPool;
+    
     class VulkanDescriptorSet final : public DescriptorSet {
+        friend VulkanDescriptorPool;
     public:
         VulkanDescriptorSet();
         void add_uniform(DescriptorStage stage, u32 size, u32 count) override;
@@ -61,11 +65,11 @@ namespace MangoRHI {
         void update() override;
 
     private:
-        VkDescriptorSetLayoutBinding &setup_descriptor_binding(VulkanDescriptor *descriptor, VkDescriptorType type, DescriptorStage stage, u32 count);
+        void setup_descriptor_binding(VulkanDescriptor *descriptor, VkDescriptorType type, DescriptorStage stage, u32 count);
     
-    define_member(STL_IMPL::vector<VulkanDescriptor *>, descriptors, MANGO_NO_INIT_VAULE)
-    define_member(VkDescriptorSetLayout, layout, VK_NULL_HANDLE)
-    define_extern_writeable_member(VkDescriptorSet, descriptor_set, VK_NULL_HANDLE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkDescriptorSetLayout, layout, VK_NULL_HANDLE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkDescriptorSet, descriptor_set, VK_NULL_HANDLE)
+    define_private_member(STL_IMPL::vector<VulkanDescriptor *>, descriptors, MANGO_NO_INIT_VAULE)
     define_private_member(u32, _current_binding, 0)
     };
 

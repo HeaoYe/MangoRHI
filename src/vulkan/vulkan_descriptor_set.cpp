@@ -18,8 +18,8 @@ namespace MangoRHI {
         size = align;
 
         buffer.set_size(size * get_count());
-        buffer.get_usage() = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-        buffer.get_properties() = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+        buffer.set_usage(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+        buffer.set_properties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         buffer.create();
         
         return Result::eSuccess;
@@ -45,7 +45,7 @@ namespace MangoRHI {
         write_descriptor_set.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         write_descriptor_set.descriptorCount = get_count();
         write_descriptor_set.dstSet = descriptor_set->get_descriptor_set();
-        write_descriptor_set.dstBinding = get_n_binding();
+        write_descriptor_set.dstBinding = get_binding_index();
         write_descriptor_set.dstArrayElement = 0;
         vkUpdateDescriptorSets(vulkan_context->get_device().get_logical_device(), 1, &write_descriptor_set, 0, nullptr);
     }
@@ -82,7 +82,7 @@ namespace MangoRHI {
         write_descriptor_set.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         write_descriptor_set.descriptorCount = get_count();
         write_descriptor_set.dstSet = descriptor_set->get_descriptor_set();
-        write_descriptor_set.dstBinding = get_n_binding();
+        write_descriptor_set.dstBinding = get_binding_index();
         write_descriptor_set.dstArrayElement = 0;
         vkUpdateDescriptorSets(vulkan_context->get_device().get_logical_device(), 1, &write_descriptor_set, 0, nullptr);
     }
@@ -90,7 +90,7 @@ namespace MangoRHI {
     void VulkanDescriptorSet::add_uniform(DescriptorStage stage, u32 size, u32 count) {
         auto *uniform_descriptor = new VulkanUniformDescriptor();
         descriptors.push_back(uniform_descriptor);
-        uniform_descriptor->get_size() = size;
+        uniform_descriptor->set_size(size);
         setup_descriptor_binding(uniform_descriptor, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, stage, count);
     }
 
@@ -103,18 +103,18 @@ namespace MangoRHI {
         setup_descriptor_binding(texture_descriptor, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, stage, count);
     }
 
-    VkDescriptorSetLayoutBinding &VulkanDescriptorSet::setup_descriptor_binding(VulkanDescriptor *descriptor, VkDescriptorType type, DescriptorStage stage, u32 count) {
-        descriptor->get_n_binding() = _current_binding;
-        descriptor->get_count() = count;
-        auto &binding = descriptor->get_binding();
-        binding.binding = _current_binding;
-        binding.descriptorType = type;
-        binding.descriptorCount = count;
-        binding.stageFlags = descriptor_stage2vk_shader_stage_flags(stage);
-        binding.pImmutableSamplers = nullptr;
+    void VulkanDescriptorSet::setup_descriptor_binding(VulkanDescriptor *descriptor, VkDescriptorType type, DescriptorStage stage, u32 count) {
+        descriptor->set_binding_index(_current_binding);
+        descriptor->set_count(count);
+        descriptor->set_binding(VkDescriptorSetLayoutBinding {
+            .binding = _current_binding,
+            .descriptorType = type,
+            .descriptorCount = count,
+            .stageFlags = descriptor_stage2vk_shader_stage_flags(stage),
+            .pImmutableSamplers = nullptr,
+        });
         _current_binding++;
-        g_descriptor_info[binding.descriptorType]++;
-        return binding;
+        g_descriptor_info[type]++;
     }
 
     VulkanDescriptorSet::VulkanDescriptorSet() {
@@ -162,6 +162,7 @@ namespace MangoRHI {
     }
 
     void VulkanDescriptorSet::update() {
+        VK_CHECK(vkDeviceWaitIdle(vulkan_context->get_device().get_logical_device()))
         for (auto &descriptor : descriptors) {
             descriptor->update(this);
         }

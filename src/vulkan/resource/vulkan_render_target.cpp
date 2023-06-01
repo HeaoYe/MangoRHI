@@ -2,14 +2,6 @@
 #include "../vulkan_context.hpp"
 
 namespace MangoRHI {
-    void VulkanRenderTarget::set_clear_color(ClearValue clear_value) {
-        this->clear_value = clear_value2vk_clear_value(clear_value);
-    }
-
-    void VulkanRenderTarget::set_name(const char *name) {
-        this->name = name;
-    }
-
     void VulkanRenderTarget::set_usage(RenderTargetUsage usage) {
         switch (usage) {
         case RenderTargetUsage::eColor:
@@ -59,10 +51,10 @@ namespace MangoRHI {
         }
         for (auto &image : vulkan_images) {
             image = new VulkanImage();
-            image->set_extent(vulkan_context->get_width(), vulkan_context->get_height());
-            image->get_format() = description.format;
-            image->get_usage() = usage;
-            image->get_aspect() = aspect;
+            image->set_extent(vulkan_context->get_extent());
+            image->set_format(description.format);
+            image->set_usage(usage);
+            image->set_aspect(aspect);
             image->create();
             vulkan_context->transition_image_layout(image->get_image(), image->get_format(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
             images.push_back(image->get_image());

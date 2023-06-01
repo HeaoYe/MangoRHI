@@ -7,25 +7,25 @@
 namespace MangoRHI {
     class VulkanRenderTarget final : public RenderTarget {
     public:
-        void set_clear_color(ClearValue clear_value) override;
-        void set_name(const char *name) override;
         void set_usage(RenderTargetUsage usage) override;
         Result create() override;
         Result destroy() override;
 
         void add_render_target_data(VkImage image, VkImageView image_view);
 
-    define_readonly_pointer(char, name, "")
-    define_member(VkClearValue, clear_value, MANGO_NO_INIT_VAULE)
-    define_member(STL_IMPL::vector<VkImage>, images, MANGO_NO_INIT_VAULE)
-    define_member(STL_IMPL::vector<VkImageView>, image_views, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<VulkanImage *>, vulkan_images, MANGO_NO_INIT_VAULE)
-    define_private_member(VkImageUsageFlags, usage, MANGO_NO_INIT_VAULE)
-    define_private_member(VkImageAspectFlags, aspect, MANGO_NO_INIT_VAULE)
-    define_member(VkAttachmentDescription, description, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(u32, index, MANGO_NO_INIT_VAULE)
-    define_member(Bool, is_each_frame_render_target, MG_FALSE)
+    define_readonly_pointer(MANGO_CONST_GETTER, MANGO_SETTER_OVERRIDE, char, name, "")
+    define_member_with_translator(MANGO_CONST_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, ClearValue, VkClearValue, clear_color, clear_value2vk_clear_value, ClearValue {})
+    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, VkImageAspectFlags, aspect, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, u32, index, MANGO_NO_INIT_VAULE)
 
-    no_copy_and_move_construction(VulkanRenderTarget)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkAttachmentDescription, description, MANGO_NO_INIT_VAULE)
+    define_private_member(VkImageUsageFlags, usage, MANGO_NO_INIT_VAULE)
+    
+    define_private_member(STL_IMPL::vector<VulkanImage *>, vulkan_images, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkImage>, images, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkImageView>, image_views, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, Bool, is_each_frame_render_target, MG_FALSE)
+
+    declare_component_cls(VulkanRenderTarget)
     };
 }

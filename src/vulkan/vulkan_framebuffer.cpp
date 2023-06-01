@@ -39,23 +39,4 @@ namespace MangoRHI {
 
         return Result::eSuccess;
     }
-
-    Result VulkanFrameBuffer::recreate() {
-        if (is_destroyed()) {
-            return Result::eAlreadyDestroyed;
-        }
-
-        Result res;
-        if ((res = destroy()) != Result::eSuccess) {
-            RHI_DEBUG("Vulkan framebuffer recreate error when destroy -- {}", to_string(res))
-            return res;
-        }
-
-        if ((res = create()) != Result::eSuccess) {
-            RHI_DEBUG("Vulkan framebuffer recreate error when create -- {}", to_string(res))
-            return res;
-        }
-
-        return Result::eSuccess;
-    };
 }

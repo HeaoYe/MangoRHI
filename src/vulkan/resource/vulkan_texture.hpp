@@ -9,20 +9,18 @@
 namespace MangoRHI {
     class VulkanTexture final : public Texture {
     public:
-        void set_filename(const char *filename) override;
         void bind_sampler(Sampler *sampler) override;
 
         Result create() override;
         Result destroy() override;
 
-    define_private_readonly_pointer(char, filename, "")
-    define_private_member(i32, width, MANGO_NO_INIT_VAULE)
-    define_private_member(i32, height, MANGO_NO_INIT_VAULE)
-    define_private_member(i32, channels, MANGO_NO_INIT_VAULE)
-    define_private_member(VulkanBuffer, staging, MANGO_NO_INIT_VAULE)
-    define_member(VulkanImage, image, MANGO_NO_INIT_VAULE)
-    define_pointer(VulkanSampler, sampler, MANGO_NO_INIT_VAULE)
+    define_readonly_pointer(MANGO_NO_GETTER, MANGO_SETTER_OVERRIDE, char, filename, "")
 
-    no_copy_and_move_construction(VulkanTexture)
+    define_private_member(VkExtent2D, extent, MANGO_NO_INIT_VAULE)
+    define_private_member(VulkanBuffer, staging, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanImage, image, MANGO_NO_INIT_VAULE)
+    define_pointer(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanSampler, sampler, MANGO_NO_INIT_VAULE)
+
+    declare_component_cls(VulkanTexture)
     };
 }

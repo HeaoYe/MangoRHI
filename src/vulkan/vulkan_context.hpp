@@ -16,6 +16,9 @@
 #include "resource/vulkan_texture.hpp"
 
 namespace MangoRHI {
+    struct VulkanContextCreateInfo {
+        
+    };
     class VulkanContext final : public Context {
     public:
         void set_api_info(const void *info) override;
@@ -46,29 +49,32 @@ namespace MangoRHI {
         u32 find_memory_index(u32 type_filter, VkMemoryPropertyFlags flags) const;
         void transition_image_layout(VkImage image, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout) const;
 
-    define_pointer(VkAllocationCallbacks, allocator, VK_NULL_HANDLE)
-    define_member(VkInstance, instance, VK_NULL_HANDLE)
-    define_member(VkSurfaceKHR, surface, VK_NULL_HANDLE)
-    define_member(VulkanDevice, device, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(VulkanSwapchain, swapchain, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(VulkanRenderPass, render_pass, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(VulkanFrameBuffer, framebuffer, MANGO_NO_INIT_VAULE)
-    define_member(VulkanDescriptorPool, descriptor_pool, MANGO_NO_INIT_VAULE)
-    define_member(VulkanSynchronization, synchronization, MANGO_NO_INIT_VAULE)
-    define_member(VulkanCommandPool, command_pool, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(VkExtent2D, extent, MANGO_NO_INIT_VAULE)
-    define_member(u32, max_in_flight_frame_count, 2)
+    private:
+        void recreate_resources();
+    
+    define_pointer(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkAllocationCallbacks, allocator, VK_NULL_HANDLE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkInstance, instance, VK_NULL_HANDLE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkSurfaceKHR, surface, VK_NULL_HANDLE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanDevice, device, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanSwapchain, swapchain, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanRenderPass, render_pass, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanFrameBuffer, framebuffer, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanDescriptorPool, descriptor_pool, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanSynchronization, synchronization, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanCommandPool, command_pool, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, VkExtent2D, extent, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, u32, max_in_flight_frame_count, 2)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, u32, current_in_flight_frame_index, 0)
     define_private_readonly_pointer(VulkanContextInfo, info, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanRenderTarget *>, render_targets, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanShader *>, shaders, MANGO_NO_INIT_VAULE)
-    define_member(STL_IMPL::vector<VulkanVertexBuffer *>, vertex_buffers, MANGO_NO_INIT_VAULE)
-    define_member(STL_IMPL::vector<VulkanIndexBuffer *>, index_buffers, MANGO_NO_INIT_VAULE)
-    define_member(STL_IMPL::vector<VulkanSampler *>, samplers, MANGO_NO_INIT_VAULE)
-    define_member(STL_IMPL::vector<VulkanTexture *>, textures, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<VulkanVertexBuffer *>, vertex_buffers, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<VulkanIndexBuffer *>, index_buffers, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<VulkanSampler *>, samplers, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<VulkanTexture *>, textures, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanCommand *>, commands, MANGO_NO_INIT_VAULE)
-    define_member(u32, current_in_flight_frame_index, 0)
 
-    no_copy_and_move_construction(VulkanContext)
+    declare_component_cls(VulkanContext)
     };
 
     extern VulkanContext *vulkan_context;

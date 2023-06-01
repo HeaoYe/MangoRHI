@@ -19,6 +19,16 @@ namespace MangoRHI {
         flags |= flag_bit; \
     }
 
+    VkBool32 bool2vk_bool32(Bool b) {
+        if (b == MG_TRUE) {
+            return VK_TRUE;
+        }
+        if (b == MG_FALSE) {
+            return VK_FALSE;
+        }
+        return VK_FALSE;
+    }
+
     VkClearValue clear_value2vk_clear_value(ClearValue clear_value) {
         VkClearValue vk_clear_value {
             .color = { .float32 = { clear_value.color.r, clear_value.color.g, clear_value.color.b, clear_value.color.a } }
@@ -88,7 +98,7 @@ namespace MangoRHI {
         }
     }
     
-    VkPolygonMode polygon2vk_polygon_mode(PolygonMode polygon) {
+    VkPolygonMode polygon_mode2vk_polygon_mode(PolygonMode polygon) {
         switch (polygon) {
         case PolygonMode::ePoint:
             return VK_POLYGON_MODE_POINT;
@@ -167,7 +177,7 @@ namespace MangoRHI {
         return descriptor_stage2vk_shader_stage_flags((DescriptorStageFlags)stage);
     }
 
-    VkFilter smapler_filter2vk_filter(SamplerFilter filter) {
+    VkFilter sampler_filter2vk_filter(SamplerFilter filter) {
         switch (filter) {
         case SamplerFilter::eNearest:
             return VK_FILTER_NEAREST;

@@ -11,17 +11,17 @@ namespace MangoRHI {
     public:
         void build(const char *name, PipelineBindPoint bind_point, u32 index);
     
-    define_readonly_pointer(char, name, "")
-    define_extern_writeable_member(VkSubpassDescription, description, MANGO_NO_INIT_VAULE)
-    define_member(VkPipelineBindPoint, bind_point, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(STL_IMPL::vector<VkAttachmentReference>, input_attachment, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(STL_IMPL::vector<VkAttachmentReference>, output_attachment, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(STL_IMPL::vector<u32>, preserve_attachment, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(STL_IMPL::optional<VkAttachmentReference>, depth_attachment, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(STL_IMPL::optional<VkAttachmentReference>, resolve_attachment, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_pointer(VulkanShaderProgram, shader_program, MANGO_NO_INIT_VAULE)
+    define_readonly_pointer(MANGO_CONST_GETTER, MANGO_NO_SETTER, char, name, "")
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkSubpassDescription, description, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkPipelineBindPoint, bind_point, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkAttachmentReference>, input_attachments, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkAttachmentReference>, output_attachments, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<u32>, preserve_attachments, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::optional<VkAttachmentReference>, depth_attachment, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::optional<VkAttachmentReference>, resolve_attachment, MANGO_NO_INIT_VAULE)
+    define_pointer(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, VulkanShaderProgram, shader_program, MANGO_NO_INIT_VAULE)
 
-    no_copy_and_move_construction(VulkanSubpass)
+    declare_component_cls(VulkanSubpass)
     };
 
     class VulkanRenderPass final : public RenderPass {
@@ -47,13 +47,14 @@ namespace MangoRHI {
         u32 get_render_target_index_by_name(const char *render_target_name);
         VkAttachmentReference get_render_target_ref(const char *render_target_name, RenderTargetLayout ref_layout);
 
-    define_extern_writeable_member(STL_IMPL::vector<VulkanRenderTarget *>, render_targets, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<const VulkanRenderTarget *>, render_targets, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkClearValue>, clear_values, MANGO_NO_INIT_VAULE)
-    define_extern_writeable_member(STL_IMPL::vector<VulkanSubpass *>, subpasses, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VulkanSubpass *>, subpasses, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkSubpassDependency>, dependencies, MANGO_NO_INIT_VAULE)
-    define_member(VkRenderPass, render_pass, VK_NULL_HANDLE)
     define_private_pointer(VulkanSubpass, temp_subpass, new VulkanSubpass())
+    
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkRenderPass, render_pass, VK_NULL_HANDLE)
 
-    no_copy_and_move_construction(VulkanRenderPass)
+    declare_component_cls(VulkanRenderPass)
     };
 }

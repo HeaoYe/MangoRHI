@@ -2,10 +2,6 @@
 #include "../vulkan_context.hpp"
 
 namespace MangoRHI {
-    void VulkanTexture::set_filename(const char *filename) {
-        this->filename = filename;
-    }
-
     void VulkanTexture::bind_sampler(Sampler *sampler) {
         this->sampler = (VulkanSampler *)sampler;
     }
@@ -13,7 +9,10 @@ namespace MangoRHI {
     Result VulkanTexture::create() {
         component_create()
 
+        int width, height, channels;
         stbi_uc* pixels = stbi_load(filename, &width, &height, &channels, STBI_rgb_alpha);
+        extent.width = static_cast<u32>(width);
+        extent.height = static_cast<u32>(height);
         VkDeviceSize size = width * height * 4;
 
         if (!pixels) {
@@ -23,16 +22,16 @@ namespace MangoRHI {
         RHI_DEBUG("Load texture file {}, [{}, {}, {}]", filename, width, height, channels)
         
         staging.set_size(size);
-        staging.get_usage() = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-        staging.get_properties() = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+        staging.set_usage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+        staging.set_properties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         staging.create();
         staging.write_data(pixels, size, 0);
         stbi_image_free(pixels);
 
-        image.set_extent(width, height);
-        image.get_format() = VK_FORMAT_R8G8B8A8_SRGB;
-        image.get_usage() = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-        image.get_aspect() = VK_IMAGE_ASPECT_COLOR_BIT;
+        image.set_extent(extent);
+        image.set_format(VK_FORMAT_R8G8B8A8_SRGB);
+        image.set_usage(VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+        image.set_aspect(VK_IMAGE_ASPECT_COLOR_BIT);
         image.create();
 
         vulkan_context->transition_image_layout(image.get_image(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);

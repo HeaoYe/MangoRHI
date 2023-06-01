@@ -54,7 +54,7 @@ int main() {
     t_dance->bind_sampler(sampler);
     t_dhl->set_filename("examples/Sandbox/assets/textures/dhl.png");
     t_dhl->bind_sampler(sampler);
-    MangoRHI::Texture* textures[] = { t_61, t_paper_plane, t_dance, t_dance };
+    MangoRHI::Texture* textures[] = { t_61, t_paper_plane, t_dance, t_dhl };
 
     main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
     main_shader_program->add_vertex_binding(MangoRHI::VertexInputRate::ePerVertex);
@@ -77,10 +77,44 @@ int main() {
     
     ctx->create();
 
-    float *uniform_buffer_pointer0 = (float *)ds->map_uniform_buffer_pointer(0, 0);
-    float *uniform_buffer_pointer1 = (float *)ds->map_uniform_buffer_pointer(0, 1);
-    ds->set_texture(1, 3, t_dhl);
-    ds->update();
+    struct UserPointer {
+        MangoRHI::DescriptorSet * ds;
+        MangoRHI::Texture **textures;
+    };
+    UserPointer up { ds, textures };
+    glfwSetWindowUserPointer(glfwWindow, &up);
+    glfwSetKeyCallback(glfwWindow, [](GLFWwindow *window, int key, int, int pressed, int) {
+        if (pressed != 1) {
+            return;
+        }
+        auto *up = (UserPointer *)glfwGetWindowUserPointer(window);
+        auto *ds = up->ds;
+        auto **textures = up->textures;
+        int idx;
+        switch (key) {
+        case 49:
+            idx = 0;
+            break;
+        case 50:
+            idx = 1;
+            break;
+        case 51:
+            idx = 2;
+            break;
+        case 52:
+            idx = 3;
+            break;
+        case 53:
+            idx = 4;
+            break;
+        default:
+            return;
+        }
+        for (int i = 0; i < 4; i++) {
+            ds->set_texture(1, i, textures[idx == 4 ? i : idx]);
+        }
+        ds->update();
+    });
     std::vector<glm::vec3> vertices = {
         { 0.5f, 0.5f, 0.1f },
         { 0.5f, -0.5f, 0.2f },
@@ -92,6 +126,10 @@ int main() {
         { 255.0f, 245.0f, 238.0f },
         { 255.0f, 250.0f, 240.0f },
         { 255.0f, 255.0f, 240.0f },
+        { 253.0f, 245.0f, 230.0f },
+        { 245.0f, 255.0f, 250.0f },
+        { 240.0f, 255.0f, 255.0f },
+        { 240.0f, 248.0f, 255.0f },
     };
     std::vector<MangoRHI::u32> indices = {
         0, 1, 2, 
@@ -103,6 +141,8 @@ int main() {
     vertex_buffer->write_data(vertices.data(), vertices.size(), 0);
     color_buffer->write_data(colors.data(), colors.size(), 0);
     index_buffer->write_data(indices.data(), indices.size(), 0);
+    float *uniform_buffer_pointer0 = (float *)ds->map_uniform_buffer_pointer(0, 0);
+    float *uniform_buffer_pointer1 = (float *)ds->map_uniform_buffer_pointer(0, 1);
 
     while (!glfwWindowShouldClose(glfwWindow)) {
         glfwPollEvents();
@@ -111,25 +151,27 @@ int main() {
             auto &command = ctx->get_current_command_reference();
 
             command.next_subpass();
-            static float t = 0.0f;
-            t += 0.01f;
-            *(uniform_buffer_pointer0 + 0) = (glm::sin(t) + 0.2f) * 0.5f;
-            *(uniform_buffer_pointer0 + 1) = t * 1.5f;
-            *(uniform_buffer_pointer1 + 0) = glm::abs((glm::sin(t) + 1.2f) * 0.3f);
-            *(uniform_buffer_pointer1 + 1) = -t * 2.0f;
+            static float t1 = 0.0f, t2 = 0.0f;
+            t1 += 0.01f;
+            *(uniform_buffer_pointer0 + 0) = (glm::sin(t1) + 0.2f) * 0.5f;
+            t2 += (1.5 - glm::sin(t1)) * 2 / 100;
+            *(uniform_buffer_pointer0 + 1) = t2 * 1.5f;
+            *(uniform_buffer_pointer1 + 0) = glm::abs((glm::sin(t1) + 1.2f) * 0.3f);
+            *(uniform_buffer_pointer1 + 1) = -t1 * 2.0f;
+            float t_ = t1 * 1.0;
             ctx->set_clear_color(MangoRHI::ColorClearValue { 
-                .r = (glm::sin(t) + 1.0f) / 2.0f, 
-                .g = (glm::sin(t + 3.14159265358979f * 1.0f / 30.0f) + 1.0f) / 2.0f, 
-                .b = (glm::sin(t + 3.14159265358979f * 2.0f / 30.0f) + 1.0f) / 2.0f, 
+                .r = (glm::sin(t_) + 1.0f) / 2.0f, 
+                .g = (glm::sin(t_ + 3.14159265358979f * 2.0f / 30.0f) + 1.0f) / 2.0f, 
+                .b = (glm::sin(t_ + 3.14159265358979f * 4.0f / 30.0f) + 1.0f) / 2.0f, 
                 .a = 1.0f } );
-            auto viewport = MangoRHI::Viewport { 0, 0, static_cast<float>(ctx->get_width()), static_cast<float>(ctx->get_height()), 0.0f, 1.0f };
+            auto viewport = MangoRHI::Viewport { 0, static_cast<float>(ctx->get_height()), static_cast<float>(ctx->get_width()), -static_cast<float>(ctx->get_height()), 0.0f, 1.0f };
             auto scissor = MangoRHI::Scissor { 0, 0, ctx->get_width(), ctx->get_height() };
             command.set_viewport(viewport);
             command.set_scissor(scissor);
             command.bind_vertex_buffer(vertex_buffer, 0);
             command.bind_vertex_buffer(color_buffer, 1);
             command.bind_index_buffer(index_buffer);
-            command.draw_indexed_instances(6, 4, 0, 0,  0);
+            command.draw_indexed_instances(6, 8, 0, 0,  0);
 
             ctx->end_frame();
         }

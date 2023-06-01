@@ -2,11 +2,6 @@
 #include "../vulkan_context.hpp"
 
 namespace MangoRHI {
-    void VulkanImage::set_extent(u32 width, u32 height) {
-        this->width = width;
-        this->height = height;
-    }
-
     Result VulkanImage::create() {
         component_create()
 
@@ -14,7 +9,7 @@ namespace MangoRHI {
         image_create_info.imageType = VK_IMAGE_TYPE_2D;
         image_create_info.samples = VK_SAMPLE_COUNT_1_BIT;
         image_create_info.arrayLayers = 1;
-        image_create_info.extent = { width, height, 1 };
+        image_create_info.extent = { extent.width, extent.height, 1 };
         image_create_info.mipLevels = 1;
         image_create_info.format = format;
         image_create_info.tiling = VK_IMAGE_TILING_OPTIMAL;

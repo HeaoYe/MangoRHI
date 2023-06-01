@@ -4,11 +4,11 @@
 #include "MangoRHI/command.hpp"
 
 namespace MangoRHI {
-    class VulkanCommand final : public Command {
-    public:
-        void set_single_use(Bool is_single_use);
-        void set_command_buffer(VkCommandBuffer command_buffer);
+    class VulkanCommandPool;
 
+    class VulkanCommand final : public Command {
+        friend VulkanCommandPool;
+    public:
         Result create() override;
         Result destroy() override;
         Result begin_render() override;
@@ -22,10 +22,10 @@ namespace MangoRHI {
         void set_viewport(const Viewport &viewport) override;
         void set_scissor(const Scissor &scissor) override;
     
-    define_member(VkCommandBuffer, command_buffer, VK_NULL_HANDLE)
-    define_member(Bool, is_single_use, MG_FALSE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, Bool, is_single_use, MG_FALSE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkCommandBuffer, command_buffer, VK_NULL_HANDLE)
     define_private_member(u32, _current_subpass, 0)
 
-    no_copy_and_move_construction(VulkanCommand)
+    declare_component_cls(VulkanCommand)
     };
 }

@@ -27,6 +27,7 @@ namespace MangoRHI {
         STL_IMPL::vector<VkPresentModeKHR> present_modes;
     };
 
+    VkBool32 bool2vk_bool32(Bool b);
     VkClearValue clear_value2vk_clear_value(ClearValue clear_value);
     VkImageLayout render_target_layout2vk_image_layout(RenderTargetLayout layout);
     VkPipelineBindPoint pipeline_bind_point2vk_pipeline_bind_point(PipelineBindPoint bind_point);
@@ -36,7 +37,7 @@ namespace MangoRHI {
     VkAccessFlags access2vk_access_flags(AccessFlags access);
     VkAccessFlags access2vk_access_flags(Access access);
     VkPrimitiveTopology topology2vk_primitive_topology(Topology topology);
-    VkPolygonMode polygon2vk_polygon_mode(PolygonMode polygon);
+    VkPolygonMode polygon_mode2vk_polygon_mode(PolygonMode polygon);
     VkFrontFace front_face2vk_front_face(FrontFace front);
     VkCullModeFlags cull_mode2vk_cull_mode_flags(CullMode cull);
     VkCompareOp depth_compare_op2vk_compare_op(DepthCompareOp op);
@@ -44,7 +45,7 @@ namespace MangoRHI {
     VkVertexInputRate vertex_input_rate2vk_vertex_input_rate(VertexInputRate rate);
     VkShaderStageFlags descriptor_stage2vk_shader_stage_flags(DescriptorStageFlags stage);
     VkShaderStageFlags descriptor_stage2vk_shader_stage_flags(DescriptorStage stage);
-    VkFilter smapler_filter2vk_filter(SamplerFilter filter);
+    VkFilter sampler_filter2vk_filter(SamplerFilter filter);
     VkSamplerAddressMode sampler_address_mode2vk_sampler_address_mode(SamplerAddressMode mode);
     VkBorderColor sampler_border_color2vk_border_color(SamplerBorderColor color);
     VkSamplerMipmapMode sampler_filter2vk_sampler_mipmap_mode(SamplerFilter filter);

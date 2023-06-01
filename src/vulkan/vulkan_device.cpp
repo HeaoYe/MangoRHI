@@ -2,10 +2,6 @@
 #include "vulkan_context.hpp"
 
 namespace MangoRHI {
-    void VulkanDevice::set_name(const char *name) {
-        this->name = name;
-    }
-
     Result VulkanDevice::create() {
         component_create()
 

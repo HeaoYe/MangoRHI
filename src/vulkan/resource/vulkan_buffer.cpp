@@ -2,10 +2,6 @@
 #include "../vulkan_context.hpp"
 
 namespace MangoRHI {
-    void VulkanBuffer::set_size(u32 size) {
-        this->size = size;
-    }
-
     Result VulkanBuffer::create() {
         component_create()
 
@@ -63,10 +59,10 @@ namespace MangoRHI {
         unmap();
     }
 
-    void VulkanBuffer::resize(const u32 size) {
+    void VulkanBuffer::resize(u32 size) {
         VulkanBuffer buffer {};
-        buffer.get_usage() = usage;
-        buffer.get_properties() = properties;
+        buffer.set_usage(usage);
+        buffer.set_properties(properties);
         buffer.set_size(size);
         buffer.create();
         buffer.copy_from(this, 0, 0, size);
@@ -88,24 +84,16 @@ namespace MangoRHI {
         vulkan_context->get_command_pool().free(&command);
     }
 
-    void VulkanVertexBuffer::set_vertex_size(const u32 size) {
-        this->type_size = size;
-    }
-
-    void VulkanVertexBuffer::set_size(const u32 count) {
-        this->count = count;
-    }
-
     Result VulkanVertexBuffer::create() {
         component_create()
 
-        size = count * type_size;
+        u32 size = count * vertex_size;
         staging.set_size(size);
-        staging.get_usage() = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-        staging.get_properties() = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+        staging.set_usage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+        staging.set_properties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         buffer.set_size(size);
-        buffer.get_usage() = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-        buffer.get_properties() = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+        buffer.set_usage(VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+        buffer.set_properties(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         staging.create();
         buffer.create();
 
@@ -122,34 +110,32 @@ namespace MangoRHI {
     }
 
     void VulkanVertexBuffer::write_data(const void *data, const u32 count, const u32 offset_count) {
-        u32 size = count * type_size;
+        u32 size = count * vertex_size;
         staging.write_data(data, size, 0);
-        buffer.copy_from(&staging, 0, offset_count * type_size, size);
+        buffer.copy_from(&staging, 0, offset_count * vertex_size, size);
     }
 
     void VulkanVertexBuffer::resize(const u32 count) {
-        staging.resize(count * type_size);
-        buffer.resize(count * type_size);
+        staging.resize(count * vertex_size);
+        buffer.resize(count * vertex_size);
     }
 
     void VulkanVertexBuffer::copy_from(const Buffer *other, const u64 src_offset_count, const u64 dst_offset_count, const u64 count) {
-        buffer.copy_from(&((const VulkanVertexBuffer *)other)->get_buffer(), src_offset_count * type_size, dst_offset_count * type_size, count * type_size);
-    }
-
-    void VulkanIndexBuffer::set_size(const u32 count) {
-        this->count = count;
+        const VulkanVertexBuffer *vulkan_other = (const VulkanVertexBuffer *)other;
+        MANGO_ASSERT(this->vertex_size == vulkan_other->vertex_size)
+        buffer.copy_from(&vulkan_other->buffer, src_offset_count * vertex_size, dst_offset_count * vertex_size, count * vertex_size);
     }
 
     Result VulkanIndexBuffer::create() {
         component_create()
 
-        size = count * type_size;
+        u32 size = count * vulkan_index_type_size;
         staging.set_size(size);
-        staging.get_usage() = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-        staging.get_properties() = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+        staging.set_usage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+        staging.set_properties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         buffer.set_size(size);
-        buffer.get_usage() = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-        buffer.get_properties() = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+        buffer.set_usage(VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+        buffer.set_properties(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         staging.create();
         buffer.create();
 
@@ -166,17 +152,17 @@ namespace MangoRHI {
     }
 
     void VulkanIndexBuffer::write_data(const void *data, const u32 count, const u32 offset_count) {
-        u32 size = count * type_size;
+        u32 size = count * vulkan_index_type_size;
         staging.write_data(data, size, 0);
-        buffer.copy_from(&staging, 0, offset_count * type_size, size);
+        buffer.copy_from(&staging, 0, offset_count * vulkan_index_type_size, size);
     }
 
     void VulkanIndexBuffer::resize(const u32 count) {
-        staging.resize(count * type_size);
-        buffer.resize(count * type_size);
+        staging.resize(count * vulkan_index_type_size);
+        buffer.resize(count * vulkan_index_type_size);
     }
 
     void VulkanIndexBuffer::copy_from(const Buffer *other, const u64 src_offset_count, const u64 dst_offset_count, const u64 count) {
-        buffer.copy_from(&((const VulkanIndexBuffer *)other)->get_buffer(), src_offset_count * type_size, dst_offset_count * type_size, count * type_size);
+        buffer.copy_from(&((const VulkanIndexBuffer *)other)->buffer, src_offset_count * vulkan_index_type_size, dst_offset_count * vulkan_index_type_size, count * vulkan_index_type_size);
     }
 }
