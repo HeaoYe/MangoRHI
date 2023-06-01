@@ -56,8 +56,8 @@ namespace MangoRHI {
         friend VulkanDescriptorPool;
     public:
         VulkanDescriptorSet();
-        void add_uniform(DescriptorStage stage, u32 size, u32 count) override;
-        void add_textures(DescriptorStage stage, Texture **textures, u32 count) override;
+        u32 add_uniform(DescriptorStage stage, u32 size, u32 count) override;
+        u32 add_textures(DescriptorStage stage, Texture **textures, u32 count) override;
         
         Result create() override;
         Result destroy() override;

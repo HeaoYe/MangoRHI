@@ -66,8 +66,8 @@ int main() {
     main_shader_program->set_depth_test_enabled(MangoRHI::MG_TRUE);
     main_shader_program->set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);
     auto *ds = main_shader_program->create_descriptor_set();
-    ds->add_uniform(MangoRHI::DescriptorStage::eVertex, sizeof(float) * 2, 2);
-    ds->add_textures(MangoRHI::DescriptorStage::eFragment, textures, 4);
+    MangoRHI::u32 uniform_binding = ds->add_uniform(MangoRHI::DescriptorStage::eVertex, sizeof(float) * 2, 2);
+    MangoRHI::u32 textures_binding = ds->add_textures(MangoRHI::DescriptorStage::eFragment, textures, 4);
 
     auto *vertex_buffer = ctx->create_vertex_buffer();
     auto *color_buffer = ctx->create_vertex_buffer();
@@ -80,16 +80,14 @@ int main() {
     struct UserPointer {
         MangoRHI::DescriptorSet * ds;
         MangoRHI::Texture **textures;
-    };
-    UserPointer up { ds, textures };
+        MangoRHI::u32 textures_binding;
+    } up { ds, textures, textures_binding };
     glfwSetWindowUserPointer(glfwWindow, &up);
     glfwSetKeyCallback(glfwWindow, [](GLFWwindow *window, int key, int, int pressed, int) {
         if (pressed != 1) {
             return;
         }
         auto *up = (UserPointer *)glfwGetWindowUserPointer(window);
-        auto *ds = up->ds;
-        auto **textures = up->textures;
         int idx;
         switch (key) {
         case 49:
@@ -111,9 +109,9 @@ int main() {
             return;
         }
         for (int i = 0; i < 4; i++) {
-            ds->set_texture(1, i, textures[idx == 4 ? i : idx]);
+            up->ds->set_texture(up->textures_binding, i, up->textures[idx == 4 ? i : idx]);
         }
-        ds->update();
+        up->ds->update();
     });
     std::vector<glm::vec3> vertices = {
         { 0.5f, 0.5f, 0.1f },
@@ -149,8 +147,8 @@ int main() {
             auto &command = ctx->get_current_command_reference();
             command.next_subpass();
 
-            float *uniform_buffer_pointer0 = (float *)ds->get_uniform_buffer_pointer(0, 0);
-            float *uniform_buffer_pointer1 = (float *)ds->get_uniform_buffer_pointer(0, 1);
+            float *uniform_buffer_pointer0 = (float *)ds->get_uniform_buffer_pointer(uniform_binding, 0);
+            float *uniform_buffer_pointer1 = (float *)ds->get_uniform_buffer_pointer(uniform_binding, 1);
             static float t1 = 0.0f, t2 = 0.0f;
             t1 += 0.01f;
             *(uniform_buffer_pointer0 + 0) = (glm::sin(t1) + 0.2f) * 0.5f;
