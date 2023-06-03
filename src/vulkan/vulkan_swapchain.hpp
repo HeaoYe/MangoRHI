@@ -25,6 +25,6 @@ namespace MangoRHI {
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, VulkanRenderTarget, render_target, MANGO_NO_INIT_VAULE)
     define_private_member(VkSwapchainKHR, swapchain, VK_NULL_HANDLE)
 
-    declare_component_cls(VulkanSwapchain)
+    declare_component_cls_custom_construction(VulkanSwapchain)
     };
 }

@@ -47,7 +47,7 @@ namespace MangoRHI {
         u32 get_render_target_index_by_name(const char *render_target_name);
         VkAttachmentReference get_render_target_ref(const char *render_target_name, RenderTargetLayout ref_layout);
 
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<const VulkanRenderTarget *>, render_targets, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VulkanRenderTarget *>, render_targets, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkClearValue>, clear_values, MANGO_NO_INIT_VAULE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VulkanSubpass *>, subpasses, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkSubpassDependency>, dependencies, MANGO_NO_INIT_VAULE)

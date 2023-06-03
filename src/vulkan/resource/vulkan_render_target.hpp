@@ -17,7 +17,7 @@ namespace MangoRHI {
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC_OVERRIDE, RenderTargetUsage, usage, MANGO_NO_INIT_VAULE)
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, u32, index, MANGO_NO_INIT_VAULE)
     
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkAttachmentDescription, description, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, VkAttachmentDescription, description, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanImage *>, vulkan_images, MANGO_NO_INIT_VAULE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkImage>, images, MANGO_NO_INIT_VAULE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkImageView>, image_views, MANGO_NO_INIT_VAULE)

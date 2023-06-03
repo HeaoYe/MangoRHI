@@ -194,6 +194,15 @@ namespace MangoRHI {
     #define MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE(SrcType, member_name, translator) \
     __define_member_setter_with_translator(SrcType, override, member_name, translator)
 
+    #define declare_component_cls_custom_construction(cls_name) \
+    public: \
+        cls_name(); \
+    private: \
+        cls_name(const cls_name &) = delete; \
+        cls_name &operator=(const cls_name &) = delete; \
+        cls_name(cls_name &&) = delete; \
+        cls_name &operator=(cls_name &&) = delete;
+
     #define declare_component_cls(cls_name) \
     public: \
         cls_name() = default; \
@@ -348,6 +357,16 @@ namespace MangoRHI {
         eIntOpaqueBlack,
         eFloatOpaqueWhite,
         eIntOpaqueWhite,
+    };
+
+    enum class MultisampleCount : u32 {
+        e1 = 1,
+        e2 = 2,
+        e4 = 4,
+        e8 = 8,
+        e16 = 16,
+        e32 = 32,
+        e64 = 64,
     };
 
     #undef define_flags

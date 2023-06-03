@@ -49,6 +49,7 @@ namespace MangoRHI {
     VkSamplerAddressMode sampler_address_mode2vk_sampler_address_mode(SamplerAddressMode mode);
     VkBorderColor sampler_border_color2vk_border_color(SamplerBorderColor color);
     VkSamplerMipmapMode sampler_filter2vk_sampler_mipmap_mode(SamplerFilter filter);
+    VkSampleCountFlagBits multisample_count2vk_sample_count(MultisampleCount count);
 
     Result initialize_vulkan();
     Result quit_vulkan();

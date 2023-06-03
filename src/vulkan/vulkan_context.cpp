@@ -3,6 +3,10 @@
 namespace MangoRHI {
     VulkanContext *vulkan_context;
 
+    VulkanContext::VulkanContext() {
+        render_pass.attach_render_target(&swapchain.get_render_target());
+    }
+
     void VulkanContext::set_api_info(const void *info) {
         this->info = (const VulkanContextInfo *)info;
     }
@@ -13,14 +17,6 @@ namespace MangoRHI {
 
     void VulkanContext::set_swapchain_image_count(u32 count) {
         this->swapchain.set_image_count(count);
-    }
-
-    void VulkanContext::set_max_in_flight_frame_count(u32 count) {
-        this->max_in_flight_frame_count = count;
-    }
-
-    void VulkanContext::set_clear_color(ColorClearValue clear_color) {
-        this->swapchain.get_render_target().set_clear_color(ClearValue { .color = clear_color });
     }
 
     RenderTarget *VulkanContext::create_render_target() {
@@ -90,7 +86,10 @@ namespace MangoRHI {
 
         device.create();
         depth_format = device.get_supported_depth_format();
-        max_msaa_samples = device.get_max_sample_count();
+        max_multisample_count = device.get_max_multisample_count();
+        if (multisample_count > max_multisample_count) {
+            RHI_WARN("Multisample count({0}) more then max multisample count({1}), auto clamp to {1}.", multisample_count, max_multisample_count)
+        }
         swapchain.create();
         command_pool.create();
         for (auto &render_target : render_targets) {
@@ -292,6 +291,12 @@ namespace MangoRHI {
 
             src_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
             dst_stage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        } else if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+            src_access = 0;
+            dst_access = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+            src_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            dst_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         } else {
             RHI_ERROR("Unsupported layout transition");
         }

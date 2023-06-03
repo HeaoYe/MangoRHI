@@ -24,8 +24,6 @@ namespace MangoRHI {
         void set_api_info(const void *info) override;
         void set_device_name(const char *name) override;
         void set_swapchain_image_count(u32 count) override;
-        void set_max_in_flight_frame_count(u32 count) override;
-        void set_clear_color(ColorClearValue clear_color) override;
         RenderTarget *create_render_target() override;
         Shader *create_shader(const char *filename) override;
         VertexBuffer *create_vertex_buffer() override;
@@ -37,6 +35,7 @@ namespace MangoRHI {
         const u32 get_height() const override { return extent.height; }
         RenderPass &get_render_pass_reference() override { return render_pass; }
         Command &get_current_command_reference() override { return *commands[current_in_flight_frame_index]; };
+        RenderTarget &get_surface_render_target_reference() override { return swapchain.get_render_target(); };
         
         Result create() override;
         Result destroy() override;
@@ -51,10 +50,10 @@ namespace MangoRHI {
 
     private:
         void recreate_resources();
-    
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkFormat, depth_format, VK_FORMAT_UNDEFINED)
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkSampleCountFlagBits, max_msaa_samples, MANGO_NO_INIT_VAULE)
 
+    define_member(MANGO_CONST_GETTER, MANGO_SETTER_BASIC_OVERRIDE, u32, max_in_flight_frame_count, 2)
+    define_member_with_translator(MANGO_CONST_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, MultisampleCount, VkSampleCountFlagBits, multisample_count, multisample_count2vk_sample_count, MultisampleCount::e1)
+    
     define_pointer(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkAllocationCallbacks, allocator, VK_NULL_HANDLE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkInstance, instance, VK_NULL_HANDLE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkSurfaceKHR, surface, VK_NULL_HANDLE)
@@ -66,7 +65,8 @@ namespace MangoRHI {
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanSynchronization, synchronization, MANGO_NO_INIT_VAULE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanCommandPool, command_pool, MANGO_NO_INIT_VAULE)
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, VkExtent2D, extent, MANGO_NO_INIT_VAULE)
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, u32, max_in_flight_frame_count, 2)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkFormat, depth_format, VK_FORMAT_UNDEFINED)
+    define_member(MANGO_NO_GETTER, MANGO_NO_SETTER, VkSampleCountFlagBits, max_multisample_count, MANGO_NO_INIT_VAULE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, u32, current_in_flight_frame_index, 0)
     define_private_readonly_pointer(VulkanContextInfo, info, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanRenderTarget *>, render_targets, MANGO_NO_INIT_VAULE)
@@ -76,7 +76,7 @@ namespace MangoRHI {
     define_private_member(STL_IMPL::vector<VulkanTexture *>, textures, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanCommand *>, commands, MANGO_NO_INIT_VAULE)
 
-    declare_component_cls(VulkanContext)
+    declare_component_cls_custom_construction(VulkanContext)
     };
 
     extern VulkanContext *vulkan_context;

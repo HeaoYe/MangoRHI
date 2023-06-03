@@ -16,9 +16,9 @@ namespace MangoRHI {
         switch (usage) {
         case RenderTargetUsage::eColor:
             description.format = vulkan_context->get_swapchain().get_format().format;
-            description.samples = VK_SAMPLE_COUNT_1_BIT;
+            description.samples = vulkan_context->get_multisample_count();
             description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+            description.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
             description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
             description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -26,7 +26,7 @@ namespace MangoRHI {
             break;
         case RenderTargetUsage::eDepth:
             description.format = vulkan_context->get_depth_format();
-            description.samples = VK_SAMPLE_COUNT_1_BIT;
+            description.samples = vulkan_context->get_multisample_count();
             description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             description.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
             description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -49,10 +49,12 @@ namespace MangoRHI {
             image->set_format(description.format);
             switch (usage) {
             case RenderTargetUsage::eColor:
+                image->set_multisample_count(vulkan_context->get_multisample_count());
                 image->set_usage(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
                 image->set_aspect(VK_IMAGE_ASPECT_COLOR_BIT);
                 break;
             case RenderTargetUsage::eDepth:
+                image->set_multisample_count(vulkan_context->get_multisample_count());
                 image->set_usage(VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
                 image->set_aspect(VK_IMAGE_ASPECT_DEPTH_BIT);
                 break;

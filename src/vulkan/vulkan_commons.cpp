@@ -225,5 +225,24 @@ namespace MangoRHI {
         }
     }
 
+    VkSampleCountFlagBits multisample_count2vk_sample_count(MultisampleCount count) {
+        switch (count) {
+        case MultisampleCount::e1:
+            return VK_SAMPLE_COUNT_1_BIT;
+        case MultisampleCount::e2:
+            return VK_SAMPLE_COUNT_2_BIT;
+        case MultisampleCount::e4:
+            return VK_SAMPLE_COUNT_4_BIT;
+        case MultisampleCount::e8:
+            return VK_SAMPLE_COUNT_8_BIT;
+        case MultisampleCount::e16:
+            return VK_SAMPLE_COUNT_16_BIT;
+        case MultisampleCount::e32:
+            return VK_SAMPLE_COUNT_32_BIT;
+        case MultisampleCount::e64:
+            return VK_SAMPLE_COUNT_64_BIT;
+        }
+    }
+
     #undef CASE_OR
 }
