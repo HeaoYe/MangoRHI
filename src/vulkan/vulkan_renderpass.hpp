@@ -31,7 +31,7 @@ namespace MangoRHI {
 
     class VulkanRenderPass final : public RenderPass {
     public:
-        void attach_render_target(RenderTarget *render_target) override;
+        void attach_render_target(RenderTarget *render_target);
         
         void add_input_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
         void add_output_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
