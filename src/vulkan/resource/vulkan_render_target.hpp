@@ -7,7 +7,6 @@
 namespace MangoRHI {
     class VulkanRenderTarget final : public RenderTarget {
     public:
-        void set_usage(RenderTargetUsage usage) override;
         Result create() override;
         Result destroy() override;
 
@@ -15,12 +14,10 @@ namespace MangoRHI {
 
     define_readonly_pointer(MANGO_CONST_GETTER, MANGO_SETTER_OVERRIDE, char, name, "")
     define_member_with_translator(MANGO_CONST_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, ClearValue, VkClearValue, clear_color, clear_value2vk_clear_value, ClearValue {})
-    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, VkImageAspectFlags, aspect, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC_OVERRIDE, RenderTargetUsage, usage, MANGO_NO_INIT_VAULE)
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, u32, index, MANGO_NO_INIT_VAULE)
-
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkAttachmentDescription, description, MANGO_NO_INIT_VAULE)
-    define_private_member(VkImageUsageFlags, usage, MANGO_NO_INIT_VAULE)
     
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkAttachmentDescription, description, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanImage *>, vulkan_images, MANGO_NO_INIT_VAULE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkImage>, images, MANGO_NO_INIT_VAULE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkImageView>, image_views, MANGO_NO_INIT_VAULE)

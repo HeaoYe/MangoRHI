@@ -47,11 +47,13 @@ int main() {
     auto *t_paper_plane= ctx->create_texture();
     auto *t_dance = ctx->create_texture();
     auto *t_dhl = ctx->create_texture();
+    auto *t_tm = ctx->create_texture();
     t_61->set_filename("examples/Sandbox/assets/textures/61.png");
     t_paper_plane->set_filename("examples/Sandbox/assets/textures/paper plane.png");
     t_dance->set_filename("examples/Sandbox/assets/textures/dance.png");
     t_dhl->set_filename("examples/Sandbox/assets/textures/dhl.png");
-    MangoRHI::Texture* textures[] = { t_61, t_paper_plane, t_dance, t_dhl };
+    t_tm->set_filename("examples/Sandbox/assets/textures/tm.png");
+    MangoRHI::Texture* textures[] = { t_61, t_paper_plane, t_dance, t_dhl, t_tm };
 
     main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
     main_shader_program->add_vertex_binding(MangoRHI::VertexInputRate::ePerVertex);
@@ -102,11 +104,14 @@ int main() {
         case 53:
             idx = 4;
             break;
+        case 54:
+            idx = 5;
+            break;
         default:
             return;
         }
         for (int i = 0; i < 4; i++) {
-            up->ds->set_texture(up->textures_binding, i, up->textures[idx == 4 ? i : idx]);
+            up->ds->set_texture(up->textures_binding, i, up->textures[idx == 5 ? i : idx]);
         }
         up->ds->update();
     });

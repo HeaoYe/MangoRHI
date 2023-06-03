@@ -89,6 +89,8 @@ namespace MangoRHI {
         RHI_DEBUG("Create vulkan surface -> 0x{:x}", (AddrType)surface)
 
         device.create();
+        depth_format = device.get_supported_depth_format();
+        max_msaa_samples = device.get_max_sample_count();
         swapchain.create();
         command_pool.create();
         for (auto &render_target : render_targets) {
@@ -219,6 +221,20 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
+    VkFormat VulkanContext::find_supported_format(const STL_IMPL::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const {
+        for (const auto &format : candidates) {
+            VkFormatProperties properties;
+            vkGetPhysicalDeviceFormatProperties(device.get_physical_device(), format, &properties);
+            if (tiling == VK_IMAGE_TILING_LINEAR && (properties.linearTilingFeatures & features) == features) {
+                return format;
+            } else if (tiling == VK_IMAGE_TILING_OPTIMAL && (properties.optimalTilingFeatures & features) == features) {
+                return format;
+            }
+        }
+        RHI_ERROR("Failed to find supported vulkan format")
+        return VK_FORMAT_UNDEFINED;
+    }
+
     VkImageView VulkanContext::create_image_view(VkImage image, VkFormat format, VkImageAspectFlags aspect, uint32_t mipmap_levels) const {
         VkImageView image_view;
         VkImageViewCreateInfo image_view_create_info { .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
@@ -298,9 +314,9 @@ namespace MangoRHI {
         };
         if (new_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
             barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-            // if (hasStencilComponent(format)) {
-            //     barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
-            // }
+            if (format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT) {
+                barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+            }
         } else {
             barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         }

@@ -44,6 +44,7 @@ namespace MangoRHI {
         Result begin_frame() override;
         Result end_frame() override;
 
+        VkFormat find_supported_format(const STL_IMPL::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
         VkImageView create_image_view(VkImage image, VkFormat format, VkImageAspectFlags aspect, uint32_t mipmap_levels) const;
         u32 find_memory_index(u32 type_filter, VkMemoryPropertyFlags flags) const;
         void transition_image_layout(VkImage image, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout, uint32_t mipmap_levels) const;
@@ -51,6 +52,9 @@ namespace MangoRHI {
     private:
         void recreate_resources();
     
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkFormat, depth_format, VK_FORMAT_UNDEFINED)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkSampleCountFlagBits, max_msaa_samples, MANGO_NO_INIT_VAULE)
+
     define_pointer(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkAllocationCallbacks, allocator, VK_NULL_HANDLE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkInstance, instance, VK_NULL_HANDLE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkSurfaceKHR, surface, VK_NULL_HANDLE)
