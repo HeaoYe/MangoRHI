@@ -269,6 +269,9 @@ namespace MangoRHI {
         eNone = BIT(0),
         eColorOutput = BIT(1),
         eEarlyFragmentTest = BIT(2),
+        eFragmentShader = BIT(3),
+        eBottomOfPipeline = BIT(4),
+        eTopOfPipeline = BIT(5),
     };
     define_flags(PipelineStage)
 
@@ -276,6 +279,7 @@ namespace MangoRHI {
         eNone = BIT(0),
         eColorRenderTargetWrite = BIT(1),
         eDepthStencilRenderTargetWrite = BIT(2),
+        eShaderRead = BIT(3),
     };
     define_flags(Access)
 

@@ -17,6 +17,7 @@ namespace MangoRHI {
         virtual void add_vertex_binding(VertexInputRate rate) = 0;
         virtual void attach_vertex_shader(const Shader *shader, const char *entry) = 0;
         virtual void attach_fragment_shader(const Shader *shader, const char *entry) = 0;
+        virtual void set_is_external_shader_program(Bool is_external_shader_program) = 0;
         virtual DescriptorSet *create_descriptor_set() = 0;
     };
 }
