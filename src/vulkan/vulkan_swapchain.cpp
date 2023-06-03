@@ -82,7 +82,7 @@ namespace MangoRHI {
         render_target.set_name(MANGORHI_SURFACE_RENDER_TARGET_NAME);
         render_target.set_usage(RenderTargetUsage::eColor);
         for (count = 0; count < image_count; count++) {
-            image_views[count] = vulkan_context->create_image_view(images[count], format.format, VK_IMAGE_ASPECT_COLOR_BIT);
+            image_views[count] = vulkan_context->create_image_view(images[count], format.format, VK_IMAGE_ASPECT_COLOR_BIT, 1);
             render_target.add_render_target_data(images[count], image_views[count]);
             RHI_DEBUG("Create vulkan swapchain image view({}) -> 0x{:x}", count, (AddrType)image_views[count])
         }

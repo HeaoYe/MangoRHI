@@ -56,7 +56,7 @@ namespace MangoRHI {
             image->set_usage(usage);
             image->set_aspect(aspect);
             image->create();
-            vulkan_context->transition_image_layout(image->get_image(), image->get_format(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+            vulkan_context->transition_image_layout(image->get_image(), image->get_format(), VK_IMAGE_LAYOUT_UNDEFINED, description.finalLayout, 1);
             images.push_back(image->get_image());
             image_views.push_back(image->get_image_view());
         }

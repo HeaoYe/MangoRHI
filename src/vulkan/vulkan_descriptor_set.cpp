@@ -95,7 +95,7 @@ namespace MangoRHI {
         for (u32 index = 0; index < get_count(); index++) {
             descriptor_image_infos[index].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             descriptor_image_infos[index].imageView = textures[index]->get_image().get_image_view();
-            descriptor_image_infos[index].sampler = textures[index]->get_sampler()->get_sampler();
+            descriptor_image_infos[index].sampler = textures[index]->get_sampler().get_sampler();
         };
         VkWriteDescriptorSet write_descriptor_set { .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
         write_descriptor_set.pImageInfo = descriptor_image_infos.data();

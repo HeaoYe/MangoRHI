@@ -15,7 +15,7 @@ namespace MangoRHI {
     }
 
     #define CASE_OR(enum_class, condition, input, flag_bit) \
-    if ((((u32)input) & ((u32)enum_class::condition)) != 0) { \
+    if ((((u32)input.bits) & ((u32)enum_class::condition)) != 0) { \
         flags |= flag_bit; \
     }
 
@@ -73,7 +73,7 @@ namespace MangoRHI {
     }
 
     VkPipelineStageFlags pipeline_stage2vk_pipeline_stage_flags(PipelineStage stage) {
-        return pipeline_stage2vk_pipeline_stage_flags((PipelineStageFlags)stage);
+        return pipeline_stage2vk_pipeline_stage_flags((PipelineStageFlags)(u32)stage);
     }
 
     VkAccessFlags access2vk_access_flags(AccessFlags access) {
@@ -84,7 +84,7 @@ namespace MangoRHI {
     }
 
     VkAccessFlags access2vk_access_flags(Access access) {
-        return access2vk_access_flags((AccessFlags)access);
+        return access2vk_access_flags((AccessFlags)(u32)access);
     }
 
     VkPrimitiveTopology topology2vk_primitive_topology(Topology topology) {
@@ -174,7 +174,7 @@ namespace MangoRHI {
     }
 
     VkShaderStageFlags descriptor_stage2vk_shader_stage_flags(DescriptorStage stage) {
-        return descriptor_stage2vk_shader_stage_flags((DescriptorStageFlags)stage);
+        return descriptor_stage2vk_shader_stage_flags((DescriptorStageFlags)(u32)stage);
     }
 
     VkFilter sampler_filter2vk_filter(SamplerFilter filter) {
