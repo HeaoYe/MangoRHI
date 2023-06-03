@@ -24,10 +24,7 @@ namespace MangoRHI {
     }
 
     u32 VulkanRenderPass::get_render_target_index_by_name(const char *render_target_name) {
-        if (strcmp(render_target_name, MANGORHI_SURFACE_RENDER_TARGET_NAME) == 0) {
-            return 0;
-        }
-        u32 index = 1;
+        u32 index = 0;
         for (const auto &render_target: render_targets) {
             if (strcmp(render_target->get_name(), render_target_name) == 0) {
                 break;
@@ -39,7 +36,7 @@ namespace MangoRHI {
 
     VkAttachmentReference VulkanRenderPass::get_render_target_ref(const char *render_target_name, RenderTargetLayout ref_layout) {
         u32 attachment = get_render_target_index_by_name(render_target_name);
-        if (attachment != 0 && attachment == render_targets.size() + 1) {
+        if (attachment == render_targets.size()) {
             RHI_ERROR("RenderTarget {} not found", render_target_name)
         }
         return VkAttachmentReference {
@@ -64,7 +61,7 @@ namespace MangoRHI {
 
     void VulkanRenderPass::attach_render_target(RenderTarget *render_target) {
         VulkanRenderTarget *vulkan_render_target = (VulkanRenderTarget *)render_target;
-        vulkan_render_target->set_index(render_targets.size() + 1);
+        vulkan_render_target->set_index(render_targets.size());
         if (get_render_target_index_by_name(vulkan_render_target->get_name()) < render_targets.size()) {
             RHI_ERROR("RenderTarget {} is existed", vulkan_render_target->get_name());
         }
@@ -124,9 +121,8 @@ namespace MangoRHI {
 
         STL_IMPL::vector<VkAttachmentDescription> attachment_descriptions;
         STL_IMPL::vector<VkSubpassDescription> subpass_descriptions;
-
-        render_targets.insert(render_targets.begin(), &vulkan_context->get_swapchain().get_render_target());
         clear_values.resize(render_targets.size());
+
         for (const auto &render_target : render_targets) {
             attachment_descriptions.push_back(render_target->get_description());
         }

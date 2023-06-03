@@ -3,6 +3,10 @@
 namespace MangoRHI {
     VulkanContext *vulkan_context;
 
+    VulkanContext::VulkanContext() {
+        render_pass.attach_render_target(&swapchain.get_render_target());
+    }
+
     void VulkanContext::set_api_info(const void *info) {
         this->info = (const VulkanContextInfo *)info;
     }
@@ -13,14 +17,6 @@ namespace MangoRHI {
 
     void VulkanContext::set_swapchain_image_count(u32 count) {
         this->swapchain.set_image_count(count);
-    }
-
-    void VulkanContext::set_max_in_flight_frame_count(u32 count) {
-        this->max_in_flight_frame_count = count;
-    }
-
-    void VulkanContext::set_clear_color(ColorClearValue clear_color) {
-        this->swapchain.get_render_target().set_clear_color(ClearValue { .color = clear_color });
     }
 
     RenderTarget *VulkanContext::create_render_target() {
@@ -89,6 +85,11 @@ namespace MangoRHI {
         RHI_DEBUG("Create vulkan surface -> 0x{:x}", (AddrType)surface)
 
         device.create();
+        depth_format = device.get_supported_depth_format();
+        max_multisample_count = device.get_max_multisample_count();
+        if (multisample_count > max_multisample_count) {
+            RHI_WARN("Multisample count({0}) more then max multisample count({1}), auto clamp to {1}.", multisample_count, max_multisample_count)
+        }
         swapchain.create();
         command_pool.create();
         for (auto &render_target : render_targets) {
@@ -219,6 +220,20 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
+    VkFormat VulkanContext::find_supported_format(const STL_IMPL::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const {
+        for (const auto &format : candidates) {
+            VkFormatProperties properties;
+            vkGetPhysicalDeviceFormatProperties(device.get_physical_device(), format, &properties);
+            if (tiling == VK_IMAGE_TILING_LINEAR && (properties.linearTilingFeatures & features) == features) {
+                return format;
+            } else if (tiling == VK_IMAGE_TILING_OPTIMAL && (properties.optimalTilingFeatures & features) == features) {
+                return format;
+            }
+        }
+        RHI_ERROR("Failed to find supported vulkan format")
+        return VK_FORMAT_UNDEFINED;
+    }
+
     VkImageView VulkanContext::create_image_view(VkImage image, VkFormat format, VkImageAspectFlags aspect, uint32_t mipmap_levels) const {
         VkImageView image_view;
         VkImageViewCreateInfo image_view_create_info { .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
@@ -276,6 +291,12 @@ namespace MangoRHI {
 
             src_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
             dst_stage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        } else if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+            src_access = 0;
+            dst_access = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+            src_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            dst_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         } else {
             RHI_ERROR("Unsupported layout transition");
         }
@@ -298,9 +319,9 @@ namespace MangoRHI {
         };
         if (new_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
             barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-            // if (hasStencilComponent(format)) {
-            //     barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
-            // }
+            if (format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT) {
+                barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+            }
         } else {
             barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         }

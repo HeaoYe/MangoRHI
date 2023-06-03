@@ -100,7 +100,7 @@ namespace MangoRHI {
         rasterization_state.lineWidth = 1.0f;
 
         VkPipelineMultisampleStateCreateInfo multisample_state { .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO };
-        multisample_state.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+        multisample_state.rasterizationSamples = vulkan_context->get_multisample_count();
         multisample_state.sampleShadingEnable = VK_FALSE;
 
         VkPipelineDepthStencilStateCreateInfo depth_stencil_state { .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };

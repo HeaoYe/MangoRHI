@@ -194,6 +194,15 @@ namespace MangoRHI {
     #define MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE(SrcType, member_name, translator) \
     __define_member_setter_with_translator(SrcType, override, member_name, translator)
 
+    #define declare_component_cls_custom_construction(cls_name) \
+    public: \
+        cls_name(); \
+    private: \
+        cls_name(const cls_name &) = delete; \
+        cls_name &operator=(const cls_name &) = delete; \
+        cls_name(cls_name &&) = delete; \
+        cls_name &operator=(cls_name &&) = delete;
+
     #define declare_component_cls(cls_name) \
     public: \
         cls_name() = default; \
@@ -217,7 +226,7 @@ namespace MangoRHI {
     } \
     destroyed = ::MangoRHI::MG_TRUE;
 
-    #define __define_flags(EnumClass) \
+    #define define_flags(EnumClass) \
     struct EnumClass##Flags { EnumClass##Flags(u32 n) : bits(n) {} EnumClass##Flags(EnumClass n) : bits((u32)n) {} u32 bits; }; \
     inline EnumClass##Flags operator|(EnumClass left, EnumClass right) { return ((u32)left) | ((u32)right); } \
     inline EnumClass##Flags operator|(EnumClass##Flags left, EnumClass right) { return left.bits | ((u32)right); } \
@@ -259,14 +268,14 @@ namespace MangoRHI {
         eColorOutput = BIT(1),
         eEarlyFragmentTest = BIT(2),
     };
-    __define_flags(PipelineStage)
+    define_flags(PipelineStage)
 
     enum class Access : u32 {
         eNone = BIT(0),
         eColorRenderTargetWrite = BIT(1),
         eDepthStencilRenderTargetWrite = BIT(2),
     };
-    __define_flags(Access)
+    define_flags(Access)
 
     struct SubpassStageInfo {
         const char *name;
@@ -327,7 +336,7 @@ namespace MangoRHI {
         eVertex = BIT(1),
         eFragment = BIT(2),
     };
-    __define_flags(DescriptorStage)
+    define_flags(DescriptorStage)
 
     enum class SamplerFilter : u32 {
         eNearest,
@@ -350,6 +359,18 @@ namespace MangoRHI {
         eIntOpaqueWhite,
     };
 
+    enum class MultisampleCount : u32 {
+        e1 = 1,
+        e2 = 2,
+        e4 = 4,
+        e8 = 8,
+        e16 = 16,
+        e32 = 32,
+        e64 = 64,
+    };
+
+    #undef define_flags
+
     struct Viewport {
         f32 x, y;
         f32 width, height;
@@ -370,18 +391,6 @@ namespace MangoRHI {
     MangoRHI_API Result quit();
     MangoRHI_API Context *get_context();
     STL_IMPL::vector<char> read_binary_file(const char *filename);
-
-    u32 concat_args();
-
-    template<typename ...EnumClass>
-    u32 concat_args(u32 value, EnumClass... args) {
-        return value | concat_args(args...);
-    }
-    
-    template<typename ...EnumClass>
-    u32 concat(EnumClass... args) {
-        return concat_args((u32)args...);
-    }
 }
 
 #include "logger.hpp"
