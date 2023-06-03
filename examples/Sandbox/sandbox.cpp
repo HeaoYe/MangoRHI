@@ -1,13 +1,11 @@
 #include "MangoRHI/MangoRHI.hpp"
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
-#include "vulkan/vulkan.hpp"
 
 int main() {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     auto *glfwWindow = glfwCreateWindow(640, 640, "Sandbox", nullptr, nullptr);
-    vk::PipelineStageFlags a;
 
     MangoRHI::set_logger_level(MangoRHI::LogLevel::eDebug);
     MangoRHI::initialize(MangoRHI::API::eVulkan);
@@ -43,19 +41,19 @@ int main() {
     auto *main_shader_program = rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
     rp.add_dependency({ MANGORHI_EXTERNAL_SUBPASS_NAME, MangoRHI::PipelineStage::eColorOutput | MangoRHI::PipelineStage::eEarlyFragmentTest, MangoRHI::Access::eNone }, { "main", MangoRHI::PipelineStage::eColorOutput | MangoRHI::PipelineStage::eEarlyFragmentTest, MangoRHI::Access::eColorRenderTargetWrite | MangoRHI::Access::eDepthStencilRenderTargetWrite });
 
-    auto &t_61 = rm.create_texture("examples/Sandbox/assets/textures/61.png");
-    auto &t_paper_plane= rm.create_texture("examples/Sandbox/assets/textures/paper plane.png");
-    auto &t_dance = rm.create_texture("examples/Sandbox/assets/textures/dance.png");
-    auto &t_dhl = rm.create_texture("examples/Sandbox/assets/textures/dhl.png");
-    auto &t_tm = rm.create_texture("examples/Sandbox/assets/textures/tm.png");
+    auto &t_61 = rm.create_texture("assets/textures/61.png");
+    auto &t_paper_plane= rm.create_texture("assets/textures/paper plane.png");
+    auto &t_dance = rm.create_texture("assets/textures/dance.png");
+    auto &t_dhl = rm.create_texture("assets/textures/dhl.png");
+    auto &t_tm = rm.create_texture("assets/textures/tm.png");
     MangoRHI::Texture* textures[] = { &t_61, &t_paper_plane, &t_dance, &t_dhl, &t_tm };
 
     main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
     main_shader_program->add_vertex_binding(MangoRHI::VertexInputRate::ePerVertex);
     main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
     main_shader_program->add_vertex_binding(MangoRHI::VertexInputRate::ePerInstance);
-    main_shader_program->attach_vertex_shader(&rm.create_shader("examples/Sandbox/assets/shaders/vert.spv"), "main");
-    main_shader_program->attach_fragment_shader(&rm.create_shader("examples/Sandbox/assets/shaders/frag.spv"), "main");
+    main_shader_program->attach_vertex_shader(&rm.create_shader("assets/shaders/vert.spv"), "main");
+    main_shader_program->attach_fragment_shader(&rm.create_shader("assets/shaders/frag.spv"), "main");
     main_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
     main_shader_program->set_depth_test_enabled(MangoRHI::MG_TRUE);
     main_shader_program->set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);

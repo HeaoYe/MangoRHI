@@ -19,7 +19,7 @@ namespace MangoRHI {
         }
         this->bind_point = pipeline_bind_point2vk_pipeline_bind_point(bind_point);
         description.pipelineBindPoint = this->bind_point;
-        this->shader_program = new VulkanShaderProgram();
+        shader_program = new VulkanShaderProgram();
         shader_program->set_subpass_index(index);
     }
 
@@ -113,6 +113,7 @@ namespace MangoRHI {
         dependency.dstStageMask = pipeline_stage2vk_pipeline_stage_flags(dst_subpass_info.stage);
         dependency.srcAccessMask = access2vk_access_flags(src_subpass_info.access);
         dependency.dstAccessMask = access2vk_access_flags(dst_subpass_info.access);
+        dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
         dependencies.push_back(dependency);
     }
 

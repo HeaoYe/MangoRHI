@@ -69,6 +69,9 @@ namespace MangoRHI {
         VkPipelineStageFlags flags = 0;
         CASE_OR(PipelineStage, eColorOutput, stage, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT)
         CASE_OR(PipelineStage, eEarlyFragmentTest, stage, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT)
+        CASE_OR(PipelineStage, eFragmentShader, stage, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT)
+        CASE_OR(PipelineStage, eBottomOfPipeline, stage, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT)
+        CASE_OR(PipelineStage, eTopOfPipeline, stage, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT)
         return flags;
     }
 
@@ -80,6 +83,7 @@ namespace MangoRHI {
         VkAccessFlags flags = 0;
         CASE_OR(Access, eColorRenderTargetWrite, access, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
         CASE_OR(Access, eDepthStencilRenderTargetWrite, access, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)
+        CASE_OR(Access, eShaderRead, access, VK_ACCESS_2_SHADER_READ_BIT)
         return flags;
     }
 
