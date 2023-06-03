@@ -7,9 +7,6 @@ namespace MangoRHI {
     class VulkanSampler final : public Sampler {
     public:
         void set_address_mode(SamplerAddressMode u, SamplerAddressMode v, SamplerAddressMode w) override;
-
-        Result create() override;
-        Result destroy() override;
     
     define_member_with_translator(MANGO_NO_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, SamplerFilter, VkFilter, mag_filter, sampler_filter2vk_filter, SamplerFilter::eLinear)
     define_member_with_translator(MANGO_NO_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, SamplerFilter, VkFilter, min_filter, sampler_filter2vk_filter, SamplerFilter::eLinear)

@@ -10,10 +10,7 @@
 #include "vulkan_synchronization.hpp"
 #include "vulkan_command_pool.hpp"
 #include "vulkan_descriptor_pool.hpp"
-#include "resource/vulkan_shader.hpp"
-#include "resource/vulkan_buffer.hpp"
-#include "resource/vulkan_sampler.hpp"
-#include "resource/vulkan_texture.hpp"
+#include "vulkan_resource_manager.hpp"
 
 namespace MangoRHI {
     struct VulkanContextCreateInfo {
@@ -24,21 +21,14 @@ namespace MangoRHI {
         void set_api_info(const void *info) override;
         void set_device_name(const char *name) override;
         void set_swapchain_image_count(u32 count) override;
-        RenderTarget *create_render_target() override;
-        Shader *create_shader(const char *filename) override;
-        VertexBuffer *create_vertex_buffer() override;
-        IndexBuffer *create_index_buffer() override;
-        Texture *create_texture() override;
 
         void resize(u32 width, u32 height) override;
         const u32 get_width() const override { return extent.width; }
         const u32 get_height() const override { return extent.height; }
+        ResourceManager &get_resource_manager_reference() override { return resource_manager; }
+        RenderTarget &get_surface_render_target_reference() override { return swapchain.get_render_target(); };
         RenderPass &get_render_pass_reference() override { return render_pass; }
         Command &get_current_command_reference() override { return *commands[current_in_flight_frame_index]; };
-        RenderTarget &get_surface_render_target_reference() override { return swapchain.get_render_target(); };
-        
-        Result create() override;
-        Result destroy() override;
 
         Result begin_frame() override;
         Result end_frame() override;
@@ -69,11 +59,7 @@ namespace MangoRHI {
     define_member(MANGO_NO_GETTER, MANGO_NO_SETTER, VkSampleCountFlagBits, max_multisample_count, MANGO_NO_INIT_VAULE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, u32, current_in_flight_frame_index, 0)
     define_private_readonly_pointer(VulkanContextInfo, info, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<VulkanRenderTarget *>, render_targets, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<VulkanShader *>, shaders, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<VulkanVertexBuffer *>, vertex_buffers, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<VulkanIndexBuffer *>, index_buffers, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<VulkanTexture *>, textures, MANGO_NO_INIT_VAULE)
+    define_private_member(VulkanResourceManager, resource_manager, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanCommand *>, commands, MANGO_NO_INIT_VAULE)
 
     declare_component_cls_custom_construction(VulkanContext)

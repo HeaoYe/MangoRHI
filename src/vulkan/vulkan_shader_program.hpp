@@ -19,9 +19,6 @@ namespace MangoRHI {
         void attach_fragment_shader(const Shader *shader, const char *entry) override;
         DescriptorSet *create_descriptor_set() override;
 
-        Result create() override;
-        Result destroy() override;
-
         const STL_IMPL::vector<VkDescriptorSet> &get_current_in_flight_descriptor_sets() const;
 
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, u32, subpass_index, MANGO_NO_INIT_VAULE)

@@ -19,39 +19,6 @@ namespace MangoRHI {
         this->swapchain.set_image_count(count);
     }
 
-    RenderTarget *VulkanContext::create_render_target() {
-        auto *render_target = new VulkanRenderTarget();
-        render_targets.push_back(render_target);
-        return render_target;
-    }
-
-    Shader *VulkanContext::create_shader(const char *filename) {
-        auto *shader = new VulkanShader();
-        shaders.push_back(shader);
-        shader->set_filename(filename);
-        return shader;
-    }
-
-    VertexBuffer *VulkanContext::create_vertex_buffer() {
-        auto *vertex_buffer = new VulkanVertexBuffer();
-        vertex_buffer->set_count(1024);
-        vertex_buffers.push_back(vertex_buffer);
-        return vertex_buffer;
-    }
-
-    IndexBuffer *VulkanContext::create_index_buffer() {
-        auto *index_buffer = new VulkanIndexBuffer();
-        index_buffer->set_count(1024);
-        index_buffers.push_back(index_buffer);
-        return index_buffer;
-    }
-
-    Texture *VulkanContext::create_texture() {
-        auto *texture = new VulkanTexture();
-        textures.push_back(texture);
-        return texture;
-    }
-
     void VulkanContext::resize(u32 width, u32 height) {
         // No Impl For Vulkan
     }
@@ -92,15 +59,7 @@ namespace MangoRHI {
         }
         swapchain.create();
         command_pool.create();
-        for (auto &render_target : render_targets) {
-            render_target->create();
-        }
-        for (auto &shader : shaders) {
-            shader->create();
-        }
-        for (auto &texture : textures) {
-            texture->create();
-        }
+        resource_manager.create();
         descriptor_pool.create();
         render_pass.create();
         framebuffer.create();
@@ -110,13 +69,6 @@ namespace MangoRHI {
             commands.push_back(command);
             command_pool.allocate(CommandLevel::ePrimary, command);
         }
-        for (auto &vertex_buffer : vertex_buffers) {
-            vertex_buffer->create();
-        }
-        for (auto &index_buffer : index_buffers) {
-            index_buffer->create();
-        }
-
         return Result::eSuccess;
     }
 
@@ -126,27 +78,13 @@ namespace MangoRHI {
         VK_CHECK(vkDeviceWaitIdle(device.get_logical_device()))
 
         descriptor_pool.destroy();
-        for (auto &vertex_buffer : vertex_buffers) {
-            vertex_buffer->destroy();
-        }
-        for (auto &index_buffer : index_buffers) {
-            index_buffer->destroy();
-        }
         for (auto &command : commands) {
             command_pool.free(command);
         }
         synchronization.destroy();
         framebuffer.destroy();
         render_pass.destroy();
-        for (auto &texture : textures) {
-            texture->destroy();
-        }
-        for (auto &shader : shaders) {
-            shader->destroy();
-        }
-        for (auto &render_target : render_targets) {
-            render_target->destroy();
-        }
+        resource_manager.destroy();
         command_pool.destroy();
         swapchain.destroy();
         device.destroy();
@@ -163,9 +101,7 @@ namespace MangoRHI {
     void VulkanContext::recreate_resources() {
         VK_CHECK(vkDeviceWaitIdle(device.get_logical_device()))
         swapchain.recreate();
-        for (auto &render_target : render_targets) {
-            render_target->recreate();
-        }
+        resource_manager.recreate_render_targets();
         framebuffer.recreate();
     }
 

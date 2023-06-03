@@ -11,9 +11,6 @@ namespace MangoRHI {
     public:
         Sampler &get_sampler_reference() override;
 
-        Result create() override;
-        Result destroy() override;
-
     define_readonly_pointer(MANGO_NO_GETTER, MANGO_SETTER_OVERRIDE, char, filename, "")
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC_OVERRIDE, u32, mipmap_levels, 0)
 
