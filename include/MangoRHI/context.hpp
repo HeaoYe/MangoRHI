@@ -19,7 +19,6 @@ namespace MangoRHI {
         virtual Shader *create_shader(const char *filename) = 0;
         virtual VertexBuffer *create_vertex_buffer() = 0;
         virtual IndexBuffer *create_index_buffer() = 0;
-        virtual Sampler *create_sampler() = 0;
         virtual Texture *create_texture() = 0;
         
         virtual void resize(u32 width, u32 height) = 0;

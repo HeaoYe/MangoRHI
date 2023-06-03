@@ -30,7 +30,6 @@ namespace MangoRHI {
         Shader *create_shader(const char *filename) override;
         VertexBuffer *create_vertex_buffer() override;
         IndexBuffer *create_index_buffer() override;
-        Sampler *create_sampler() override;
         Texture *create_texture() override;
 
         void resize(u32 width, u32 height) override;
@@ -45,9 +44,9 @@ namespace MangoRHI {
         Result begin_frame() override;
         Result end_frame() override;
 
-        VkImageView create_image_view(VkImage image, VkFormat format, VkImageAspectFlags aspect) const;
+        VkImageView create_image_view(VkImage image, VkFormat format, VkImageAspectFlags aspect, uint32_t mipmap_levels) const;
         u32 find_memory_index(u32 type_filter, VkMemoryPropertyFlags flags) const;
-        void transition_image_layout(VkImage image, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout) const;
+        void transition_image_layout(VkImage image, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout, uint32_t mipmap_levels) const;
 
     private:
         void recreate_resources();
@@ -70,7 +69,6 @@ namespace MangoRHI {
     define_private_member(STL_IMPL::vector<VulkanShader *>, shaders, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanVertexBuffer *>, vertex_buffers, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanIndexBuffer *>, index_buffers, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<VulkanSampler *>, samplers, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanTexture *>, textures, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanCommand *>, commands, MANGO_NO_INIT_VAULE)
 

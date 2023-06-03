@@ -3,6 +3,8 @@
 #include "../commons.hpp"
 
 namespace MangoRHI {
+    class Texture;
+
     class Sampler : public RuntimeComponent {
     public:
         virtual void set_mag_filter(SamplerFilter filter) = 0;

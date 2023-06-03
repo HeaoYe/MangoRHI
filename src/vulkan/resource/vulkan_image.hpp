@@ -10,6 +10,7 @@ namespace MangoRHI {
         Result destroy() override;
     
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, VkExtent2D, extent, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_SETTER_BASIC, u32, mipmap_levels, 1)
     define_member(MANGO_CONST_GETTER, MANGO_SETTER_BASIC, VkFormat, format, MANGO_NO_INIT_VAULE)
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, VkImageUsageFlags, usage, MANGO_NO_INIT_VAULE)
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, VkImageAspectFlags, aspect, MANGO_NO_INIT_VAULE)

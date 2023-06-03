@@ -50,12 +50,6 @@ namespace MangoRHI {
         return index_buffer;
     }
 
-    Sampler *VulkanContext::create_sampler() {
-        auto *sampler = new VulkanSampler();
-        samplers.push_back(sampler);
-        return sampler;
-    }
-
     Texture *VulkanContext::create_texture() {
         auto *texture = new VulkanTexture();
         textures.push_back(texture);
@@ -103,9 +97,6 @@ namespace MangoRHI {
         for (auto &shader : shaders) {
             shader->create();
         }
-        for (auto &sampler : samplers) {
-            sampler->create();
-        }
         for (auto &texture : textures) {
             texture->create();
         }
@@ -148,9 +139,6 @@ namespace MangoRHI {
         render_pass.destroy();
         for (auto &texture : textures) {
             texture->destroy();
-        }
-        for (auto &sampler : samplers) {
-            sampler->destroy();
         }
         for (auto &shader : shaders) {
             shader->destroy();
@@ -231,7 +219,7 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
-    VkImageView VulkanContext::create_image_view(VkImage image, VkFormat format, VkImageAspectFlags aspect) const {
+    VkImageView VulkanContext::create_image_view(VkImage image, VkFormat format, VkImageAspectFlags aspect, uint32_t mipmap_levels) const {
         VkImageView image_view;
         VkImageViewCreateInfo image_view_create_info { .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
         image_view_create_info.image = image;
@@ -246,7 +234,7 @@ namespace MangoRHI {
         image_view_create_info.subresourceRange = VkImageSubresourceRange {
             .aspectMask = aspect,
             .baseMipLevel = 0,
-            .levelCount = 1,
+            .levelCount = mipmap_levels,
             .baseArrayLayer = 0,
             .layerCount = 1,
         };
@@ -267,7 +255,7 @@ namespace MangoRHI {
         return -1;
     }
 
-    void VulkanContext::transition_image_layout(VkImage image, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout) const {
+    void VulkanContext::transition_image_layout(VkImage image, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout, u32 mipmap_levels) const {
         VkAccessFlags src_access = 0, dst_access = 0;
         VkPipelineStageFlags src_stage = 0, dst_stage = 0;
         if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
@@ -304,7 +292,7 @@ namespace MangoRHI {
         barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.subresourceRange = VkImageSubresourceRange {
             .baseMipLevel = 0,
-            .levelCount = 1,
+            .levelCount = mipmap_levels,
             .baseArrayLayer = 0,
             .layerCount = 1,
         };

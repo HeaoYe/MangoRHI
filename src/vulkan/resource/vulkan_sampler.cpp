@@ -24,9 +24,9 @@ namespace MangoRHI {
         sampler_create_info.compareEnable = VK_FALSE;
         sampler_create_info.compareOp = VK_COMPARE_OP_ALWAYS;
         sampler_create_info.mipmapMode = mipmap_mode;
-        sampler_create_info.mipLodBias = 0.0f;
         sampler_create_info.minLod = 0.0f;
-        sampler_create_info.maxLod = 0.0f;
+        sampler_create_info.maxLod = static_cast<float>(mipmap_levels);
+        sampler_create_info.mipLodBias = 0.0f;
         VK_CHECK(vkCreateSampler(vulkan_context->get_device().get_logical_device(), &sampler_create_info, vulkan_context->get_allocator(), &sampler))
         RHI_DEBUG("Create vulkan sampler -> 0x{:x}", (AddrType)sampler)
 

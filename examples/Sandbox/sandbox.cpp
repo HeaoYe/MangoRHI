@@ -1,11 +1,13 @@
 #include "MangoRHI/MangoRHI.hpp"
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
+#include "vulkan/vulkan.hpp"
 
 int main() {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     auto *glfwWindow = glfwCreateWindow(640, 640, "Sandbox", nullptr, nullptr);
+    vk::PipelineStageFlags a;
 
     MangoRHI::set_logger_level(MangoRHI::LogLevel::eDebug);
     MangoRHI::initialize(MangoRHI::API::eVulkan);
@@ -39,21 +41,16 @@ int main() {
     rp.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
     rp.set_depth_render_target("depth", MangoRHI::RenderTargetLayout::eDepth);
     auto *main_shader_program = rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
-    rp.add_dependency({ MANGORHI_EXTERNAL_SUBPASS_NAME, MangoRHI::concat(MangoRHI::PipelineStage::eColorOutput, MangoRHI::PipelineStage::eEarlyFragmentTest), MangoRHI::concat(MangoRHI::Access::eNone) }, { "main", MangoRHI::concat(MangoRHI::PipelineStage::eColorOutput, MangoRHI::PipelineStage::eEarlyFragmentTest), MangoRHI::concat(MangoRHI::Access::eColorRenderTargetWrite, MangoRHI::Access::eDepthStencilRenderTargetWrite) });
+    rp.add_dependency({ MANGORHI_EXTERNAL_SUBPASS_NAME, MangoRHI::PipelineStage::eColorOutput | MangoRHI::PipelineStage::eEarlyFragmentTest, MangoRHI::Access::eNone }, { "main", MangoRHI::PipelineStage::eColorOutput | MangoRHI::PipelineStage::eEarlyFragmentTest, MangoRHI::Access::eColorRenderTargetWrite | MangoRHI::Access::eDepthStencilRenderTargetWrite });
 
-    auto *sampler = ctx->create_sampler();
     auto *t_61 = ctx->create_texture();
     auto *t_paper_plane= ctx->create_texture();
     auto *t_dance = ctx->create_texture();
     auto *t_dhl = ctx->create_texture();
     t_61->set_filename("examples/Sandbox/assets/textures/61.png");
-    t_61->bind_sampler(sampler);
     t_paper_plane->set_filename("examples/Sandbox/assets/textures/paper plane.png");
-    t_paper_plane->bind_sampler(sampler);
     t_dance->set_filename("examples/Sandbox/assets/textures/dance.png");
-    t_dance->bind_sampler(sampler);
     t_dhl->set_filename("examples/Sandbox/assets/textures/dhl.png");
-    t_dhl->bind_sampler(sampler);
     MangoRHI::Texture* textures[] = { t_61, t_paper_plane, t_dance, t_dhl };
 
     main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
@@ -66,8 +63,8 @@ int main() {
     main_shader_program->set_depth_test_enabled(MangoRHI::MG_TRUE);
     main_shader_program->set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);
     auto *ds = main_shader_program->create_descriptor_set();
-    ds->add_uniform(MangoRHI::DescriptorStage::eVertex, sizeof(float) * 2, 2);
-    ds->add_textures(MangoRHI::DescriptorStage::eFragment, textures, 4);
+    MangoRHI::u32 uniform_binding = ds->add_uniform(MangoRHI::DescriptorStage::eVertex, sizeof(float) * 2, 2);
+    MangoRHI::u32 textures_binding = ds->add_textures(MangoRHI::DescriptorStage::eFragment, textures, 4);
 
     auto *vertex_buffer = ctx->create_vertex_buffer();
     auto *color_buffer = ctx->create_vertex_buffer();
@@ -80,16 +77,14 @@ int main() {
     struct UserPointer {
         MangoRHI::DescriptorSet * ds;
         MangoRHI::Texture **textures;
-    };
-    UserPointer up { ds, textures };
+        MangoRHI::u32 textures_binding;
+    } up { ds, textures, textures_binding };
     glfwSetWindowUserPointer(glfwWindow, &up);
     glfwSetKeyCallback(glfwWindow, [](GLFWwindow *window, int key, int, int pressed, int) {
         if (pressed != 1) {
             return;
         }
         auto *up = (UserPointer *)glfwGetWindowUserPointer(window);
-        auto *ds = up->ds;
-        auto **textures = up->textures;
         int idx;
         switch (key) {
         case 49:
@@ -111,9 +106,9 @@ int main() {
             return;
         }
         for (int i = 0; i < 4; i++) {
-            ds->set_texture(1, i, textures[idx == 4 ? i : idx]);
+            up->ds->set_texture(up->textures_binding, i, up->textures[idx == 4 ? i : idx]);
         }
-        ds->update();
+        up->ds->update();
     });
     std::vector<glm::vec3> vertices = {
         { 0.5f, 0.5f, 0.1f },
@@ -149,8 +144,8 @@ int main() {
             auto &command = ctx->get_current_command_reference();
             command.next_subpass();
 
-            float *uniform_buffer_pointer0 = (float *)ds->get_uniform_buffer_pointer(0, 0);
-            float *uniform_buffer_pointer1 = (float *)ds->get_uniform_buffer_pointer(0, 1);
+            float *uniform_buffer_pointer0 = (float *)ds->get_uniform_buffer_pointer(uniform_binding, 0);
+            float *uniform_buffer_pointer1 = (float *)ds->get_uniform_buffer_pointer(uniform_binding, 1);
             static float t1 = 0.0f, t2 = 0.0f;
             t1 += 0.01f;
             *(uniform_buffer_pointer0 + 0) = (glm::sin(t1) + 0.2f) * 0.5f;

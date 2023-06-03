@@ -95,7 +95,7 @@ namespace MangoRHI {
         for (u32 index = 0; index < get_count(); index++) {
             descriptor_image_infos[index].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             descriptor_image_infos[index].imageView = textures[index]->get_image().get_image_view();
-            descriptor_image_infos[index].sampler = textures[index]->get_sampler()->get_sampler();
+            descriptor_image_infos[index].sampler = textures[index]->get_sampler().get_sampler();
         };
         VkWriteDescriptorSet write_descriptor_set { .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
         write_descriptor_set.pImageInfo = descriptor_image_infos.data();
@@ -109,20 +109,22 @@ namespace MangoRHI {
         }
     }
 
-    void VulkanDescriptorSet::add_uniform(DescriptorStage stage, u32 size, u32 count) {
+    u32 VulkanDescriptorSet::add_uniform(DescriptorStage stage, u32 size, u32 count) {
         auto *uniform_descriptor = new VulkanUniformDescriptor();
         descriptors.push_back(uniform_descriptor);
         uniform_descriptor->set_size(size);
         setup_descriptor_binding(uniform_descriptor, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, stage, count);
+        return _current_binding - 1;
     }
 
-    void VulkanDescriptorSet::add_textures(DescriptorStage stage, Texture **textures, u32 count) {
+    u32 VulkanDescriptorSet::add_textures(DescriptorStage stage, Texture **textures, u32 count) {
         auto *texture_descriptor = new VulkanTextureDescriptor();
         for (u32 index = 0; index < count; index++) {
             texture_descriptor->add_texture((VulkanTexture *)textures[index]);
         }
         descriptors.push_back(texture_descriptor);
         setup_descriptor_binding(texture_descriptor, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, stage, count);
+        return _current_binding - 1;
     }
 
     void VulkanDescriptorSet::setup_descriptor_binding(VulkanDescriptor *descriptor, VkDescriptorType type, DescriptorStage stage, u32 count) {

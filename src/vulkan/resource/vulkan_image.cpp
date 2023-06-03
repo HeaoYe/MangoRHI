@@ -10,7 +10,7 @@ namespace MangoRHI {
         image_create_info.samples = VK_SAMPLE_COUNT_1_BIT;
         image_create_info.arrayLayers = 1;
         image_create_info.extent = { extent.width, extent.height, 1 };
-        image_create_info.mipLevels = 1;
+        image_create_info.mipLevels = mipmap_levels;
         image_create_info.format = format;
         image_create_info.tiling = VK_IMAGE_TILING_OPTIMAL;
         image_create_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -31,7 +31,7 @@ namespace MangoRHI {
 
         vkBindImageMemory(vulkan_context->get_device().get_logical_device(), image, memory, 0);
 
-        image_view = vulkan_context->create_image_view(image, format, aspect);
+        image_view = vulkan_context->create_image_view(image, format, aspect, mipmap_levels);
         RHI_DEBUG("Create vulkan image view -> 0x{:x}", (AddrType)image_view)
 
         return Result::eSuccess;

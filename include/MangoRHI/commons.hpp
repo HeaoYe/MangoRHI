@@ -217,6 +217,12 @@ namespace MangoRHI {
     } \
     destroyed = ::MangoRHI::MG_TRUE;
 
+    #define __define_flags(EnumClass) \
+    struct EnumClass##Flags { EnumClass##Flags(u32 n) : bits(n) {} EnumClass##Flags(EnumClass n) : bits((u32)n) {} u32 bits; }; \
+    inline EnumClass##Flags operator|(EnumClass left, EnumClass right) { return ((u32)left) | ((u32)right); } \
+    inline EnumClass##Flags operator|(EnumClass##Flags left, EnumClass right) { return left.bits | ((u32)right); } \
+    inline EnumClass##Flags operator|(EnumClass left, EnumClass##Flags right) { return ((u32)left) | right.bits; } \
+    inline EnumClass##Flags operator|(EnumClass##Flags left, EnumClass##Flags right) { return left.bits | right.bits; }
 
     struct ColorClearValue {
         f32 r, g, b, a;
@@ -253,14 +259,14 @@ namespace MangoRHI {
         eColorOutput = BIT(1),
         eEarlyFragmentTest = BIT(2),
     };
-    typedef u32 PipelineStageFlags;
+    __define_flags(PipelineStage)
 
     enum class Access : u32 {
         eNone = BIT(0),
         eColorRenderTargetWrite = BIT(1),
         eDepthStencilRenderTargetWrite = BIT(2),
     };
-    typedef u32 AccessFlags;
+    __define_flags(Access)
 
     struct SubpassStageInfo {
         const char *name;
@@ -321,7 +327,7 @@ namespace MangoRHI {
         eVertex = BIT(1),
         eFragment = BIT(2),
     };
-    typedef u32 DescriptorStageFlags;
+    __define_flags(DescriptorStage)
 
     enum class SamplerFilter : u32 {
         eNearest,
