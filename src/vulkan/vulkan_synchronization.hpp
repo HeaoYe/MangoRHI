@@ -5,9 +5,6 @@
 namespace MangoRHI {
     class VulkanSynchronization final : public RuntimeComponent {
     public:
-        Result create() override;
-        Result destroy() override;
-
         const VkSemaphore &get_current_image_available_semaphore() const;
         const VkSemaphore &get_current_render_finished_semaphore() const;
         const VkFence &get_current_fence() const;

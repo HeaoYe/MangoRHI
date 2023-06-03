@@ -5,9 +5,6 @@
 namespace MangoRHI {
     class VulkanDevice final : public RuntimeComponent {
     public:
-        Result create() override;
-        Result destroy() override;
-
         void query_swapchain_details(SwapchainDetails &details) const;
         VkFormat get_supported_depth_format() const;
         VkSampleCountFlagBits get_max_multisample_count() const;

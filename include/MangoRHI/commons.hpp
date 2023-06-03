@@ -194,23 +194,25 @@ namespace MangoRHI {
     #define MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE(SrcType, member_name, translator) \
     __define_member_setter_with_translator(SrcType, override, member_name, translator)
 
-    #define declare_component_cls_custom_construction(cls_name) \
+    #define __declare_component_cls(cls_name) \
     public: \
-        cls_name(); \
+        Result create() override; \
+        Result destroy() override; \
     private: \
         cls_name(const cls_name &) = delete; \
         cls_name &operator=(const cls_name &) = delete; \
         cls_name(cls_name &&) = delete; \
         cls_name &operator=(cls_name &&) = delete;
 
+    #define declare_component_cls_custom_construction(cls_name) \
+    public: \
+        cls_name(); \
+    __declare_component_cls(cls_name)
+
     #define declare_component_cls(cls_name) \
     public: \
         cls_name() = default; \
-    private: \
-        cls_name(const cls_name &) = delete; \
-        cls_name &operator=(const cls_name &) = delete; \
-        cls_name(cls_name &&) = delete; \
-        cls_name &operator=(cls_name &&) = delete;
+    __declare_component_cls(cls_name)
 
     #define component_create() \
     if (destroyed == ::MangoRHI::MG_FALSE) { \

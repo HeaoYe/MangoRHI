@@ -7,9 +7,6 @@
 namespace MangoRHI {
     class VulkanRenderTarget final : public RenderTarget {
     public:
-        Result create() override;
-        Result destroy() override;
-
         void add_render_target_data(VkImage image, VkImageView image_view);
 
     define_readonly_pointer(MANGO_CONST_GETTER, MANGO_SETTER_OVERRIDE, char, name, "")

@@ -7,8 +7,6 @@
 namespace MangoRHI {
     class VulkanSwapchain final : public Swapchain {
     public:
-        Result create() override;
-        Result destroy() override;
         Result acquire_next_frame() override;
         Result present() override;
 

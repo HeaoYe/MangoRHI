@@ -9,8 +9,6 @@ namespace MangoRHI {
     class VulkanCommand final : public Command {
         friend VulkanCommandPool;
     public:
-        Result create() override;
-        Result destroy() override;
         Result begin_render() override;
         Result end_render() override;
 

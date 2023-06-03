@@ -36,9 +36,6 @@ namespace MangoRHI {
         RenderPass &get_render_pass_reference() override { return render_pass; }
         Command &get_current_command_reference() override { return *commands[current_in_flight_frame_index]; };
         RenderTarget &get_surface_render_target_reference() override { return swapchain.get_render_target(); };
-        
-        Result create() override;
-        Result destroy() override;
 
         Result begin_frame() override;
         Result end_frame() override;
