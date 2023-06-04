@@ -19,6 +19,7 @@ namespace MangoRHI {
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkImage>, images, MANGO_NO_INIT_VAULE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkImageView>, image_views, MANGO_NO_INIT_VAULE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, Bool, is_each_frame_render_target, MG_FALSE)
+    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, Bool, is_resolve, MG_FALSE)
 
     declare_component_cls(VulkanRenderTarget)
     };

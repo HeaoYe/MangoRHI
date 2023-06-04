@@ -14,10 +14,12 @@ namespace MangoRHI {
 
         STL_IMPL::vector<VkDescriptorPoolSize> pool_sizes;
         for (const auto &descriptor_info : g_descriptor_info) {
-            pool_sizes.push_back(VkDescriptorPoolSize {
-                .type = descriptor_info.first,
-                .descriptorCount = descriptor_info.second * vulkan_context->get_max_in_flight_frame_count(),
-            });
+            if (descriptor_info.second > 0) {
+                pool_sizes.push_back(VkDescriptorPoolSize {
+                    .type = descriptor_info.first,
+                    .descriptorCount = descriptor_info.second * vulkan_context->get_max_in_flight_frame_count(),
+                });
+            }
         }
 
         VkDescriptorPoolCreateInfo descriptor_pool_create_info { .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };

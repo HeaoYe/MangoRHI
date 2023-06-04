@@ -108,23 +108,20 @@ namespace MangoRHI {
         multisample_state.sampleShadingEnable = VK_FALSE;
 
         VkPipelineDepthStencilStateCreateInfo depth_stencil_state { .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
-        if (depth_test_enabled == MG_TRUE) {
-            depth_stencil_state.depthTestEnable = VK_TRUE;
-            depth_stencil_state.depthWriteEnable = VK_TRUE;
-            depth_stencil_state.depthCompareOp = depth_compare_op;
-            depth_stencil_state.depthBoundsTestEnable = VK_FALSE;
-        } else {
-            depth_stencil_state.depthTestEnable = VK_FALSE;
-        }
+        depth_stencil_state.depthTestEnable = depth_test_enabled;
+        depth_stencil_state.depthWriteEnable = depth_write_enabled;
+        depth_stencil_state.depthCompareOp = depth_compare_op;
+        depth_stencil_state.depthBoundsTestEnable = VK_FALSE;
         depth_stencil_state.stencilTestEnable = VK_FALSE;
 
         VkPipelineColorBlendAttachmentState color_blend_attachment {};
         color_blend_attachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
         color_blend_attachment.blendEnable = VK_FALSE;
+        STL_IMPL::vector<VkPipelineColorBlendAttachmentState> color_blends(vulkan_context->get_render_pass().get_subpasses()[subpass_index]->get_output_attachments().size(), color_blend_attachment);
         VkPipelineColorBlendStateCreateInfo color_blend_state { .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
         color_blend_state.logicOpEnable = VK_FALSE;
-        color_blend_state.attachmentCount = 1;
-        color_blend_state.pAttachments = &color_blend_attachment;
+        color_blend_state.attachmentCount = color_blends.size();
+        color_blend_state.pAttachments = color_blends.data();
 
         dynamic_states.push_back(VK_DYNAMIC_STATE_VIEWPORT);
         dynamic_states.push_back(VK_DYNAMIC_STATE_SCISSOR);

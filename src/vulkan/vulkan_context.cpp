@@ -55,7 +55,8 @@ namespace MangoRHI {
         depth_format = device.get_supported_depth_format();
         max_multisample_count = device.get_max_multisample_count();
         if (multisample_count > max_multisample_count) {
-            RHI_WARN("Multisample count({0}) more then max multisample count({1}), auto clamp to {1}.", multisample_count, max_multisample_count)
+            RHI_ERROR("Multisample count({}) more then max multisample count({}).", multisample_count, max_multisample_count)
+            return Result::eFailed;
         }
         swapchain.create();
         command_pool.create();

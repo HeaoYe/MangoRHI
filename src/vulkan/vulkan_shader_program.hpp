@@ -27,6 +27,7 @@ namespace MangoRHI {
     define_member_with_translator(MANGO_NO_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, FrontFace, VkFrontFace, front_face, front_face2vk_front_face, FrontFace::eClockwise)
     define_member_with_translator(MANGO_NO_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, CullMode, VkCullModeFlags, cull_mode, cull_mode2vk_cull_mode_flags, CullMode::eBack)
     define_member_with_translator(MANGO_NO_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, Bool, VkBool32, depth_test_enabled, bool2vk_bool32, MG_FALSE)
+    define_member_with_translator(MANGO_NO_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, Bool, VkBool32, depth_write_enabled, bool2vk_bool32, MG_TRUE)
     define_member_with_translator(MANGO_NO_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, DepthCompareOp, VkCompareOp, depth_compare_op, depth_compare_op2vk_compare_op, DepthCompareOp::eLess)
     define_private_member(STL_IMPL::vector<VkVertexInputAttributeDescription>, attributes, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkVertexInputBindingDescription>, bindings, MANGO_NO_INIT_VAULE)
