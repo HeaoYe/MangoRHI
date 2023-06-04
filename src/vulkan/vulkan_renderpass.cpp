@@ -72,8 +72,18 @@ namespace MangoRHI {
         temp_subpass->get_input_attachments().push_back(get_render_target_ref(render_target_name, ref_layout));
     }
 
-    void VulkanRenderPass::add_output_render_target(const char *render_target_name, RenderTargetLayout ref_layout) {
+    void VulkanRenderPass::add_output_render_target(const char *render_target_name, RenderTargetLayout ref_layout, ColorBlendInfo color_blend_info) {
         temp_subpass->get_output_attachments().push_back(get_render_target_ref(render_target_name, ref_layout));
+        temp_subpass->get_color_blend_states().push_back(VkPipelineColorBlendAttachmentState {
+            .blendEnable = bool2vk_bool32(check_color_blend_info_enable(color_blend_info)),
+            .srcColorBlendFactor = blend_factor2vk_blend_factor(color_blend_info.src_color_factor),
+            .dstColorBlendFactor = blend_factor2vk_blend_factor(color_blend_info.dst_color_factor),
+            .colorBlendOp = blend_op2vk_blend_op(color_blend_info.color_op),
+            .srcAlphaBlendFactor = blend_factor2vk_blend_factor(color_blend_info.src_alpha_factor),
+            .dstAlphaBlendFactor = blend_factor2vk_blend_factor(color_blend_info.dst_alpha_factor),
+            .alphaBlendOp = blend_op2vk_blend_op(color_blend_info.alpha_op),
+            .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
+        });
     }
 
     void VulkanRenderPass::add_preserve_render_target(const char *render_target_name) {

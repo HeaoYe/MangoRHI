@@ -256,5 +256,48 @@ namespace MangoRHI {
         }
     }
 
+    Bool check_color_blend_info_enable(ColorBlendInfo &info) {
+        return (
+            (info.src_color_factor != BlendFactor::eNone) && (info.dst_color_factor != BlendFactor::eNone) && (info.color_op != BlendOp::eNone) && 
+            (info.src_alpha_factor != BlendFactor::eNone) && (info.dst_alpha_factor != BlendFactor::eNone) && (info.alpha_op != BlendOp::eNone)
+        ) ? MG_TRUE : MG_FALSE; 
+    }
+
+    VkBlendFactor blend_factor2vk_blend_factor(BlendFactor factor) {
+        switch (factor) {
+        case BlendFactor::eNone:
+            return VK_BLEND_FACTOR_MAX_ENUM;
+        case BlendFactor::eZero:
+            return VK_BLEND_FACTOR_ZERO;
+        case BlendFactor::eOne:
+            return VK_BLEND_FACTOR_ONE;
+        case BlendFactor::eSrcAlpha:
+            return VK_BLEND_FACTOR_SRC_ALPHA;
+        case BlendFactor::eOneMinusSrcAlpha:
+            return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        case BlendFactor::eDstAlpha:
+            return VK_BLEND_FACTOR_DST_ALPHA;
+        case BlendFactor::eOneMinusDstAlpha:
+            return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+        }
+    }
+
+    VkBlendOp blend_op2vk_blend_op(BlendOp op) {
+        switch (op) {
+        case BlendOp::eNone:
+            return VK_BLEND_OP_MAX_ENUM;
+        case BlendOp::eAdd:
+            return VK_BLEND_OP_ADD;
+        case BlendOp::eSub:
+            return VK_BLEND_OP_SUBTRACT;
+        case BlendOp::eReverseSub:
+            return VK_BLEND_OP_REVERSE_SUBTRACT;
+        case BlendOp::eMin:
+            return VK_BLEND_OP_MIN;
+        case BlendOp::eMax:
+            return VK_BLEND_OP_MAX;
+        }
+    }
+
     #undef CASE_OR
 }

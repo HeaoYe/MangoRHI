@@ -382,6 +382,25 @@ namespace MangoRHI {
         e64 = 64,
     };
 
+    enum class BlendFactor : u32 {
+        eNone,
+        eZero,
+        eOne,
+        eSrcAlpha,
+        eOneMinusSrcAlpha,
+        eDstAlpha,
+        eOneMinusDstAlpha,
+    };
+
+    enum class BlendOp : u32 {
+        eNone,
+        eAdd,
+        eSub,
+        eReverseSub,
+        eMin,
+        eMax,
+    };
+
     #undef define_flags
 
     struct Viewport {
@@ -393,6 +412,15 @@ namespace MangoRHI {
     struct Scissor {
         i32 x, y;
         u32 width, height;
+    };
+
+    struct ColorBlendInfo {
+        BlendFactor src_color_factor = BlendFactor::eNone;
+        BlendFactor dst_color_factor = BlendFactor::eNone;
+        BlendOp color_op = BlendOp::eNone;
+        BlendFactor src_alpha_factor = BlendFactor::eNone;
+        BlendFactor dst_alpha_factor = BlendFactor::eNone;
+        BlendOp alpha_op = BlendOp::eNone;
     };
 
     #define MANGORHI_SURFACE_RENDER_TARGET_NAME "surface"
