@@ -34,6 +34,15 @@ namespace MangoRHI {
             description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
             break;
+        case RenderTargetUsage::eColorBuffer:
+            description.format = vulkan_context->get_swapchain().get_format().format;
+            description.samples = vulkan_context->get_multisample_count();
+            description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            description.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            description.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         }
 
         if (images.size() == 0) {
@@ -49,15 +58,24 @@ namespace MangoRHI {
             image->set_format(description.format);
             switch (usage) {
             case RenderTargetUsage::eColor:
-                image->set_multisample_count(vulkan_context->get_multisample_count());
                 image->set_usage(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
                 image->set_aspect(VK_IMAGE_ASPECT_COLOR_BIT);
                 break;
             case RenderTargetUsage::eDepth:
-                image->set_multisample_count(vulkan_context->get_multisample_count());
                 image->set_usage(VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
                 image->set_aspect(VK_IMAGE_ASPECT_DEPTH_BIT);
                 break;
+            case RenderTargetUsage::eColorBuffer:
+                image->set_usage(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT);
+                image->set_aspect(VK_IMAGE_ASPECT_COLOR_BIT);
+                break;
+            }
+            if (is_resolve == MG_TRUE) {
+                image->set_multisample_count(VK_SAMPLE_COUNT_1_BIT);
+                description.samples = VK_SAMPLE_COUNT_1_BIT;
+                description.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            } else {
+                image->set_multisample_count(vulkan_context->get_multisample_count());
             }
             image->create();
             vulkan_context->transition_image_layout(image->get_image(), image->get_format(), VK_IMAGE_LAYOUT_UNDEFINED, description.finalLayout, 1);

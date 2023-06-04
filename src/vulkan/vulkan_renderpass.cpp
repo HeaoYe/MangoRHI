@@ -14,8 +14,8 @@ namespace MangoRHI {
         if (depth_attachment.has_value()) {
             description.pDepthStencilAttachment = &depth_attachment.value();
         }
-        if (resolve_attachment.has_value()) {
-            description.pResolveAttachments = &resolve_attachment.value();
+        if (resolve_attachment.size() > 0) {
+            description.pResolveAttachments = resolve_attachment.data();
         }
         this->bind_point = pipeline_bind_point2vk_pipeline_bind_point(bind_point);
         description.pipelineBindPoint = this->bind_point;
@@ -23,7 +23,7 @@ namespace MangoRHI {
         shader_program->set_subpass_index(index);
     }
 
-    u32 VulkanRenderPass::get_render_target_index_by_name(const char *render_target_name) {
+    u32 VulkanRenderPass::get_render_target_index_by_name(const char *render_target_name) const {
         u32 index = 0;
         for (const auto &render_target: render_targets) {
             if (strcmp(render_target->get_name(), render_target_name) == 0) {
@@ -34,7 +34,7 @@ namespace MangoRHI {
         return index;
     }
 
-    VkAttachmentReference VulkanRenderPass::get_render_target_ref(const char *render_target_name, RenderTargetLayout ref_layout) {
+    VkAttachmentReference VulkanRenderPass::get_render_target_ref(const char *render_target_name, RenderTargetLayout ref_layout) const {
         u32 attachment = get_render_target_index_by_name(render_target_name);
         if (attachment == render_targets.size()) {
             RHI_ERROR("RenderTarget {} not found", render_target_name)
@@ -45,7 +45,7 @@ namespace MangoRHI {
         };
     }
 
-    u32 VulkanRenderPass::get_subpass_index_by_name(const char *subpass_name) {
+    u32 VulkanRenderPass::get_subpass_index_by_name(const char *subpass_name) const {
         if (strcmp(subpass_name, MANGORHI_EXTERNAL_SUBPASS_NAME) == 0) {
             return VK_SUBPASS_EXTERNAL;
         }
@@ -84,8 +84,9 @@ namespace MangoRHI {
         temp_subpass->get_depth_attachment() = get_render_target_ref(render_target_name, ref_layout);
     }
 
-    void VulkanRenderPass::set_resolve_render_target(const char *render_target_name, RenderTargetLayout ref_layout) {
-        temp_subpass->get_resolve_attachment() = get_render_target_ref(render_target_name, ref_layout);
+    void VulkanRenderPass::add_resolve_render_target(const char *render_target_name, RenderTargetLayout ref_layout) {
+        temp_subpass->get_resolve_attachment().push_back(get_render_target_ref(render_target_name, ref_layout));
+        render_targets[get_render_target_index_by_name(render_target_name)]->set_is_resolve(MG_TRUE);
     }
 
     ShaderProgram *VulkanRenderPass::add_subpass(const char *subpass_name, PipelineBindPoint bind_point) {

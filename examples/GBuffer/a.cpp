@@ -37,7 +37,7 @@ int main() {
     auto &rp = ctx->get_render_pass_reference();
     rp.add_output_render_target("color", MangoRHI::RenderTargetLayout::eColor);
     rp.set_depth_render_target("depth", MangoRHI::RenderTargetLayout::eDepth);
-    rp.add_resolve_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
+    rp.set_resolve_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
     auto *main_shader_program = rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
     rp.add_dependency({ MANGORHI_EXTERNAL_SUBPASS_NAME, MangoRHI::PipelineStage::eColorOutput | MangoRHI::PipelineStage::eEarlyFragmentTest, MangoRHI::Access::eNone }, { "main", MangoRHI::PipelineStage::eColorOutput | MangoRHI::PipelineStage::eEarlyFragmentTest, MangoRHI::Access::eColorRenderTargetWrite | MangoRHI::Access::eDepthStencilRenderTargetWrite });
 
@@ -58,7 +58,7 @@ int main() {
     main_shader_program->set_depth_test_enabled(MangoRHI::MG_TRUE);
     main_shader_program->set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);
     auto *ds = main_shader_program->create_descriptor_set();
-    MangoRHI::u32 uniform_binding = ds->add_uniforms(MangoRHI::DescriptorStage::eVertex, sizeof(float) * 2, 2);
+    MangoRHI::u32 uniform_binding = ds->add_uniform(MangoRHI::DescriptorStage::eVertex, sizeof(float) * 2, 2);
     MangoRHI::u32 textures_binding = ds->add_textures(MangoRHI::DescriptorStage::eFragment, textures, 4);
 
     auto &vertex_buffer = rm.create_vertex_buffer(sizeof(glm::vec3));

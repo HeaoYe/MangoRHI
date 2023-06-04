@@ -23,7 +23,7 @@ namespace MangoRHI {
             VK_CHECK(vkResetCommandBuffer(command_buffer, 0))
         }
         VK_CHECK(vkBeginCommandBuffer(command_buffer, &begin_info))
-        _current_subpass = 0;
+        _current_subpass = -1;
         
         return Result::eSuccess;
     }
@@ -54,6 +54,11 @@ namespace MangoRHI {
     }
 
     void VulkanCommand::next_subpass() {
+        _current_subpass++;
+        if (_current_subpass > 0 && _current_subpass < vulkan_context->get_render_pass().get_subpasses().size()) {
+            vkCmdNextSubpass(command_buffer, VK_SUBPASS_CONTENTS_INLINE);
+        }
+
         const auto &subpass = vulkan_context->get_render_pass().get_subpasses()[_current_subpass];
         const auto *shader_program = subpass->get_shader_program();
         if (shader_program->get_is_external_shader_program() == MG_FALSE) {
@@ -61,11 +66,6 @@ namespace MangoRHI {
             if (shader_program->get_current_in_flight_descriptor_sets().size() > 0) {
                 vkCmdBindDescriptorSets(command_buffer, subpass->get_bind_point(), shader_program->get_layout(), 0, shader_program->get_current_in_flight_descriptor_sets().size(), shader_program->get_current_in_flight_descriptor_sets().data(), 0, 0);
             }
-        }
-
-        _current_subpass++;
-        if (_current_subpass < vulkan_context->get_render_pass().get_subpasses().size()) {
-            vkCmdNextSubpass(command_buffer, VK_SUBPASS_CONTENTS_INLINE);
         }
     }
 

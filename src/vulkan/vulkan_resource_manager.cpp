@@ -41,6 +41,12 @@ namespace MangoRHI {
         return *texture;
     }
 
+    Sampler &VulkanResourceManager::create_sampler() {
+        auto *sampler = new VulkanSampler();
+        samplers.push_back(sampler);
+        return *sampler;
+    }
+
     Result VulkanResourceManager::create() {
         component_create()
 
@@ -52,6 +58,9 @@ namespace MangoRHI {
         }
         for (auto &texture : textures) {
             texture->create();
+        }
+        for (auto &sampler : samplers) {
+            sampler->create();
         }
         for (auto &vertex_buffer : vertex_buffers) {
             vertex_buffer->create();
@@ -71,6 +80,9 @@ namespace MangoRHI {
         }
         for (auto &vertex_buffer : vertex_buffers) {
             vertex_buffer->destroy();
+        }
+        for (auto &sampler : samplers) {
+            sampler->destroy();
         }
         for (auto &texture : textures) {
             texture->destroy();

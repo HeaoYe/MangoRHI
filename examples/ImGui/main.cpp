@@ -30,19 +30,27 @@ int main() {
         glfwCreateWindowSurface(instance, glfwWindow, allocator, &surface);
         return surface;
     };
-    info.app_name = "MangoRHI Sanbox App";
+    info.app_name = "ImGui With MangoRHI";
     info.engine_name = "No Engine";
     ctx->set_api_info(&info);
     ctx->set_device_name("NVIDIA GeForce RTX 4090");
     ctx->set_swapchain_image_count(3);
     ctx->set_max_in_flight_frame_count(2);
-    ctx->set_multisample_count(MangoRHI::MultisampleCount::e1);
+    ctx->set_multisample_count(MangoRHI::MultisampleCount::e8);
     auto &rm = ctx->get_resource_manager_reference();
 
+    rm.create_render_target("resolve", MangoRHI::RenderTargetUsage::eColor);
     auto &rp = ctx->get_render_pass_reference();
-    rp.add_output_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
+    rp.add_output_render_target("resolve", MangoRHI::RenderTargetLayout::eColor);
+    auto *sp = rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
+    rp.add_output_render_target("resolve", MangoRHI::RenderTargetLayout::eColor);
+    rp.add_resolve_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
     rp.add_subpass("imgui", MangoRHI::PipelineBindPoint::eGraphicsPipeline)->set_is_external_shader_program(MangoRHI::MG_TRUE);
-    rp.add_dependency({ MANGORHI_EXTERNAL_SUBPASS_NAME, MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eNone }, { "imgui", MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eColorRenderTargetWrite });
+    rp.add_dependency({ MANGORHI_EXTERNAL_SUBPASS_NAME, MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eNone }, { "main", MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eColorRenderTargetWrite });
+    rp.add_dependency({ "main", MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eColorRenderTargetWrite }, { "imgui", MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eColorRenderTargetWrite });
+    sp->set_cull_mode(MangoRHI::CullMode::eNone);
+    sp->attach_vertex_shader(&rm.create_shader("assets/shaders/vert.spv"), "main");
+    sp->attach_fragment_shader(&rm.create_shader("assets/shaders/frag.spv"), "main");
 
     ctx->create();
 
@@ -84,10 +92,10 @@ int main() {
     init_info.Queue = vk_ctx->get_device().get_graphics_queue();
     init_info.PipelineCache = VK_NULL_HANDLE;
     init_info.DescriptorPool = g_DescriptorPool;
-    init_info.Subpass = 0;
+    init_info.Subpass = vk_ctx->get_render_pass().get_subpass_index_by_name("imgui");
     init_info.MinImageCount = vk_ctx->get_swapchain().get_image_count();
     init_info.ImageCount = vk_ctx->get_swapchain().get_image_count();
-    init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+    init_info.MSAASamples = vk_ctx->get_multisample_count();
     init_info.Allocator = vk_ctx->get_allocator();
     init_info.CheckVkResultFn = vk_check_fn;
     ImGui_ImplVulkan_Init(&init_info, vk_ctx->get_render_pass().get_render_pass());
@@ -152,6 +160,13 @@ int main() {
         if (ctx->begin_frame() == MangoRHI::Result::eSuccess) {
             auto &command = ctx->get_current_command_reference();
             auto &vk_cmd = (MangoRHI::VulkanCommand &)command;
+            command.next_subpass();
+            auto viewport = MangoRHI::Viewport { 0, static_cast<float>(ctx->get_height()), static_cast<float>(ctx->get_width()), -static_cast<float>(ctx->get_height()), 0.0f, 1.0f };
+            auto scissor = MangoRHI::Scissor { 0, 0, ctx->get_width(), ctx->get_height() };
+            command.set_viewport(viewport);
+            command.set_scissor(scissor);
+            command.draw_instances(3, 1, 0, 0);
+
             command.next_subpass();
             ImGui_ImplVulkan_RenderDrawData(draw_data, vk_cmd.get_command_buffer());
             ctx->end_frame();

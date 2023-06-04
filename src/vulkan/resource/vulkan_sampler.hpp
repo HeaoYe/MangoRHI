@@ -16,7 +16,7 @@ namespace MangoRHI {
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC_OVERRIDE, u32, max_anisotropy, 1)
     define_member_with_translator(MANGO_NO_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, SamplerBorderColor, VkBorderColor, border_color, sampler_border_color2vk_border_color, SamplerBorderColor::eIntOpaqueBlack)
     define_member_with_translator(MANGO_NO_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, SamplerFilter, VkSamplerMipmapMode, mipmap_mode, sampler_filter2vk_sampler_mipmap_mode, SamplerFilter::eLinear)
-    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, u32, mipmap_levels, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, u32, mipmap_levels, 0)
 
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkSampler, sampler, VK_NULL_HANDLE)
 

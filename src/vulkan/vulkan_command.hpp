@@ -22,7 +22,7 @@ namespace MangoRHI {
     
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, Bool, is_single_use, MG_FALSE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkCommandBuffer, command_buffer, VK_NULL_HANDLE)
-    define_private_member(u32, _current_subpass, 0)
+    define_private_member(i32, _current_subpass, -1)
 
     declare_component_cls(VulkanCommand)
     };

@@ -44,6 +44,10 @@ namespace MangoRHI {
             return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         case RenderTargetLayout::eDepth:
             return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        case RenderTargetLayout::eDepthReadonly:
+            return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL;
+        case RenderTargetLayout::eShaderRead:
+            return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         }
     }
 
@@ -69,6 +73,7 @@ namespace MangoRHI {
         VkPipelineStageFlags flags = 0;
         CASE_OR(PipelineStage, eColorOutput, stage, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT)
         CASE_OR(PipelineStage, eEarlyFragmentTest, stage, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT)
+        CASE_OR(PipelineStage, eLateFragmentTest, stage, VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT)
         CASE_OR(PipelineStage, eFragmentShader, stage, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT)
         CASE_OR(PipelineStage, eBottomOfPipeline, stage, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT)
         CASE_OR(PipelineStage, eTopOfPipeline, stage, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT)
@@ -81,9 +86,12 @@ namespace MangoRHI {
 
     VkAccessFlags access2vk_access_flags(AccessFlags access) {
         VkAccessFlags flags = 0;
+        CASE_OR(Access, eColorRenderTargetRead, access, VK_ACCESS_COLOR_ATTACHMENT_READ_BIT)
         CASE_OR(Access, eColorRenderTargetWrite, access, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
+        CASE_OR(Access, eDepthStencilRenderTargetRead, access, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT)
         CASE_OR(Access, eDepthStencilRenderTargetWrite, access, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)
-        CASE_OR(Access, eShaderRead, access, VK_ACCESS_2_SHADER_READ_BIT)
+        CASE_OR(Access, eMemoryRead, access, VK_ACCESS_MEMORY_READ_BIT)
+        CASE_OR(Access, eShaderRead, access, VK_ACCESS_SHADER_READ_BIT)
         return flags;
     }
 

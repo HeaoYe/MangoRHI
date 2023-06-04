@@ -252,12 +252,15 @@ namespace MangoRHI {
     enum class RenderTargetUsage : u32 {
         eColor,
         eDepth,
+        eColorBuffer,
     };
 
     enum class RenderTargetLayout : u32 {
         eUndefined,
         eColor,
         eDepth,
+        eDepthReadonly,
+        eShaderRead,
     };
 
     enum class PipelineBindPoint : u32 {
@@ -269,17 +272,21 @@ namespace MangoRHI {
         eNone = BIT(0),
         eColorOutput = BIT(1),
         eEarlyFragmentTest = BIT(2),
-        eFragmentShader = BIT(3),
-        eBottomOfPipeline = BIT(4),
-        eTopOfPipeline = BIT(5),
+        eLateFragmentTest = BIT(3),
+        eFragmentShader = BIT(4),
+        eBottomOfPipeline = BIT(5),
+        eTopOfPipeline = BIT(6),
     };
     define_flags(PipelineStage)
 
     enum class Access : u32 {
         eNone = BIT(0),
-        eColorRenderTargetWrite = BIT(1),
-        eDepthStencilRenderTargetWrite = BIT(2),
-        eShaderRead = BIT(3),
+        eColorRenderTargetRead = BIT(1),
+        eColorRenderTargetWrite = BIT(2),
+        eDepthStencilRenderTargetRead = BIT(3),
+        eDepthStencilRenderTargetWrite = BIT(4),
+        eMemoryRead = BIT(5),
+        eShaderRead = BIT(6),
     };
     define_flags(Access)
 

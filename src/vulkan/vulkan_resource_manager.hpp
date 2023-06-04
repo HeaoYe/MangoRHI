@@ -15,6 +15,7 @@ namespace MangoRHI {
         VertexBuffer &create_vertex_buffer(u32 vertex_size, u32 count) override;
         IndexBuffer &create_index_buffer(u32 count) override;
         Texture &create_texture(const char *filename, u32 mipmap_levels) override;
+        Sampler &create_sampler() override;
 
         void recreate_render_targets();
 
@@ -23,6 +24,7 @@ namespace MangoRHI {
     define_private_member(STL_IMPL::vector<VulkanVertexBuffer *>, vertex_buffers, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanIndexBuffer *>, index_buffers, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanTexture *>, textures, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<VulkanSampler *>, samplers, MANGO_NO_INIT_VAULE)
 
     declare_component_cls(VulkanResourceManager)
     };

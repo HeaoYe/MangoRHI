@@ -19,7 +19,7 @@ namespace MangoRHI {
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkAttachmentReference>, output_attachments, MANGO_NO_INIT_VAULE)
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<u32>, preserve_attachments, MANGO_NO_INIT_VAULE)
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::optional<VkAttachmentReference>, depth_attachment, MANGO_NO_INIT_VAULE)
-    define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::optional<VkAttachmentReference>, resolve_attachment, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkAttachmentReference>, resolve_attachment, MANGO_NO_INIT_VAULE)
     define_pointer(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, VulkanShaderProgram, shader_program, MANGO_NO_INIT_VAULE)
 
     private:
@@ -37,17 +37,17 @@ namespace MangoRHI {
         void add_output_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
         void add_preserve_render_target(const char *render_target_name) override;
         void set_depth_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
-        void set_resolve_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
+        void add_resolve_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
         ShaderProgram *add_subpass(const char *subpass_name, PipelineBindPoint bind_point) override;
         void add_dependency(SubpassStageInfo src_subpass_name, SubpassStageInfo dst_subpass_name) override;
 
         Result begin_render_pass(VulkanCommand *commnad);
         Result end_render_pass(VulkanCommand *commnad);
         
-        u32 get_subpass_index_by_name(const char *subpass_name);
+        u32 get_subpass_index_by_name(const char *subpass_name) const;
+        u32 get_render_target_index_by_name(const char *render_target_name) const;
     private:
-        u32 get_render_target_index_by_name(const char *render_target_name);
-        VkAttachmentReference get_render_target_ref(const char *render_target_name, RenderTargetLayout ref_layout);
+        VkAttachmentReference get_render_target_ref(const char *render_target_name, RenderTargetLayout ref_layout) const;
 
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VulkanRenderTarget *>, render_targets, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkClearValue>, clear_values, MANGO_NO_INIT_VAULE)
