@@ -10,7 +10,7 @@ namespace MangoRHI {
         // virtual void attach_render_target(RenderTarget *render_target) = 0;  auto attach when render target be created
 
         virtual void add_input_render_target(const char *render_target_name, RenderTargetLayout ref_layout) = 0;
-        virtual void add_output_render_target(const char *render_target_name, RenderTargetLayout ref_layout) = 0;
+        virtual void add_output_render_target(const char *render_target_name, RenderTargetLayout ref_layout, ColorBlendInfo color_blend_info = {}) = 0;
         virtual void add_preserve_render_target(const char *render_target_name) = 0;
         virtual void set_depth_render_target(const char *render_target_name, RenderTargetLayout ref_layout) = 0;
         virtual void add_resolve_render_target(const char *render_target_name, RenderTargetLayout ref_layout) = 0;

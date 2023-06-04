@@ -17,6 +17,7 @@ namespace MangoRHI {
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkPipelineBindPoint, bind_point, MANGO_NO_INIT_VAULE)
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkAttachmentReference>, input_attachments, MANGO_NO_INIT_VAULE)
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkAttachmentReference>, output_attachments, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkPipelineColorBlendAttachmentState>, color_blend_states, MANGO_NO_INIT_VAULE)
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<u32>, preserve_attachments, MANGO_NO_INIT_VAULE)
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::optional<VkAttachmentReference>, depth_attachment, MANGO_NO_INIT_VAULE)
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkAttachmentReference>, resolve_attachment, MANGO_NO_INIT_VAULE)
@@ -34,7 +35,7 @@ namespace MangoRHI {
         void attach_render_target(RenderTarget *render_target);
         
         void add_input_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
-        void add_output_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
+        void add_output_render_target(const char *render_target_name, RenderTargetLayout ref_layout, ColorBlendInfo color_blend_info) override;
         void add_preserve_render_target(const char *render_target_name) override;
         void set_depth_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
         void add_resolve_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;

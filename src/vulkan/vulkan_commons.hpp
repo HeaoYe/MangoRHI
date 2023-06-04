@@ -50,6 +50,9 @@ namespace MangoRHI {
     VkBorderColor sampler_border_color2vk_border_color(SamplerBorderColor color);
     VkSamplerMipmapMode sampler_filter2vk_sampler_mipmap_mode(SamplerFilter filter);
     VkSampleCountFlagBits multisample_count2vk_sample_count(MultisampleCount count);
+    Bool check_color_blend_info_enable(ColorBlendInfo &info);
+    VkBlendFactor blend_factor2vk_blend_factor(BlendFactor factor);
+    VkBlendOp blend_op2vk_blend_op(BlendOp op);
 
     Result initialize_vulkan();
     Result quit_vulkan();

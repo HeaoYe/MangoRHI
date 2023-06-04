@@ -35,7 +35,14 @@ int main() {
     rm.create_render_target("depth", MangoRHI::RenderTargetUsage::eDepth).set_clear_color(MangoRHI::ClearValue { .depth_stencil = { .depth = 1.0f, .stencil = 0 } });
     
     auto &rp = ctx->get_render_pass_reference();
-    rp.add_output_render_target("color", MangoRHI::RenderTargetLayout::eColor);
+    rp.add_output_render_target("color", MangoRHI::RenderTargetLayout::eColor, {
+        .src_color_factor = MangoRHI::BlendFactor::eSrcAlpha,
+        .dst_color_factor = MangoRHI::BlendFactor::eOneMinusSrcAlpha,
+        .color_op = MangoRHI::BlendOp::eAdd,
+        .src_alpha_factor = MangoRHI::BlendFactor::eOne,
+        .dst_alpha_factor = MangoRHI::BlendFactor::eZero,
+        .alpha_op = MangoRHI::BlendOp::eAdd,
+    });
     rp.set_depth_render_target("depth", MangoRHI::RenderTargetLayout::eDepth);
     rp.add_resolve_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
     auto *main_shader_program = rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
