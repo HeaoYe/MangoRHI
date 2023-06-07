@@ -36,7 +36,7 @@ if (NOT MSVC)
     endif()
 endif()
 
-set(spdlog_DIR ../thirdparty/spdlog/build)
+set(thirdparty_dir ../thirdparty)
 project(MangoEHI-Demo)
 add_subdirectory(MangoRHI)
 add_subdirectory(examples/Sandbox)

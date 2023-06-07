@@ -1,3 +1,4 @@
+set(spdlog_DIR ${thirdparty_dir}/spdlog/build)
 find_package(spdlog REQUIRED)
 find_package(Vulkan REQUIRED)
 
@@ -10,6 +11,6 @@ file(GLOB MangoRHISource ${MangoRHISource} src/vulkan/resource/*.cpp)
 add_library(MangoRHI SHARED ${MangoRHISource} ${MangoRHIInclude})
 
 target_include_directories(MangoRHI PUBLIC include/)
-target_include_directories(MangoRHI PUBLIC ../thirdparty/stb)
+target_include_directories(MangoRHI PUBLIC ${thirdparty_dir}/stb)
 target_link_libraries(MangoRHI PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 target_link_libraries(MangoRHI PUBLIC Vulkan::Vulkan)
