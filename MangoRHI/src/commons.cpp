@@ -28,7 +28,7 @@ namespace MangoRHI {
 
     static API g_api;
 
-    MangoRHI_API Result initialize(API api) {
+    MANGORHI_API Result initialize(API api) {
         g_logger.create();
 
         g_api = api;
@@ -49,7 +49,7 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
-    MangoRHI_API Result quit() {
+    MANGORHI_API Result quit() {
         switch (g_api) {
         case API::eNone:
             return Result::eNotImplemented;
@@ -69,7 +69,7 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
-    MangoRHI_API Context *get_context() {
+    MANGORHI_API Context *get_context() {
         switch (g_api) {
         case API::eNone:
             return nullptr;

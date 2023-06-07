@@ -35,7 +35,7 @@ namespace MangoRHI {
         component_destroy()
 
         spd_logger->info("Destroy Logger");
-        spdlog::shutdown();
+        // spdlog::shutdown();
 
         return Result::eSuccess;
     }
@@ -45,7 +45,7 @@ namespace MangoRHI {
         spd_logger->set_level(level2spdlog(level));
     }
 
-    MangoRHI_API void set_logger_level(LogLevel level) {
+    MANGORHI_API void set_logger_level(LogLevel level) {
         g_log_level = level;
         if (g_logger.is_destroyed() == MG_FALSE) {
             g_logger.set_level(level);
