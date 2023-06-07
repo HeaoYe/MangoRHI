@@ -16,9 +16,7 @@
     #error Unknown Platform.
 #endif
 
-#if defined (NDEBUG)
-    #define MANGORHI_DEBUG
-
+#if defined (MANGORHI_DEBUG)
     #define MANGORHI_ASSERT(expr) \
     if(!(expr)) { \
         RHI_FATAL("Mango Assert Failed {} -> {}", __FILE__, __LINE__) \
@@ -26,7 +24,6 @@
     }
 #else
     #define MANGORHI_RELEASE
-
     #define MANGORHI_ASSERT(expr)
 #endif
 

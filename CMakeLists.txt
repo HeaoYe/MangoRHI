@@ -11,7 +11,7 @@ endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     message("DEBUG MODE")
-    add_definitions(-DNDEBUG)
+    add_definitions(-DMANGORHI_DEBUG)
 endif()
 
 set(CMAKE_C_STANDARD 17)
