@@ -1,0 +1,15 @@
+find_package(spdlog REQUIRED)
+find_package(Vulkan REQUIRED)
+
+project(MangoRHI)
+add_compile_options(-fPIC)
+file(GLOB MangoRHIInclude include/*.hpp)
+file(GLOB MangoRHISource ${MangoRHISource} src/*.cpp)
+file(GLOB MangoRHISource ${MangoRHISource} src/vulkan/*.cpp)
+file(GLOB MangoRHISource ${MangoRHISource} src/vulkan/resource/*.cpp)
+add_library(MangoRHI SHARED ${MangoRHISource} ${MangoRHIInclude})
+
+target_include_directories(MangoRHI PUBLIC include/)
+target_include_directories(MangoRHI PUBLIC ../thirdparty/stb)
+target_link_libraries(MangoRHI PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
+target_link_libraries(MangoRHI PUBLIC Vulkan::Vulkan)
