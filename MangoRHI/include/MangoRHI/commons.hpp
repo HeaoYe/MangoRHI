@@ -1,33 +1,33 @@
 #pragma once
 
 #if defined (__WIN32)
-    #define MangoRHI_Platform_Windows
+    #define MANGORHI_PLATFORM_WINDOWS
     #error Not impl for windows.
 #elif defined (__unix__)
-    #define MangoRHI_Platform_Unix
-    #define MangoRHI_API
+    #define MANGORHI_PLATFORM_UNIX
+    #define MANGORHI_API
 #elif defined (__APPLE__)
-    #define MangoRHI_Platform_Apple
+    #define MANGORHI_PLATFORM_APPLE
     #error Not impl for mac and ios.
 #elif defined (__ANDROID__)
-    #define MangoRHI_Platform_Android
+    #define MANGORHI_PLATFORM_ANDROID
     #error Not impl for android
 #else
     #error Unknown Platform.
 #endif
 
 #if defined (NDEBUG)
-    #define MANGO_DEBUG
+    #define MANGORHI_DEBUG
 
-    #define MANGO_ASSERT(expr) \
+    #define MANGORHI_ASSERT(expr) \
     if(!(expr)) { \
         RHI_FATAL("Mango Assert Failed {} -> {}", __FILE__, __LINE__) \
-        throw ::std::runtime_error("Mango Assert Failed"); \
+        throw ::std::runtime_error("MangoRHI Assert Failed"); \
     }
 #else
-    #define MANGO_RELEASE
+    #define MANGORHI_RELEASE
 
-    #define MANGO_ASSERT(expr)
+    #define MANGORHI_ASSERT(expr)
 #endif
 
 #include <stdint.h>
@@ -428,9 +428,10 @@ namespace MangoRHI {
 
     class Context;
 
-    MangoRHI_API Result initialize(API api);
-    MangoRHI_API Result quit();
-    MangoRHI_API Context *get_context();
+    MANGORHI_API void set_logger_level(LogLevel level);
+    MANGORHI_API Result initialize(API api);
+    MANGORHI_API Result quit();
+    MANGORHI_API Context *get_context();
     STL_IMPL::vector<char> read_binary_file(const char *filename);
 }
 

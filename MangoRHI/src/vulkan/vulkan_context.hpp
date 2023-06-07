@@ -13,9 +13,6 @@
 #include "vulkan_resource_manager.hpp"
 
 namespace MangoRHI {
-    struct VulkanContextCreateInfo {
-        
-    };
     class VulkanContext final : public Context {
     public:
         void set_api_info(const void *info) override;

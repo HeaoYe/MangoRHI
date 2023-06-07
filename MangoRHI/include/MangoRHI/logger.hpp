@@ -4,9 +4,6 @@
 
 
 namespace MangoRHI {
-    spdlog::level::level_enum level2spdlog(LogLevel level);
-    MangoRHI_API void set_logger_level(LogLevel level);
-
     class Logger final : public RuntimeComponent {
     public:
         Result create() override;
