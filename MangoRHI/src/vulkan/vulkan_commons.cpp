@@ -266,7 +266,7 @@ namespace MangoRHI {
     VkBlendFactor blend_factor2vk_blend_factor(BlendFactor factor) {
         switch (factor) {
         case BlendFactor::eNone:
-            return VK_BLEND_FACTOR_MAX_ENUM;
+            return (VkBlendFactor)0;
         case BlendFactor::eZero:
             return VK_BLEND_FACTOR_ZERO;
         case BlendFactor::eOne:
@@ -285,7 +285,7 @@ namespace MangoRHI {
     VkBlendOp blend_op2vk_blend_op(BlendOp op) {
         switch (op) {
         case BlendOp::eNone:
-            return VK_BLEND_OP_MAX_ENUM;
+            return (VkBlendOp)0;
         case BlendOp::eAdd:
             return VK_BLEND_OP_ADD;
         case BlendOp::eSub:
