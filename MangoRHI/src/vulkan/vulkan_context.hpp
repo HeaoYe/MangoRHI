@@ -5,7 +5,6 @@
 #include "vulkan_device.hpp"
 #include "vulkan_swapchain.hpp"
 #include "vulkan_renderpass.hpp"
-#include "vulkan_shader_program.hpp"
 #include "vulkan_framebuffer.hpp"
 #include "vulkan_synchronization.hpp"
 #include "vulkan_command_pool.hpp"

@@ -19,8 +19,6 @@ namespace MangoRHI {
         }
         this->bind_point = pipeline_bind_point2vk_pipeline_bind_point(bind_point);
         description.pipelineBindPoint = this->bind_point;
-        shader_program = new VulkanShaderProgram();
-        shader_program->set_subpass_index(index);
     }
 
     u32 VulkanRenderPass::get_render_target_index_by_name(const char *render_target_name) const {
@@ -99,7 +97,7 @@ namespace MangoRHI {
         render_targets[get_render_target_index_by_name(render_target_name)]->set_is_resolve(MG_TRUE);
     }
 
-    ShaderProgram *VulkanRenderPass::add_subpass(const char *subpass_name, PipelineBindPoint bind_point) {
+    void VulkanRenderPass::add_subpass(const char *subpass_name, PipelineBindPoint bind_point) {
         u32 index = get_subpass_index_by_name(subpass_name);
         if (index == VK_SUBPASS_EXTERNAL || index < subpasses.size()) {
             RHI_ERROR("Subpass {} is existed", subpass_name)
@@ -107,7 +105,6 @@ namespace MangoRHI {
         temp_subpass->build(subpass_name, bind_point, index);
         subpasses.push_back(temp_subpass);
         temp_subpass = new VulkanSubpass();
-        return subpasses[subpasses.size() - 1]->get_shader_program();
     }
 
     void VulkanRenderPass::add_dependency(SubpassStageInfo src_subpass_info, SubpassStageInfo dst_subpass_info) {
@@ -153,19 +150,11 @@ namespace MangoRHI {
         VK_CHECK(vkCreateRenderPass(vulkan_context->get_device().get_logical_device(), &render_pass_create_info, vulkan_context->get_allocator(), &render_pass))
         RHI_DEBUG("Create vulkan render pass -> 0x{:x}", (AddrType)render_pass)
 
-        for (auto &subpass : subpasses) {
-            subpass->get_shader_program()->create();
-        }
-
         return Result::eSuccess;
     }
 
     Result VulkanRenderPass::destroy() {
         component_destroy()
-
-        for (auto &subpass : subpasses) {
-            subpass->get_shader_program()->destroy();
-        }
 
         RHI_DEBUG("Destroy vulkan render pass -> 0x{:x}", (AddrType)render_pass)
         vkDestroyRenderPass(vulkan_context->get_device().get_logical_device(), render_pass, vulkan_context->get_allocator());

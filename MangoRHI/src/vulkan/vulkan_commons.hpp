@@ -13,7 +13,7 @@ namespace MangoRHI {
         } \
     }
 
-    using SurfaceCreateFunc = std::function<VkSurfaceKHR(VkInstance &, VkAllocationCallbacks *)>;
+    using SurfaceCreateFunc = std::function<VkSurfaceKHR(VkInstance, VkAllocationCallbacks *)>;
     struct VulkanContextInfo {
         const char **extensions = nullptr;
         u32 extension_count = 0;

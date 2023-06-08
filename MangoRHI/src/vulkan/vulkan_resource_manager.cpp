@@ -47,6 +47,13 @@ namespace MangoRHI {
         return *sampler;
     }
 
+    ShaderProgram &VulkanResourceManager::create_shader_program(const char *subpass_name) {
+        auto shader_program = new VulkanShaderProgram();
+        shader_program->set_subpass_index(vulkan_context->get_render_pass().get_subpass_index_by_name(subpass_name));
+        shader_programs.push_back(shader_program);
+        return *shader_program;
+    }
+
     Result VulkanResourceManager::create() {
         component_create()
 
@@ -94,6 +101,26 @@ namespace MangoRHI {
             render_target->destroy();
         }
 
+        return Result::eSuccess;
+    }
+
+    Result VulkanResourceManager::post_create() {
+        if (is_destroyed() == MG_TRUE) {
+            return Result::eFailed;
+        }
+        for (auto &shader_program : shader_programs) {
+            shader_program->create();
+        }
+        return Result::eSuccess;
+    }
+
+    Result VulkanResourceManager::pre_destroy() {
+        if (is_destroyed() == MG_TRUE) {
+            return Result::eFailed;
+        }
+        for (auto &shader_program : shader_programs) {
+            shader_program->destroy();
+        }
         return Result::eSuccess;
     }
 

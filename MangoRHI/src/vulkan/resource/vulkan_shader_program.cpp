@@ -1,5 +1,5 @@
 #include "vulkan_shader_program.hpp"
-#include "vulkan_context.hpp"
+#include "../vulkan_context.hpp"
 
 namespace MangoRHI {
     void VulkanShaderProgram::add_vertex_attribute(VertexInputType type, u32 stride) {

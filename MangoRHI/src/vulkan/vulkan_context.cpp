@@ -63,6 +63,7 @@ namespace MangoRHI {
         resource_manager.create();
         descriptor_pool.create();
         render_pass.create();
+        resource_manager.post_create();
         framebuffer.create();
         synchronization.create();
         for (u32 index = 0; index < max_in_flight_frame_count; index++) {
@@ -84,6 +85,7 @@ namespace MangoRHI {
         }
         synchronization.destroy();
         framebuffer.destroy();
+        resource_manager.pre_destroy();
         render_pass.destroy();
         resource_manager.destroy();
         command_pool.destroy();

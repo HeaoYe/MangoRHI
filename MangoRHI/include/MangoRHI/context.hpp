@@ -4,7 +4,6 @@
 #include "swapchain.hpp"
 #include "renderpass.hpp"
 #include "command.hpp"
-#include "shader_program.hpp"
 #include "resource_manager.hpp"
 
 namespace MangoRHI {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "commons.hpp"
-#include "resource/shader.hpp"
-#include "descriptor_set.hpp"
+#include "../commons.hpp"
+#include "shader.hpp"
+#include "../descriptor_set.hpp"
 
 namespace MangoRHI {
     class ShaderProgram : public RuntimeComponent {

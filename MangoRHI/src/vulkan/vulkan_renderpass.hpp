@@ -4,7 +4,6 @@
 #include "MangoRHI/renderpass.hpp"
 #include "resource/vulkan_render_target.hpp"
 #include "vulkan_command.hpp"
-#include "vulkan_shader_program.hpp"
 
 namespace MangoRHI {
     class VulkanSubpass {
@@ -21,7 +20,6 @@ namespace MangoRHI {
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<u32>, preserve_attachments, MANGO_NO_INIT_VAULE)
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::optional<VkAttachmentReference>, depth_attachment, MANGO_NO_INIT_VAULE)
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkAttachmentReference>, resolve_attachment, MANGO_NO_INIT_VAULE)
-    define_pointer(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, VulkanShaderProgram, shader_program, MANGO_NO_INIT_VAULE)
 
     private:
         VulkanSubpass(const VulkanSubpass &) = delete;
@@ -39,7 +37,7 @@ namespace MangoRHI {
         void add_preserve_render_target(const char *render_target_name) override;
         void set_depth_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
         void add_resolve_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
-        ShaderProgram *add_subpass(const char *subpass_name, PipelineBindPoint bind_point) override;
+        void add_subpass(const char *subpass_name, PipelineBindPoint bind_point) override;
         void add_dependency(SubpassStageInfo src_subpass_name, SubpassStageInfo dst_subpass_name) override;
 
         Result begin_render_pass(VulkanCommand *commnad);

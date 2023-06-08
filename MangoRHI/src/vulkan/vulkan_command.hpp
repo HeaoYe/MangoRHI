@@ -13,6 +13,7 @@ namespace MangoRHI {
         Result end_render() override;
 
         void next_subpass() override;
+        void bind_shader_program(ShaderProgram &shader_program) override;
         void bind_vertex_buffer(const VertexBuffer *vertex_buffer, u32 binding) override;
         void bind_index_buffer(const IndexBuffer *index_buffer) override;
         void draw_instances(u32 vertex_count, u32 instance_count, u32 first_vertex, u32 first_instance) override;

@@ -54,18 +54,15 @@ namespace MangoRHI {
     }
 
     void VulkanCommand::next_subpass() {
-        _current_subpass++;
-        if (_current_subpass > 0 && _current_subpass < vulkan_context->get_render_pass().get_subpasses().size()) {
-            vkCmdNextSubpass(command_buffer, VK_SUBPASS_CONTENTS_INLINE);
-        }
+        vkCmdNextSubpass(command_buffer, VK_SUBPASS_CONTENTS_INLINE);
+    }
 
-        const auto &subpass = vulkan_context->get_render_pass().get_subpasses()[_current_subpass];
-        const auto *shader_program = subpass->get_shader_program();
-        if (shader_program->get_is_external_shader_program() == MG_FALSE) {
-            vkCmdBindPipeline(command_buffer, subpass->get_bind_point(), shader_program->get_pipeline());
-            if (shader_program->get_current_in_flight_descriptor_sets().size() > 0) {
-                vkCmdBindDescriptorSets(command_buffer, subpass->get_bind_point(), shader_program->get_layout(), 0, shader_program->get_current_in_flight_descriptor_sets().size(), shader_program->get_current_in_flight_descriptor_sets().data(), 0, 0);
-            }
+    void VulkanCommand::bind_shader_program(ShaderProgram &shader_program) {
+        VulkanShaderProgram &vulkan_shader_program = (VulkanShaderProgram &)shader_program;
+        auto bind_point = vulkan_context->get_render_pass().get_subpasses()[vulkan_shader_program.get_subpass_index()]->get_bind_point();
+        vkCmdBindPipeline(command_buffer, bind_point, vulkan_shader_program.get_pipeline());
+        if (vulkan_shader_program.get_current_in_flight_descriptor_sets().size() > 0) {
+            vkCmdBindDescriptorSets(command_buffer, bind_point, vulkan_shader_program.get_layout(), 0, vulkan_shader_program.get_current_in_flight_descriptor_sets().size(), vulkan_shader_program.get_current_in_flight_descriptor_sets().data(), 0, 0);
         }
     }
 

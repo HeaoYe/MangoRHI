@@ -2,6 +2,7 @@
 
 #include "commons.hpp"
 #include "resource/buffer.hpp"
+#include "resource/shader_program.hpp"
 
 namespace MangoRHI {
     class Command : public RuntimeComponent {
@@ -10,6 +11,7 @@ namespace MangoRHI {
         virtual Result end_render() = 0;
 
         virtual void next_subpass() = 0;
+        virtual void bind_shader_program(ShaderProgram &shader_program) = 0;
         virtual void bind_vertex_buffer(const VertexBuffer *vertex_buffer, u32 binding) = 0;
         virtual void bind_index_buffer(const IndexBuffer *index_buffer) = 0;
         virtual void draw_instances(u32 vertex_count, u32 instance_count, u32 first_vertex, u32 first_instance) = 0;
