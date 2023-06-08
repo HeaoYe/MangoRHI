@@ -23,7 +23,6 @@ namespace MangoRHI {
             VK_CHECK(vkResetCommandBuffer(command_buffer, 0))
         }
         VK_CHECK(vkBeginCommandBuffer(command_buffer, &begin_info))
-        _current_subpass = -1;
 
         return Result::eSuccess;
     }
@@ -57,7 +56,7 @@ namespace MangoRHI {
         vkCmdNextSubpass(command_buffer, VK_SUBPASS_CONTENTS_INLINE);
     }
 
-    void VulkanCommand::bind_shader_program(ShaderProgram &shader_program) {
+    void VulkanCommand::bind_shader_program(const ShaderProgram &shader_program) {
         VulkanShaderProgram &vulkan_shader_program = (VulkanShaderProgram &)shader_program;
         auto bind_point = vulkan_context->get_render_pass().get_subpasses()[vulkan_shader_program.get_subpass_index()]->get_bind_point();
         vkCmdBindPipeline(command_buffer, bind_point, vulkan_shader_program.get_pipeline());
@@ -66,13 +65,13 @@ namespace MangoRHI {
         }
     }
 
-    void VulkanCommand::bind_vertex_buffer(const VertexBuffer *vertex_buffer, u32 binding) {
+    void VulkanCommand::bind_vertex_buffer(const VertexBuffer &vertex_buffer, u32 binding) {
         VkDeviceSize offset = 0;
-        vkCmdBindVertexBuffers(command_buffer, binding, 1, &((VulkanVertexBuffer *)vertex_buffer)->get_buffer().get_buffer(), &offset);
+        vkCmdBindVertexBuffers(command_buffer, binding, 1, &((VulkanVertexBuffer &)vertex_buffer).get_buffer().get_buffer(), &offset);
     }
 
-    void VulkanCommand::bind_index_buffer(const IndexBuffer *index_buffer) {
-        vkCmdBindIndexBuffer(command_buffer, ((VulkanIndexBuffer *)index_buffer)->get_buffer().get_buffer(), 0, VK_INDEX_TYPE_UINT32);
+    void VulkanCommand::bind_index_buffer(const IndexBuffer &index_buffer) {
+        vkCmdBindIndexBuffer(command_buffer, ((VulkanIndexBuffer &)index_buffer).get_buffer().get_buffer(), 0, VK_INDEX_TYPE_UINT32);
     }
 
     void VulkanCommand::draw_instances(u32 vertex_count, u32 instance_count, u32 first_vertex, u32 first_instance) {

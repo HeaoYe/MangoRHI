@@ -24,7 +24,7 @@ namespace MangoRHI {
         ResourceManager &get_resource_manager_reference() override { return resource_manager; }
         RenderTarget &get_surface_render_target_reference() override { return swapchain.get_render_target(); };
         RenderPass &get_render_pass_reference() override { return render_pass; }
-        Command &get_current_command_reference() override { return *commands[current_in_flight_frame_index]; };
+        Command &get_current_command_reference() override { return commands[current_in_flight_frame_index].get(); };
 
         Result begin_frame() override;
         Result end_frame() override;
@@ -56,7 +56,7 @@ namespace MangoRHI {
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, u32, current_in_flight_frame_index, 0)
     define_private_readonly_pointer(VulkanContextInfo, info, MANGO_NO_INIT_VAULE)
     define_private_member(VulkanResourceManager, resource_manager, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<VulkanCommand *>, commands, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<Reference<VulkanCommand>>, commands, MANGO_NO_INIT_VAULE)
 
     declare_component_cls_custom_construction(VulkanContext)
     };

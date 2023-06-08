@@ -25,5 +25,7 @@ namespace MangoRHI {
 
         virtual Result begin_frame() = 0;
         virtual Result end_frame() = 0;
+
+        int operator()() { return 1; };
     };
 }

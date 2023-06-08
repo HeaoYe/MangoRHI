@@ -4,7 +4,7 @@ namespace MangoRHI {
     VulkanContext *vulkan_context;
 
     VulkanContext::VulkanContext() {
-        render_pass.attach_render_target(&swapchain.get_render_target());
+        render_pass.attach_render_target(swapchain.get_render_target());
     }
 
     void VulkanContext::set_api_info(const void *info) {
@@ -68,8 +68,8 @@ namespace MangoRHI {
         synchronization.create();
         for (u32 index = 0; index < max_in_flight_frame_count; index++) {
             auto *command = new VulkanCommand();
-            commands.push_back(command);
-            command_pool.allocate(CommandLevel::ePrimary, command);
+            commands.push_back(*command);
+            command_pool.allocate(CommandLevel::ePrimary, *command);
         }
         return Result::eSuccess;
     }
@@ -81,7 +81,7 @@ namespace MangoRHI {
 
         descriptor_pool.destroy();
         for (auto &command : commands) {
-            command_pool.free(command);
+            command_pool.free(command.get());
         }
         synchronization.destroy();
         framebuffer.destroy();
@@ -103,9 +103,18 @@ namespace MangoRHI {
 
     void VulkanContext::recreate_resources() {
         VK_CHECK(vkDeviceWaitIdle(device.get_logical_device()))
+
         swapchain.recreate();
         resource_manager.recreate_render_targets();
         framebuffer.recreate();
+
+        for (auto &descriptor_set : g_vulkan_descriptor_sets) {
+            for (auto &descriptor : descriptor_set->get_descriptors()) {
+                if (descriptor->get_type() == DescriptorType::eInputRenderTarget) {
+                    descriptor->update(descriptor_set);
+                }
+            }
+        }
     }
 
     Result VulkanContext::begin_frame() {
@@ -124,7 +133,7 @@ namespace MangoRHI {
             return res;
         }
 
-        if ((res = render_pass.begin_render_pass((VulkanCommand *)&command)) != Result::eSuccess) {
+        if ((res = render_pass.begin_render_pass(command)) != Result::eSuccess) {
             RHI_ERROR("Begin render pass error {}", to_string(res));
             return res;
         }
@@ -136,7 +145,7 @@ namespace MangoRHI {
         Result res;
         auto &command = get_current_command_reference();
 
-        if ((res = render_pass.end_render_pass((VulkanCommand *)&command)) != Result::eSuccess) {
+        if ((res = render_pass.end_render_pass((VulkanCommand &)command)) != Result::eSuccess) {
             RHI_ERROR("End render pass error {}", to_string(res));
             return res;
         }
@@ -224,24 +233,12 @@ namespace MangoRHI {
 
             src_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
             dst_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-        } else if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
-            src_access = 0;
-            dst_access = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-            src_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-            dst_stage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-        } else if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
-            src_access = 0;
-            dst_access = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-            src_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-            dst_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         } else {
             RHI_ERROR("Unsupported layout transition");
         }
 
         VulkanCommand command;
-        command_pool.allocate_single_use(&command);
+        command_pool.allocate_single_use(command);
         VkImageMemoryBarrier barrier { .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
         barrier.oldLayout = old_layout;
         barrier.newLayout = new_layout;
@@ -265,6 +262,6 @@ namespace MangoRHI {
             barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         }
         vkCmdPipelineBarrier(command.get_command_buffer(), src_stage, dst_stage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
-        command_pool.free(&command);
+        command_pool.free(command);
     }
 }

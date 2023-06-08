@@ -57,11 +57,11 @@ namespace MangoRHI {
         return index;
     }
 
-    void VulkanRenderPass::attach_render_target(RenderTarget *render_target) {
-        VulkanRenderTarget *vulkan_render_target = (VulkanRenderTarget *)render_target;
-        vulkan_render_target->set_index(render_targets.size());
-        if (get_render_target_index_by_name(vulkan_render_target->get_name()) < render_targets.size()) {
-            RHI_ERROR("RenderTarget {} is existed", vulkan_render_target->get_name());
+    void VulkanRenderPass::attach_render_target(RenderTarget &render_target) {
+        VulkanRenderTarget &vulkan_render_target = (VulkanRenderTarget &)render_target;
+        vulkan_render_target.set_index(render_targets.size());
+        if (get_render_target_index_by_name(vulkan_render_target.get_name()) < render_targets.size()) {
+            RHI_ERROR("RenderTarget {} is existed", vulkan_render_target.get_name());
         }
         render_targets.push_back(vulkan_render_target);
     }
@@ -103,7 +103,7 @@ namespace MangoRHI {
             RHI_ERROR("Subpass {} is existed", subpass_name)
         }
         temp_subpass->build(subpass_name, bind_point, index);
-        subpasses.push_back(temp_subpass);
+        subpasses.push_back(*temp_subpass);
         temp_subpass = new VulkanSubpass();
     }
 
@@ -162,7 +162,7 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
-    Result VulkanRenderPass::begin_render_pass(VulkanCommand *command) {
+    Result VulkanRenderPass::begin_render_pass(VulkanCommand &command) {
         for (u32 index = 0; index < render_targets.size(); index++) {
             clear_values[index] = render_targets[index]->get_clear_color();
         }
@@ -172,13 +172,13 @@ namespace MangoRHI {
         render_pass_begin_info.framebuffer = vulkan_context->get_framebuffer().get_framebuffers()[vulkan_context->get_swapchain().get_image_index()];
         render_pass_begin_info.pClearValues = clear_values.data();
         render_pass_begin_info.clearValueCount = clear_values.size();
-        vkCmdBeginRenderPass(command->get_command_buffer(), &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(command.get_command_buffer(), &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
 
         return Result::eSuccess;
     }
 
-    Result VulkanRenderPass::end_render_pass(VulkanCommand *commnad) {
-        vkCmdEndRenderPass(commnad->get_command_buffer());
+    Result VulkanRenderPass::end_render_pass(VulkanCommand &commnad) {
+        vkCmdEndRenderPass(commnad.get_command_buffer());
 
         return Result::eSuccess;
     }

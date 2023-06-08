@@ -6,15 +6,15 @@ namespace MangoRHI {
         auto *render_target = new VulkanRenderTarget();
         render_target->set_name(name);
         render_target->set_usage(usage);
-        ((VulkanRenderPass &)vulkan_context->get_render_pass_reference()).attach_render_target(render_target);
-        render_targets.push_back(render_target);
+        ((VulkanRenderPass &)vulkan_context->get_render_pass_reference()).attach_render_target(*render_target);
+        render_targets.push_back(*render_target);
         return *render_target;
     }
 
     Shader &VulkanResourceManager::create_shader(const char *filename) {
         auto *shader = new VulkanShader();
         shader->set_filename(filename);
-        shaders.push_back(shader);
+        shaders.push_back(*shader);
         return *shader;
     }
 
@@ -22,14 +22,14 @@ namespace MangoRHI {
         auto *vertex_buffer = new VulkanVertexBuffer();
         vertex_buffer->set_vertex_size(vertex_size);
         vertex_buffer->set_count(count);
-        vertex_buffers.push_back(vertex_buffer);
+        vertex_buffers.push_back(*vertex_buffer);
         return *vertex_buffer;
     }
 
     IndexBuffer &VulkanResourceManager::create_index_buffer(u32 count) {
         auto *index_buffer = new VulkanIndexBuffer();
         index_buffer->set_count(count);
-        index_buffers.push_back(index_buffer);
+        index_buffers.push_back(*index_buffer);
         return *index_buffer;
     }
 
@@ -37,20 +37,20 @@ namespace MangoRHI {
         auto *texture = new VulkanTexture();
         texture->set_filename(filename);
         texture->set_mipmap_levels(mipmap_levels);
-        textures.push_back(texture);
+        textures.push_back(*texture);
         return *texture;
     }
 
     Sampler &VulkanResourceManager::create_sampler() {
         auto *sampler = new VulkanSampler();
-        samplers.push_back(sampler);
+        samplers.push_back(*sampler);
         return *sampler;
     }
 
     ShaderProgram &VulkanResourceManager::create_shader_program(const char *subpass_name) {
         auto shader_program = new VulkanShaderProgram();
         shader_program->set_subpass_index(vulkan_context->get_render_pass().get_subpass_index_by_name(subpass_name));
-        shader_programs.push_back(shader_program);
+        shader_programs.push_back(*shader_program);
         return *shader_program;
     }
 
