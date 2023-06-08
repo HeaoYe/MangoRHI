@@ -54,20 +54,19 @@ int main() {
     auto &t_dance = rm.create_texture("assets/textures/dance.png");
     auto &t_dhl = rm.create_texture("assets/textures/dhl.png");
     auto &t_tm = rm.create_texture("assets/textures/tm.png");
-    MangoRHI::Texture* textures[] = { &t_61, &t_paper_plane, &t_dance, &t_dhl, &t_tm };
 
     main_shader_program.add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
     main_shader_program.add_vertex_binding(MangoRHI::VertexInputRate::ePerVertex);
     main_shader_program.add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
     main_shader_program.add_vertex_binding(MangoRHI::VertexInputRate::ePerInstance);
-    main_shader_program.attach_vertex_shader(&rm.create_shader("assets/shaders/vert.spv"), "main");
-    main_shader_program.attach_fragment_shader(&rm.create_shader("assets/shaders/frag.spv"), "main");
+    main_shader_program.attach_vertex_shader(rm.create_shader("assets/shaders/vert.spv"), "main");
+    main_shader_program.attach_fragment_shader(rm.create_shader("assets/shaders/frag.spv"), "main");
     main_shader_program.set_cull_mode(MangoRHI::CullMode::eNone);
     main_shader_program.set_depth_test_enabled(MangoRHI::MG_TRUE);
     main_shader_program.set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);
-    auto *ds = main_shader_program.create_descriptor_set();
-    MangoRHI::u32 uniform_binding = ds->add_uniforms(MangoRHI::DescriptorStage::eVertex, sizeof(float) * 2, 2);
-    MangoRHI::u32 textures_binding = ds->add_textures(MangoRHI::DescriptorStage::eFragment, textures, 4);
+    auto &ds = main_shader_program.create_descriptor_set();
+    MangoRHI::u32 uniform_binding = ds.add_uniforms(MangoRHI::DescriptorStage::eVertex, sizeof(float) * 2, 2);
+    MangoRHI::u32 textures_binding = ds.add_textures(MangoRHI::DescriptorStage::eFragment, { t_61, t_paper_plane, t_dance, t_dhl });
 
     auto &vertex_buffer = rm.create_vertex_buffer(sizeof(glm::vec3));
     auto &color_buffer = rm.create_vertex_buffer(sizeof(glm::vec3));
@@ -76,10 +75,10 @@ int main() {
     ctx->create();
 
     struct UserPointer {
-        MangoRHI::DescriptorSet * ds;
-        MangoRHI::Texture **textures;
+        MangoRHI::DescriptorSet &ds;
+        std::vector<MangoRHI::Texture *>textures;
         MangoRHI::u32 textures_binding;
-    } up { ds, textures, textures_binding };
+    } up { ds, { &t_61, &t_paper_plane, &t_dance, &t_dhl, &t_tm }, textures_binding };
     glfwSetWindowUserPointer(glfwWindow, &up);
     glfwSetKeyCallback(glfwWindow, [](GLFWwindow *window, int key, int, int pressed, int) {
         if (pressed != 1) {
@@ -110,9 +109,9 @@ int main() {
             return;
         }
         for (int i = 0; i < 4; i++) {
-            up->ds->set_texture(up->textures_binding, i, up->textures[idx == 5 ? i : idx]);
+            up->ds.set_texture(up->textures_binding, i, *up->textures[idx == 5 ? i : idx]);
         }
-        up->ds->update();
+        up->ds.update();
     });
     std::vector<glm::vec3> vertices = {
         { 0.5f, 0.5f, 0.1f },
@@ -146,10 +145,9 @@ int main() {
 
         if (ctx->begin_frame() == MangoRHI::Result::eSuccess) {
             auto &command = ctx->get_current_command_reference();
-            command.next_subpass();
 
-            float *uniform_buffer_pointer0 = (float *)ds->get_uniform_buffer_pointer(uniform_binding, 0);
-            float *uniform_buffer_pointer1 = (float *)ds->get_uniform_buffer_pointer(uniform_binding, 1);
+            float *uniform_buffer_pointer0 = (float *)ds.get_uniform_buffer_pointer(uniform_binding, 0);
+            float *uniform_buffer_pointer1 = (float *)ds.get_uniform_buffer_pointer(uniform_binding, 1);
             static float t1 = 0.0f, t2 = 0.0f;
             t1 += 0.01f;
             *(uniform_buffer_pointer0 + 0) = (glm::sin(t1) + 0.2f) * 0.5f;
@@ -167,11 +165,12 @@ int main() {
             }});
             auto viewport = MangoRHI::Viewport { 0, static_cast<float>(ctx->get_height()), static_cast<float>(ctx->get_width()), -static_cast<float>(ctx->get_height()), 0.0f, 1.0f };
             auto scissor = MangoRHI::Scissor { 0, 0, ctx->get_width(), ctx->get_height() };
+            command.bind_shader_program(main_shader_program);
             command.set_viewport(viewport);
             command.set_scissor(scissor);
-            command.bind_vertex_buffer(&vertex_buffer, 0);
-            command.bind_vertex_buffer(&color_buffer, 1);
-            command.bind_index_buffer(&index_buffer);
+            command.bind_vertex_buffer(vertex_buffer, 0);
+            command.bind_vertex_buffer(color_buffer, 1);
+            command.bind_index_buffer(index_buffer);
             command.draw_indexed_instances(6, 8, 0, 0,  0);
 
             ctx->end_frame();

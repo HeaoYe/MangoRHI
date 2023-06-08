@@ -30,7 +30,7 @@ namespace MangoRHI {
 
     class VulkanRenderPass final : public RenderPass {
     public:
-        void attach_render_target(RenderTarget *render_target);
+        void attach_render_target(RenderTarget &render_target);
 
         void add_input_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
         void add_output_render_target(const char *render_target_name, RenderTargetLayout ref_layout, ColorBlendInfo color_blend_info) override;
@@ -40,8 +40,8 @@ namespace MangoRHI {
         void add_subpass(const char *subpass_name, PipelineBindPoint bind_point) override;
         void add_dependency(SubpassStageInfo src_subpass_name, SubpassStageInfo dst_subpass_name) override;
 
-        Result begin_render_pass(VulkanCommand *commnad);
-        Result end_render_pass(VulkanCommand *commnad);
+        Result begin_render_pass(VulkanCommand &commnad);
+        Result end_render_pass(VulkanCommand &commnad);
 
         u32 get_subpass_index_by_name(const char *subpass_name) const;
         u32 get_render_target_index_by_name(const char *render_target_name) const;

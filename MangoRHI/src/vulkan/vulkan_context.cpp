@@ -4,7 +4,7 @@ namespace MangoRHI {
     VulkanContext *vulkan_context;
 
     VulkanContext::VulkanContext() {
-        render_pass.attach_render_target(&swapchain.get_render_target());
+        render_pass.attach_render_target(swapchain.get_render_target());
     }
 
     void VulkanContext::set_api_info(const void *info) {
@@ -69,7 +69,7 @@ namespace MangoRHI {
         for (u32 index = 0; index < max_in_flight_frame_count; index++) {
             auto *command = new VulkanCommand();
             commands.push_back(command);
-            command_pool.allocate(CommandLevel::ePrimary, command);
+            command_pool.allocate(CommandLevel::ePrimary, *command);
         }
         return Result::eSuccess;
     }
@@ -81,7 +81,7 @@ namespace MangoRHI {
 
         descriptor_pool.destroy();
         for (auto &command : commands) {
-            command_pool.free(command);
+            command_pool.free(*command);
         }
         synchronization.destroy();
         framebuffer.destroy();
@@ -124,7 +124,7 @@ namespace MangoRHI {
             return res;
         }
 
-        if ((res = render_pass.begin_render_pass((VulkanCommand *)&command)) != Result::eSuccess) {
+        if ((res = render_pass.begin_render_pass(command)) != Result::eSuccess) {
             RHI_ERROR("Begin render pass error {}", to_string(res));
             return res;
         }
@@ -136,7 +136,7 @@ namespace MangoRHI {
         Result res;
         auto &command = get_current_command_reference();
 
-        if ((res = render_pass.end_render_pass((VulkanCommand *)&command)) != Result::eSuccess) {
+        if ((res = render_pass.end_render_pass((VulkanCommand &)command)) != Result::eSuccess) {
             RHI_ERROR("End render pass error {}", to_string(res));
             return res;
         }
@@ -241,7 +241,7 @@ namespace MangoRHI {
         }
 
         VulkanCommand command;
-        command_pool.allocate_single_use(&command);
+        command_pool.allocate_single_use(command);
         VkImageMemoryBarrier barrier { .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
         barrier.oldLayout = old_layout;
         barrier.newLayout = new_layout;
@@ -265,6 +265,6 @@ namespace MangoRHI {
             barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         }
         vkCmdPipelineBarrier(command.get_command_buffer(), src_stage, dst_stage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
-        command_pool.free(&command);
+        command_pool.free(command);
     }
 }

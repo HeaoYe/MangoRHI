@@ -45,7 +45,7 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
-    void VulkanUniformDescriptor::update(VulkanDescriptorSet *descriptor_set) {
+    void VulkanUniformDescriptor::update(VulkanDescriptorSet &descriptor_set) {
         STL_IMPL::vector<VkDescriptorBufferInfo> descriptor_buffer_infos(get_count());
         for (u32 index = 0; index < get_count(); index++) {
             descriptor_buffer_infos[index].offset = index * size;
@@ -61,7 +61,7 @@ namespace MangoRHI {
             for (u32 index = 0; index < get_count(); index++) {
                 descriptor_buffer_infos[index].buffer = in_flight_buffers[in_flight_index]->get_buffer();
             }
-            write_descriptor_set.dstSet = descriptor_set->get_in_flight_descriptor_sets()[in_flight_index];
+            write_descriptor_set.dstSet = descriptor_set.get_in_flight_descriptor_sets()[in_flight_index];
             vkUpdateDescriptorSets(vulkan_context->get_device().get_logical_device(), 1, &write_descriptor_set, 0, nullptr);
         }
     }
@@ -70,12 +70,12 @@ namespace MangoRHI {
         return mapped_pointers[vulkan_context->get_current_in_flight_frame_index()];
     }
 
-    void VulkanTextureDescriptor::add_texture(VulkanTexture *textures) {
-        this->textures.push_back(textures);
+    void VulkanTextureDescriptor::add_texture(VulkanTexture &texture) {
+        textures.push_back(&texture);
     }
 
-    void VulkanTextureDescriptor::set_texture(u32 index, VulkanTexture *texture) {
-        this->textures[index] = texture;
+    void VulkanTextureDescriptor::set_texture(u32 index, VulkanTexture &texture) {
+        textures[index] = &texture;
     }
 
     Result VulkanTextureDescriptor::create() {
@@ -90,7 +90,7 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
-    void VulkanTextureDescriptor::update(VulkanDescriptorSet *descriptor_set) {
+    void VulkanTextureDescriptor::update(VulkanDescriptorSet &descriptor_set) {
         STL_IMPL::vector<VkDescriptorImageInfo> descriptor_image_infos(get_count());
         for (u32 index = 0; index < get_count(); index++) {
             descriptor_image_infos[index].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -104,7 +104,7 @@ namespace MangoRHI {
         write_descriptor_set.dstBinding = get_binding_index();
         write_descriptor_set.dstArrayElement = 0;
         for (u32 in_flight_index = 0; in_flight_index < vulkan_context->get_max_in_flight_frame_count(); in_flight_index++) {
-            write_descriptor_set.dstSet = descriptor_set->get_in_flight_descriptor_sets()[in_flight_index];
+            write_descriptor_set.dstSet = descriptor_set.get_in_flight_descriptor_sets()[in_flight_index];
             vkUpdateDescriptorSets(vulkan_context->get_device().get_logical_device(), 1, &write_descriptor_set, 0, nullptr);
         }
     }
@@ -121,17 +121,17 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
-    void VulkanInputRenderTargetDescriptor::add_render_target(VulkanRenderTarget *render_target, VulkanSampler *sampler) {
-        render_targets.push_back(render_target);
-        samplers.push_back(sampler);
+    void VulkanInputRenderTargetDescriptor::add_render_target(VulkanRenderTarget &render_target, VulkanSampler &sampler) {
+        render_targets.push_back(&render_target);
+        samplers.push_back(&sampler);
     }
 
-    void VulkanInputRenderTargetDescriptor::set_render_target(u32 index, VulkanRenderTarget *render_target, VulkanSampler *sampler) {
-        render_targets[index] = render_target;
-        samplers[index] = sampler;
+    void VulkanInputRenderTargetDescriptor::set_render_target(u32 index, VulkanRenderTarget &render_target, VulkanSampler &sampler) {
+        render_targets[index] = &render_target;
+        samplers[index] = &sampler;
     }
 
-    void VulkanInputRenderTargetDescriptor::update(VulkanDescriptorSet *descriptor_set) {
+    void VulkanInputRenderTargetDescriptor::update(VulkanDescriptorSet &descriptor_set) {
         STL_IMPL::vector<VkDescriptorImageInfo> descriptor_image_infos(get_count());
         for (u32 index = 0; index < get_count(); index++) {
             descriptor_image_infos[index].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -149,7 +149,7 @@ namespace MangoRHI {
         write_descriptor_set.dstBinding = get_binding_index();
         write_descriptor_set.dstArrayElement = 0;
         for (u32 in_flight_index = 0; in_flight_index < vulkan_context->get_max_in_flight_frame_count(); in_flight_index++) {
-            write_descriptor_set.dstSet = descriptor_set->get_in_flight_descriptor_sets()[in_flight_index];
+            write_descriptor_set.dstSet = descriptor_set.get_in_flight_descriptor_sets()[in_flight_index];
             vkUpdateDescriptorSets(vulkan_context->get_device().get_logical_device(), 1, &write_descriptor_set, 0, nullptr);
         }
     }
@@ -162,23 +162,23 @@ namespace MangoRHI {
         return _current_binding - 1;
     }
 
-    u32 VulkanDescriptorSet::add_textures(DescriptorStage stage, Texture **textures, u32 count) {
+    u32 VulkanDescriptorSet::add_textures(DescriptorStage stage, const STL_IMPL::vector<Reference<Texture>> &textures) {
         auto *texture_descriptor = new VulkanTextureDescriptor();
-        for (u32 index = 0; index < count; index++) {
-            texture_descriptor->add_texture((VulkanTexture *)textures[index]);
+        for (auto &texture : textures) {
+            texture_descriptor->add_texture((VulkanTexture &)texture.get());
         }
         descriptors.push_back(texture_descriptor);
-        setup_descriptor_binding(texture_descriptor, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, stage, count);
+        setup_descriptor_binding(texture_descriptor, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, stage, textures.size());
         return _current_binding - 1;
     }
 
-    u32 VulkanDescriptorSet::add_input_render_targets(DescriptorStage stage, const char **render_target_names, Sampler **samplers, u32 count)  {
+    u32 VulkanDescriptorSet::add_input_render_targets(DescriptorStage stage, const STL_IMPL::vector<STL_IMPL::pair<const char *, Sampler &>> &render_targets)  {
         auto *input_render_target_descriptor = new VulkanInputRenderTargetDescriptor();
-        for (u32 index = 0; index < count; index++) {
-            input_render_target_descriptor->add_render_target(vulkan_context->get_render_pass().get_render_targets()[vulkan_context->get_render_pass().get_render_target_index_by_name(render_target_names[index])], (VulkanSampler *)samplers[index]);
+        for (auto &render_target : render_targets) {
+            input_render_target_descriptor->add_render_target(*vulkan_context->get_render_pass().get_render_targets()[vulkan_context->get_render_pass().get_render_target_index_by_name(render_target.first)], (VulkanSampler &)render_target.second);
         }
         descriptors.push_back(input_render_target_descriptor);
-        setup_descriptor_binding(input_render_target_descriptor, VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, stage, count);
+        setup_descriptor_binding(input_render_target_descriptor, VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, stage, render_targets.size());
         return _current_binding - 1;
     }
 
@@ -238,20 +238,20 @@ namespace MangoRHI {
         return (void*)(((u8 *)descriptor->get_current_mapped_pointer()) + index * descriptor->get_size());
     }
 
-    void VulkanDescriptorSet::set_texture(u32 binding, u32 index, Texture *texture) {
+    void VulkanDescriptorSet::set_texture(u32 binding, u32 index, Texture &texture) {
         auto *descriptor = (VulkanTextureDescriptor *)descriptors[binding];
-        descriptor->set_texture(index, (VulkanTexture *)texture);
+        descriptor->set_texture(index, (VulkanTexture &)texture);
     }
 
-    void VulkanDescriptorSet::set_input_render_target(u32 binding, u32 index, const char *render_target_name, Sampler *sampler) {
+    void VulkanDescriptorSet::set_input_render_target(u32 binding, u32 index, const STL_IMPL::pair<const char *, Sampler &> &render_target) {
         auto *descriptor = (VulkanInputRenderTargetDescriptor *)descriptors[binding];
-        descriptor->set_render_target(index, vulkan_context->get_render_pass().get_render_targets()[vulkan_context->get_render_pass().get_render_target_index_by_name(render_target_name)], (VulkanSampler *)sampler);
+        descriptor->set_render_target(index, *vulkan_context->get_render_pass().get_render_targets()[vulkan_context->get_render_pass().get_render_target_index_by_name(render_target.first)], (VulkanSampler &)render_target.second);
     }
 
     void VulkanDescriptorSet::update() {
         VK_CHECK(vkDeviceWaitIdle(vulkan_context->get_device().get_logical_device()))
         for (auto &descriptor : descriptors) {
-            descriptor->update(this);
+            descriptor->update(*this);
         }
     }
 }

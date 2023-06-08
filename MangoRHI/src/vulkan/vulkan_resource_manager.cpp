@@ -6,7 +6,7 @@ namespace MangoRHI {
         auto *render_target = new VulkanRenderTarget();
         render_target->set_name(name);
         render_target->set_usage(usage);
-        ((VulkanRenderPass &)vulkan_context->get_render_pass_reference()).attach_render_target(render_target);
+        ((VulkanRenderPass &)vulkan_context->get_render_pass_reference()).attach_render_target(*render_target);
         render_targets.push_back(render_target);
         return *render_target;
     }

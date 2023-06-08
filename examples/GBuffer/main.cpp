@@ -102,28 +102,26 @@ int main() {
     sp1.add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
     sp1.add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
     sp1.add_vertex_binding(MangoRHI::VertexInputRate::ePerVertex);
-    sp1.attach_vertex_shader(&rm.create_shader("assets/shaders/vert.spv"), "main");
-    sp1.attach_fragment_shader(&rm.create_shader("assets/shaders/frag.spv"), "main");
+    sp1.attach_vertex_shader(rm.create_shader("assets/shaders/vert.spv"), "main");
+    sp1.attach_fragment_shader(rm.create_shader("assets/shaders/frag.spv"), "main");
     sp1.set_cull_mode(MangoRHI::CullMode::eNone);
     sp1.set_depth_test_enabled(MangoRHI::MG_TRUE);
     sp1.set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);
     auto &texture = rm.create_texture("assets/textures/dance.png");
-    MangoRHI::Texture *textures[] = { &texture };
-    auto *ds1 = sp1.create_descriptor_set();
-    ds1->add_textures(MangoRHI::DescriptorStage::eFragment, textures, 1);
+    auto &ds1 = sp1.create_descriptor_set();
+    ds1.add_textures(MangoRHI::DescriptorStage::eFragment, { texture });
 
-    sp2.attach_vertex_shader(&rm.create_shader("assets/shaders/vert2.spv"), "main");
-    sp2.attach_fragment_shader(&rm.create_shader("assets/shaders/frag2.spv"), "main");
+    sp2.attach_vertex_shader(rm.create_shader("assets/shaders/vert2.spv"), "main");
+    sp2.attach_fragment_shader(rm.create_shader("assets/shaders/frag2.spv"), "main");
     sp2.set_cull_mode(MangoRHI::CullMode::eNone);
     sp2.set_depth_test_enabled(MangoRHI::MG_TRUE);
     sp2.set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);
     sp2.set_depth_write_enabled(MangoRHI::MG_FALSE);
-    auto ds2 = sp2.create_descriptor_set();
-    auto *sampler = &rm.create_sampler();
-    const char *inputs[] = { "pos_resolve", "normal_resolve", "texture_resolve" };
-    ds2->add_input_render_targets(MangoRHI::DescriptorStage::eFragment, &inputs[0], &sampler, 1);
-    ds2->add_input_render_targets(MangoRHI::DescriptorStage::eFragment, &inputs[1], &sampler, 1);
-    ds2->add_input_render_targets(MangoRHI::DescriptorStage::eFragment, &inputs[2], &sampler, 1);
+    auto &ds2 = sp2.create_descriptor_set();
+    auto &sampler = rm.create_sampler();
+    ds2.add_input_render_targets(MangoRHI::DescriptorStage::eFragment, { { "pos_resolve", sampler } });
+    ds2.add_input_render_targets(MangoRHI::DescriptorStage::eFragment, { { "normal_resolve", sampler } });
+    ds2.add_input_render_targets(MangoRHI::DescriptorStage::eFragment, { { "texture_resolve", sampler } });
 
     auto &vertex_buffer = rm.create_vertex_buffer(sizeof(Vertex));
     auto &index_buffer = rm.create_index_buffer();
@@ -170,8 +168,8 @@ int main() {
             command.bind_shader_program(sp1);
             command.set_viewport(viewport);
             command.set_scissor(scissor);
-            command.bind_vertex_buffer(&vertex_buffer, 0);
-            command.bind_index_buffer(&index_buffer);
+            command.bind_vertex_buffer(vertex_buffer, 0);
+            command.bind_index_buffer(index_buffer);
             command.draw_indexed_instances(6, 1, 0, 0,  0);
 
             command.next_subpass();

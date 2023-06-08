@@ -15,9 +15,9 @@ namespace MangoRHI {
     public:
         void add_vertex_attribute(VertexInputType type, u32 stride) override;
         void add_vertex_binding(VertexInputRate rate) override;
-        void attach_vertex_shader(const Shader *shader, const char *entry) override;
-        void attach_fragment_shader(const Shader *shader, const char *entry) override;
-        DescriptorSet *create_descriptor_set() override;
+        void attach_vertex_shader(const Shader &shader, const char *entry) override;
+        void attach_fragment_shader(const Shader &shader, const char *entry) override;
+        DescriptorSet &create_descriptor_set() override;
 
         const STL_IMPL::vector<VkDescriptorSet> &get_current_in_flight_descriptor_sets() const;
 

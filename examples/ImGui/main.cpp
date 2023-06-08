@@ -50,8 +50,8 @@ int main() {
     rp.add_dependency({ "main", MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eColorRenderTargetWrite }, { "imgui", MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eColorRenderTargetWrite });
     auto &sp = rm.create_shader_program("main");
     sp.set_cull_mode(MangoRHI::CullMode::eNone);
-    sp.attach_vertex_shader(&rm.create_shader("assets/shaders/vert.spv"), "main");
-    sp.attach_fragment_shader(&rm.create_shader("assets/shaders/frag.spv"), "main");
+    sp.attach_vertex_shader(rm.create_shader("assets/shaders/vert.spv"), "main");
+    sp.attach_fragment_shader(rm.create_shader("assets/shaders/frag.spv"), "main");
 
     ctx->create();
 
@@ -103,9 +103,9 @@ int main() {
 
     {
         MangoRHI::VulkanCommand command;
-        vk_ctx->get_command_pool().allocate_single_use(&command);
+        vk_ctx->get_command_pool().allocate_single_use(command);
         ImGui_ImplVulkan_CreateFontsTexture(command.get_command_buffer());
-        vk_ctx->get_command_pool().free(&command);
+        vk_ctx->get_command_pool().free(command);
         ImGui_ImplVulkan_DestroyFontUploadObjects();
     }
 
