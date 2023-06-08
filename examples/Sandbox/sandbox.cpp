@@ -17,7 +17,7 @@ int main() {
 
     MangoRHI::VulkanContextInfo info;
     info.extensions = glfwGetRequiredInstanceExtensions(&info.extension_count);
-    info.surface_create_callback = [glfwWindow](VkInstance &instance, VkAllocationCallbacks *allocator) {
+    info.surface_create_callback = [glfwWindow](VkInstance instance, VkAllocationCallbacks *allocator) {
         VkSurfaceKHR surface = VK_NULL_HANDLE;
         glfwCreateWindowSurface(instance, glfwWindow, allocator, &surface);
         return surface;
@@ -45,8 +45,9 @@ int main() {
     });
     rp.set_depth_render_target("depth", MangoRHI::RenderTargetLayout::eDepth);
     rp.add_resolve_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, MangoRHI::RenderTargetLayout::eColor);
-    auto *main_shader_program = rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
+    rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
     rp.add_dependency({ MANGORHI_EXTERNAL_SUBPASS_NAME, MangoRHI::PipelineStage::eColorOutput | MangoRHI::PipelineStage::eEarlyFragmentTest, MangoRHI::Access::eNone }, { "main", MangoRHI::PipelineStage::eColorOutput | MangoRHI::PipelineStage::eEarlyFragmentTest, MangoRHI::Access::eColorRenderTargetWrite | MangoRHI::Access::eDepthStencilRenderTargetWrite });
+    auto &main_shader_program = rm.create_shader_program("main");
 
     auto &t_61 = rm.create_texture("assets/textures/61.png");
     auto &t_paper_plane= rm.create_texture("assets/textures/paper plane.png");
@@ -55,16 +56,16 @@ int main() {
     auto &t_tm = rm.create_texture("assets/textures/tm.png");
     MangoRHI::Texture* textures[] = { &t_61, &t_paper_plane, &t_dance, &t_dhl, &t_tm };
 
-    main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
-    main_shader_program->add_vertex_binding(MangoRHI::VertexInputRate::ePerVertex);
-    main_shader_program->add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
-    main_shader_program->add_vertex_binding(MangoRHI::VertexInputRate::ePerInstance);
-    main_shader_program->attach_vertex_shader(&rm.create_shader("assets/shaders/vert.spv"), "main");
-    main_shader_program->attach_fragment_shader(&rm.create_shader("assets/shaders/frag.spv"), "main");
-    main_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
-    main_shader_program->set_depth_test_enabled(MangoRHI::MG_TRUE);
-    main_shader_program->set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);
-    auto *ds = main_shader_program->create_descriptor_set();
+    main_shader_program.add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
+    main_shader_program.add_vertex_binding(MangoRHI::VertexInputRate::ePerVertex);
+    main_shader_program.add_vertex_attribute(MangoRHI::VertexInputType::eFloat3, sizeof(glm::vec3));
+    main_shader_program.add_vertex_binding(MangoRHI::VertexInputRate::ePerInstance);
+    main_shader_program.attach_vertex_shader(&rm.create_shader("assets/shaders/vert.spv"), "main");
+    main_shader_program.attach_fragment_shader(&rm.create_shader("assets/shaders/frag.spv"), "main");
+    main_shader_program.set_cull_mode(MangoRHI::CullMode::eNone);
+    main_shader_program.set_depth_test_enabled(MangoRHI::MG_TRUE);
+    main_shader_program.set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);
+    auto *ds = main_shader_program.create_descriptor_set();
     MangoRHI::u32 uniform_binding = ds->add_uniforms(MangoRHI::DescriptorStage::eVertex, sizeof(float) * 2, 2);
     MangoRHI::u32 textures_binding = ds->add_textures(MangoRHI::DescriptorStage::eFragment, textures, 4);
 

@@ -45,10 +45,6 @@ namespace MangoRHI {
     Result VulkanShaderProgram::create() {
         component_create()
 
-        if (is_external_shader_program == MG_TRUE) {
-            return Result::eSuccess;
-        }
-
         VkPipelineShaderStageCreateInfo shader_stages[2] = {
             VkPipelineShaderStageCreateInfo {
                 .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
@@ -167,10 +163,6 @@ namespace MangoRHI {
 
     Result VulkanShaderProgram::destroy() {
         component_destroy()
-
-        if (is_external_shader_program == MG_TRUE) {
-            return Result::eSuccess;
-        }
 
         RHI_DEBUG("Destroy vulkan pipeline -> 0x{:x}", (AddrType)pipeline)
         vkDestroyPipeline(vulkan_context->get_device().get_logical_device(), pipeline, vulkan_context->get_allocator());
