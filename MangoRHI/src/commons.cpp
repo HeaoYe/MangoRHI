@@ -101,7 +101,7 @@ namespace MangoRHI {
         case_result(Recreating)
         }
     }
-    
+
     #undef case_result
 
     STL_IMPL::vector<char> read_binary_file(const char *filename) {

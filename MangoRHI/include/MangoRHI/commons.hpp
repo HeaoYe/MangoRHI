@@ -16,9 +16,7 @@
     #error Unknown Platform.
 #endif
 
-#if defined (NDEBUG)
-    #define MANGORHI_DEBUG
-
+#if defined (MANGORHI_DEBUG)
     #define MANGORHI_ASSERT(expr) \
     if(!(expr)) { \
         RHI_FATAL("Mango Assert Failed {} -> {}", __FILE__, __LINE__) \
@@ -26,7 +24,6 @@
     }
 #else
     #define MANGORHI_RELEASE
-
     #define MANGORHI_ASSERT(expr)
 #endif
 
@@ -100,7 +97,7 @@ namespace MangoRHI {
         virtual Result create() = 0;
         virtual Result destroy() = 0;
         virtual Bool is_destroyed() final { return destroyed; }
-        
+
         virtual Result recreate();
     protected:
         Bool destroyed = MG_TRUE;
@@ -117,15 +114,15 @@ namespace MangoRHI {
     #define __define_member_getter(type, type_descriptor, is_const, member_name) \
     public: \
         is_const type type_descriptor get_##member_name() is_const { return member_name; }
-    
+
     #define __define_member_setter(is_readonly, type, type_descriptor, is_override, member_name) \
     public: \
         void set_##member_name(is_readonly type type_descriptor member_name) is_override { this->member_name = member_name; }
-    
+
     #define __define_member_setter_with_translator(SrcType, is_override, member_name, translator) \
     public: \
         void set_##member_name(SrcType member_name) is_override { this->member_name = translator(member_name); }
-    
+
     #define define_private_member(type, member_name, ...) \
     __define_member(__MANGO_READWRITE, type, __MANGO_NULL_MACRO, member_name, __VA_ARGS__)
 
@@ -164,7 +161,7 @@ namespace MangoRHI {
     setter(__MANGO_READONLY, type, *, member_name)
 
     #define MANGO_NO_INIT_VAULE __MANGO_NULL_MACRO
-    
+
     #define MANGO_NO_GETTER(...) __MANGO_NULL_MACRO
 
     #define MANGO_CONST_GETTER(type, type_descriptor, member_name) \
@@ -267,7 +264,7 @@ namespace MangoRHI {
         eGraphicsPipeline,
         eComputePipeline,
     };
-    
+
     enum class PipelineStage : u32 {
         eNone = BIT(0),
         eColorOutput = BIT(1),

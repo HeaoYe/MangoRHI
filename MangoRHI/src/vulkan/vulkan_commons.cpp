@@ -109,7 +109,7 @@ namespace MangoRHI {
             return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         }
     }
-    
+
     VkPolygonMode polygon_mode2vk_polygon_mode(PolygonMode polygon) {
         switch (polygon) {
         case PolygonMode::ePoint:
@@ -120,7 +120,7 @@ namespace MangoRHI {
             return VK_POLYGON_MODE_FILL;
         }
     }
-    
+
     VkFrontFace front_face2vk_front_face(FrontFace front) {
         switch (front) {
         case FrontFace::eCouterClockwise:
@@ -258,9 +258,9 @@ namespace MangoRHI {
 
     Bool check_color_blend_info_enable(ColorBlendInfo &info) {
         return (
-            (info.src_color_factor != BlendFactor::eNone) && (info.dst_color_factor != BlendFactor::eNone) && (info.color_op != BlendOp::eNone) && 
+            (info.src_color_factor != BlendFactor::eNone) && (info.dst_color_factor != BlendFactor::eNone) && (info.color_op != BlendOp::eNone) &&
             (info.src_alpha_factor != BlendFactor::eNone) && (info.dst_alpha_factor != BlendFactor::eNone) && (info.alpha_op != BlendOp::eNone)
-        ) ? MG_TRUE : MG_FALSE; 
+        ) ? MG_TRUE : MG_FALSE;
     }
 
     VkBlendFactor blend_factor2vk_blend_factor(BlendFactor factor) {

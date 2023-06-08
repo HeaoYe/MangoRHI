@@ -13,13 +13,14 @@ namespace MangoRHI {
         Result end_render() override;
 
         void next_subpass() override;
+        void bind_shader_program(ShaderProgram &shader_program) override;
         void bind_vertex_buffer(const VertexBuffer *vertex_buffer, u32 binding) override;
         void bind_index_buffer(const IndexBuffer *index_buffer) override;
         void draw_instances(u32 vertex_count, u32 instance_count, u32 first_vertex, u32 first_instance) override;
         void draw_indexed_instances(u32 index_count, u32 instance_count, u32 first_index, u32 first_instance, u32 vertex_offset) override;
         void set_viewport(const Viewport &viewport) override;
         void set_scissor(const Scissor &scissor) override;
-    
+
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, Bool, is_single_use, MG_FALSE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkCommandBuffer, command_buffer, VK_NULL_HANDLE)
     define_private_member(i32, _current_subpass, -1)

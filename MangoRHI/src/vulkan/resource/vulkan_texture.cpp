@@ -19,7 +19,7 @@ namespace MangoRHI {
             return Result::eFailed;
         }
         RHI_DEBUG("Load texture file {}, [{}, {}, {}]", filename, width, height, channels)
-        
+
         staging.set_size(size);
         staging.set_usage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
         staging.set_properties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
@@ -36,7 +36,7 @@ namespace MangoRHI {
 
         VulkanCommand command;
         vulkan_context->transition_image_layout(image.get_image(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipmap_levels);
-        
+
         VkFormatProperties format_properties;
         vkGetPhysicalDeviceFormatProperties(vulkan_context->get_device().get_physical_device(), image.get_format(), &format_properties);
         if (!(format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
@@ -63,7 +63,7 @@ namespace MangoRHI {
         vkCmdCopyBufferToImage(command.get_command_buffer(), staging.get_buffer(), image.get_image(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
         vulkan_context->get_command_pool().free(&command);
         staging.destroy();
-        
+
         vulkan_context->get_command_pool().allocate_single_use(&command);
         VkImageMemoryBarrier barrier {};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;

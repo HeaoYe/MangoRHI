@@ -11,7 +11,7 @@ namespace MangoRHI {
         void write_data(const void *data, u32 size, u32 offset) override;
         void resize(u32 size) override;
         void copy_from(const Buffer *other, u64 src_offset, u64 dst_offset, u64 size) override;
-    
+
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, VkBufferUsageFlags, usage, 0)
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, VkMemoryPropertyFlags, properties, 0)
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC_OVERRIDE, u32, size, MANGO_NO_INIT_VAULE)
@@ -28,7 +28,7 @@ namespace MangoRHI {
         void write_data(const void *data, u32 count, u32 offset_count) override;
         void resize(u32 size) override;
         void copy_from(const Buffer *other, u64 src_offset_count, u64 dst_offset_count, u64 count) override;
-    
+
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC_OVERRIDE, u32, count, MANGO_NO_INIT_VAULE)
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC_OVERRIDE, u32, vertex_size, MANGO_NO_INIT_VAULE)
 
@@ -45,7 +45,7 @@ namespace MangoRHI {
         void write_data(const void *data, u32 count, u32 offset_count) override;
         void resize(u32 count) override;
         void copy_from(const Buffer *other, u64 src_offset_count, u64 dst_offset_count, u64 count) override;
-    
+
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC_OVERRIDE, u32, count, MANGO_NO_INIT_VAULE)
 
     define_private_member(VulkanBuffer, staging, MANGO_NO_INIT_VAULE)

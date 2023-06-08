@@ -60,10 +60,10 @@ namespace MangoRHI {
         if (descriptor_pool == VK_NULL_HANDLE) {
             return Result::eSuccess;
         }
-        
+
         RHI_DEBUG("Destroy vulkan descriptor pool -> 0x{:x}", (AddrType)descriptor_pool)
         vkDestroyDescriptorPool(vulkan_context->get_device().get_logical_device(), descriptor_pool, vulkan_context->get_allocator());
-        
+
         for (auto &descriptor_set : g_vulkan_descriptor_sets) {
             descriptor_set->destroy();
         }

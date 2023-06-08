@@ -1,5 +1,5 @@
 #include "vulkan_shader_program.hpp"
-#include "vulkan_context.hpp"
+#include "../vulkan_context.hpp"
 
 namespace MangoRHI {
     void VulkanShaderProgram::add_vertex_attribute(VertexInputType type, u32 stride) {
@@ -44,10 +44,6 @@ namespace MangoRHI {
 
     Result VulkanShaderProgram::create() {
         component_create()
-
-        if (is_external_shader_program == MG_TRUE) {
-            return Result::eSuccess;
-        }
 
         VkPipelineShaderStageCreateInfo shader_stages[2] = {
             VkPipelineShaderStageCreateInfo {
@@ -167,10 +163,6 @@ namespace MangoRHI {
 
     Result VulkanShaderProgram::destroy() {
         component_destroy()
-        
-        if (is_external_shader_program == MG_TRUE) {
-            return Result::eSuccess;
-        }
 
         RHI_DEBUG("Destroy vulkan pipeline -> 0x{:x}", (AddrType)pipeline)
         vkDestroyPipeline(vulkan_context->get_device().get_logical_device(), pipeline, vulkan_context->get_allocator());

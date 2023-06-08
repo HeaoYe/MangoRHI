@@ -6,7 +6,7 @@ namespace MangoRHI {
     class Buffer : public RuntimeComponent {
     public:
         virtual void set_size(u32 size) = 0;
-    
+
         virtual void write_data(const void *data, u32 size, u32 offset) = 0;
         virtual void resize(u32 size) = 0;
         virtual void copy_from(const Buffer *other, u64 src_offset, u64 dst_offset, u64 size) = 0;

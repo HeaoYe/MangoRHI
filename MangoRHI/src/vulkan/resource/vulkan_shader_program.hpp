@@ -1,9 +1,9 @@
 #pragma once
 
-#include "vulkan_commons.hpp"
-#include "MangoRHI/shader_program.hpp"
-#include "resource/vulkan_shader.hpp"
-#include "vulkan_descriptor_set.hpp"
+#include "../vulkan_commons.hpp"
+#include "MangoRHI/resource/shader_program.hpp"
+#include "vulkan_shader.hpp"
+#include "../vulkan_descriptor_set.hpp"
 
 namespace MangoRHI {
     struct VulkanShaderInfo {
@@ -21,7 +21,7 @@ namespace MangoRHI {
 
         const STL_IMPL::vector<VkDescriptorSet> &get_current_in_flight_descriptor_sets() const;
 
-    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, u32, subpass_index, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_SETTER_BASIC, u32, subpass_index, MANGO_NO_INIT_VAULE)
     define_member_with_translator(MANGO_NO_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, Topology, VkPrimitiveTopology, topology, topology2vk_primitive_topology, Topology::eTriangleList)
     define_member_with_translator(MANGO_NO_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, PolygonMode, VkPolygonMode, polygon_mode, polygon_mode2vk_polygon_mode, PolygonMode::eFill)
     define_member_with_translator(MANGO_NO_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, FrontFace, VkFrontFace, front_face, front_face2vk_front_face, FrontFace::eClockwise)
@@ -33,10 +33,9 @@ namespace MangoRHI {
     define_private_member(STL_IMPL::vector<VkVertexInputBindingDescription>, bindings, MANGO_NO_INIT_VAULE)
     define_private_member(VulkanShaderInfo, vertex_shader, MANGO_NO_INIT_VAULE)
     define_private_member(VulkanShaderInfo, fragment_shader, MANGO_NO_INIT_VAULE)
-    define_member(MANGO_CONST_GETTER, MANGO_SETTER_BASIC_OVERRIDE, Bool, is_external_shader_program, MG_FALSE)
     define_private_member(STL_IMPL::vector<VkDynamicState>, dynamic_states, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanDescriptorSet *>, vulkan_descriptor_sets, MANGO_NO_INIT_VAULE)
-    
+
     define_private_member(u32, _current_location, 0)
     define_private_member(u32, _current_offset, 0)
 
