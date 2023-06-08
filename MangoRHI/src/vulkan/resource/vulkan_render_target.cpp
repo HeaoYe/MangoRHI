@@ -52,8 +52,8 @@ namespace MangoRHI {
                 vulkan_images.resize(1);
             }
         }
-        for (auto &image : vulkan_images) {
-            image = new VulkanImage();
+        for (auto &vulkan_image : vulkan_images) {
+            auto *image = new VulkanImage();
             image->set_extent(vulkan_context->get_extent());
             image->set_format(description.format);
             switch (usage) {
@@ -78,9 +78,9 @@ namespace MangoRHI {
                 image->set_multisample_count(vulkan_context->get_multisample_count());
             }
             image->create();
-            vulkan_context->transition_image_layout(image->get_image(), image->get_format(), VK_IMAGE_LAYOUT_UNDEFINED, description.finalLayout, 1);
             images.push_back(image->get_image());
             image_views.push_back(image->get_image_view());
+            vulkan_image.set(*image);
         }
 
         return Result::eSuccess;
@@ -91,10 +91,12 @@ namespace MangoRHI {
 
         for (auto &image : vulkan_images) {
             image->destroy();
+            delete &image.get();
         }
 
         this->images.clear();
         this->image_views.clear();
+        this->vulkan_images.clear();
 
         return Result::eSuccess;
     }

@@ -63,7 +63,7 @@ namespace MangoRHI {
         if (get_render_target_index_by_name(vulkan_render_target.get_name()) < render_targets.size()) {
             RHI_ERROR("RenderTarget {} is existed", vulkan_render_target.get_name());
         }
-        render_targets.push_back(&vulkan_render_target);
+        render_targets.push_back(vulkan_render_target);
     }
 
     void VulkanRenderPass::add_input_render_target(const char *render_target_name, RenderTargetLayout ref_layout) {
@@ -103,7 +103,7 @@ namespace MangoRHI {
             RHI_ERROR("Subpass {} is existed", subpass_name)
         }
         temp_subpass->build(subpass_name, bind_point, index);
-        subpasses.push_back(temp_subpass);
+        subpasses.push_back(*temp_subpass);
         temp_subpass = new VulkanSubpass();
     }
 

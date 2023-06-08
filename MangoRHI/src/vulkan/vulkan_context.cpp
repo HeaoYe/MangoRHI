@@ -68,7 +68,7 @@ namespace MangoRHI {
         synchronization.create();
         for (u32 index = 0; index < max_in_flight_frame_count; index++) {
             auto *command = new VulkanCommand();
-            commands.push_back(command);
+            commands.push_back(*command);
             command_pool.allocate(CommandLevel::ePrimary, *command);
         }
         return Result::eSuccess;
@@ -81,7 +81,7 @@ namespace MangoRHI {
 
         descriptor_pool.destroy();
         for (auto &command : commands) {
-            command_pool.free(*command);
+            command_pool.free(command.get());
         }
         synchronization.destroy();
         framebuffer.destroy();
@@ -103,9 +103,18 @@ namespace MangoRHI {
 
     void VulkanContext::recreate_resources() {
         VK_CHECK(vkDeviceWaitIdle(device.get_logical_device()))
+
         swapchain.recreate();
         resource_manager.recreate_render_targets();
         framebuffer.recreate();
+
+        for (auto &descriptor_set : g_vulkan_descriptor_sets) {
+            for (auto &descriptor : descriptor_set->get_descriptors()) {
+                if (descriptor->get_type() == DescriptorType::eInputRenderTarget) {
+                    descriptor->update(descriptor_set);
+                }
+            }
+        }
     }
 
     Result VulkanContext::begin_frame() {
@@ -224,18 +233,6 @@ namespace MangoRHI {
 
             src_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
             dst_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-        } else if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
-            src_access = 0;
-            dst_access = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-            src_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-            dst_stage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-        } else if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
-            src_access = 0;
-            dst_access = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-            src_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-            dst_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         } else {
             RHI_ERROR("Unsupported layout transition");
         }

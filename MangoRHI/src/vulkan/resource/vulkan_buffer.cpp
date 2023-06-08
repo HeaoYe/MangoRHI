@@ -122,7 +122,7 @@ namespace MangoRHI {
 
     void VulkanVertexBuffer::copy_from(const Buffer &other, const u64 src_offset_count, const u64 dst_offset_count, const u64 count) {
         const VulkanVertexBuffer &vulkan_other = (const VulkanVertexBuffer &)other;
-        MANGORHI_ASSERT(this->vertex_size == vulkan_other->vertex_size)
+        MANGORHI_ASSERT(this->vertex_size == vulkan_other.vertex_size)
         buffer.copy_from(vulkan_other.buffer, src_offset_count * vertex_size, dst_offset_count * vertex_size, count * vertex_size);
     }
 

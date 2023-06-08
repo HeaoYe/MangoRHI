@@ -20,8 +20,8 @@ int main() {
 
     MangoRHI::set_logger_level(MangoRHI::LogLevel::eDebug);
     MangoRHI::initialize(MangoRHI::API::eVulkan);
-    MangoRHI::Context *ctx = MangoRHI::get_context();
-    auto *vk_ctx = (MangoRHI::VulkanContext *)ctx;
+    MangoRHI::Context &ctx = MangoRHI::get_context();
+    auto &vk_ctx = (MangoRHI::VulkanContext &)ctx;
 
     MangoRHI::VulkanContextInfo info;
     info.extensions = glfwGetRequiredInstanceExtensions(&info.extension_count);
@@ -32,15 +32,15 @@ int main() {
     };
     info.app_name = "ImGui With MangoRHI";
     info.engine_name = "No Engine";
-    ctx->set_api_info(&info);
-    ctx->set_device_name("NVIDIA GeForce RTX 4090");
-    ctx->set_swapchain_image_count(3);
-    ctx->set_max_in_flight_frame_count(2);
-    ctx->set_multisample_count(MangoRHI::MultisampleCount::e8);
-    auto &rm = ctx->get_resource_manager_reference();
+    ctx.set_api_info(&info);
+    ctx.set_device_name("NVIDIA GeForce RTX 4090");
+    ctx.set_swapchain_image_count(3);
+    ctx.set_max_in_flight_frame_count(2);
+    ctx.set_multisample_count(MangoRHI::MultisampleCount::e8);
+    auto &rm = ctx.get_resource_manager_reference();
 
     rm.create_render_target("resolve", MangoRHI::RenderTargetUsage::eColor);
-    auto &rp = ctx->get_render_pass_reference();
+    auto &rp = ctx.get_render_pass_reference();
     rp.add_output_render_target("resolve", MangoRHI::RenderTargetLayout::eColor);
     rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
     rp.add_output_render_target("resolve", MangoRHI::RenderTargetLayout::eColor);
@@ -53,7 +53,7 @@ int main() {
     sp.attach_vertex_shader(rm.create_shader("assets/shaders/vert.spv"), "main");
     sp.attach_fragment_shader(rm.create_shader("assets/shaders/frag.spv"), "main");
 
-    ctx->create();
+    ctx.create();
 
     VkDescriptorPool g_DescriptorPool;
     VkDescriptorPoolSize pool_sizes[] = {
@@ -75,7 +75,7 @@ int main() {
     pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
     pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
     pool_info.pPoolSizes = pool_sizes;
-    vkCreateDescriptorPool(vk_ctx->get_device().get_logical_device(), &pool_info, vk_ctx->get_allocator(), &g_DescriptorPool);
+    vkCreateDescriptorPool(vk_ctx.get_device().get_logical_device(), &pool_info, vk_ctx.get_allocator(), &g_DescriptorPool);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -87,25 +87,26 @@ int main() {
 
     ImGui_ImplGlfw_InitForVulkan(glfwWindow, true);
     ImGui_ImplVulkan_InitInfo init_info {};
-    init_info.PhysicalDevice = vk_ctx->get_device().get_physical_device();
-    init_info.Device = vk_ctx->get_device().get_logical_device();
-    init_info.QueueFamily = vk_ctx->get_device().get_graphics_family_index();
-    init_info.Queue = vk_ctx->get_device().get_graphics_queue();
+    init_info.Instance = vk_ctx.get_instance();
+    init_info.PhysicalDevice = vk_ctx.get_device().get_physical_device();
+    init_info.Device = vk_ctx.get_device().get_logical_device();
+    init_info.QueueFamily = vk_ctx.get_device().get_graphics_family_index();
+    init_info.Queue = vk_ctx.get_device().get_graphics_queue();
     init_info.PipelineCache = VK_NULL_HANDLE;
     init_info.DescriptorPool = g_DescriptorPool;
-    init_info.Subpass = vk_ctx->get_render_pass().get_subpass_index_by_name("imgui");
-    init_info.MinImageCount = vk_ctx->get_swapchain().get_image_count();
-    init_info.ImageCount = vk_ctx->get_swapchain().get_image_count();
-    init_info.MSAASamples = vk_ctx->get_multisample_count();
-    init_info.Allocator = vk_ctx->get_allocator();
+    init_info.Subpass = vk_ctx.get_render_pass().get_subpass_index_by_name("imgui");
+    init_info.MinImageCount = vk_ctx.get_swapchain().get_image_count();
+    init_info.ImageCount = vk_ctx.get_swapchain().get_image_count();
+    init_info.MSAASamples = vk_ctx.get_multisample_count();
+    init_info.Allocator = vk_ctx.get_allocator();
     init_info.CheckVkResultFn = vk_check_fn;
-    ImGui_ImplVulkan_Init(&init_info, vk_ctx->get_render_pass().get_render_pass());
+    ImGui_ImplVulkan_Init(&init_info, vk_ctx.get_render_pass().get_render_pass());
 
     {
         MangoRHI::VulkanCommand command;
-        vk_ctx->get_command_pool().allocate_single_use(command);
+        vk_ctx.get_command_pool().allocate_single_use(command);
         ImGui_ImplVulkan_CreateFontsTexture(command.get_command_buffer());
-        vk_ctx->get_command_pool().free(command);
+        vk_ctx.get_command_pool().free(command);
         ImGui_ImplVulkan_DestroyFontUploadObjects();
     }
 
@@ -158,12 +159,12 @@ int main() {
         ImGui::Render();
         ImDrawData* draw_data = ImGui::GetDrawData();
 
-        if (ctx->begin_frame() == MangoRHI::Result::eSuccess) {
-            auto &command = ctx->get_current_command_reference();
+        if (ctx.begin_frame() == MangoRHI::Result::eSuccess) {
+            auto &command = ctx.get_current_command_reference();
             auto &vk_cmd = (MangoRHI::VulkanCommand &)command;
 
-            auto viewport = MangoRHI::Viewport { 0, static_cast<float>(ctx->get_height()), static_cast<float>(ctx->get_width()), -static_cast<float>(ctx->get_height()), 0.0f, 1.0f };
-            auto scissor = MangoRHI::Scissor { 0, 0, ctx->get_width(), ctx->get_height() };
+            auto viewport = MangoRHI::Viewport { 0, static_cast<float>(ctx.get_height()), static_cast<float>(ctx.get_width()), -static_cast<float>(ctx.get_height()), 0.0f, 1.0f };
+            auto scissor = MangoRHI::Scissor { 0, 0, ctx.get_width(), ctx.get_height() };
             command.bind_shader_program(sp);
             command.set_viewport(viewport);
             command.set_scissor(scissor);
@@ -171,17 +172,17 @@ int main() {
 
             command.next_subpass();
             ImGui_ImplVulkan_RenderDrawData(draw_data, vk_cmd.get_command_buffer());
-            ctx->end_frame();
+            ctx.end_frame();
         }
     }
 
-    vkDeviceWaitIdle(vk_ctx->get_device().get_logical_device());
+    vkDeviceWaitIdle(vk_ctx.get_device().get_logical_device());
 
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
-    vkDestroyDescriptorPool(vk_ctx->get_device().get_logical_device(), g_DescriptorPool, vk_ctx->get_allocator());
+    vkDestroyDescriptorPool(vk_ctx.get_device().get_logical_device(), g_DescriptorPool, vk_ctx.get_allocator());
     MangoRHI::quit();
 
     glfwDestroyWindow(glfwWindow);

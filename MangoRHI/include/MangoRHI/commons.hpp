@@ -92,6 +92,26 @@ namespace MangoRHI {
     };
     std::string to_string(Result res);
 
+    template<typename T>
+    struct Reference {
+    private:
+        T *data;
+    public:
+        Reference(const Reference &other) : data(other.data) {};
+        Reference &operator=(const Reference &) = default;
+        Reference(Reference &&other) : data(other.data) { other.data = nullptr; };
+        Reference &operator=(Reference &&) = default;
+        Reference() : data(nullptr) {}
+        Reference(T &data_) : data(&data_) {}
+        void set(T &data_) { data = &data_; }
+        operator const T&() const { return *data; }
+        const T &get() const { return *data; }
+        const T *operator->() const { return data; }
+        operator T&() { return *data; }
+        T &get() { return *data; }
+        T *operator->() { return data; }
+    };
+
     class RuntimeComponent {
     public:
         virtual Result create() = 0;
@@ -428,22 +448,8 @@ namespace MangoRHI {
     MANGORHI_API void set_logger_level(LogLevel level);
     MANGORHI_API Result initialize(API api);
     MANGORHI_API Result quit();
-    MANGORHI_API Context *get_context();
+    MANGORHI_API Reference<Context> get_context();
     STL_IMPL::vector<char> read_binary_file(const char *filename);
-
-    template<typename T>
-    struct Reference {
-    private:
-        T &data;
-        Reference &operator=(const Reference &) = delete;
-        Reference &operator=(Reference &&) = delete;
-        Reference(Reference &&) = delete;
-    public:
-        Reference(const Reference &other) : data(other.data) {};
-        Reference(T &t) : data(t) {}
-        const T &get() const { return data; }
-        T &get() { return data; }
-    };
 }
 
 #include "logger.hpp"

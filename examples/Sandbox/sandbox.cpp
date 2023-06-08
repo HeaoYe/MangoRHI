@@ -9,7 +9,7 @@ int main() {
 
     MangoRHI::set_logger_level(MangoRHI::LogLevel::eDebug);
     MangoRHI::initialize(MangoRHI::API::eVulkan);
-    MangoRHI::Context *ctx = MangoRHI::get_context();
+    MangoRHI::Context &ctx = MangoRHI::get_context();
 
     #ifdef MANGO_DEBUG
     RHI_WARN("Debug Mode")
@@ -24,17 +24,17 @@ int main() {
     };
     info.app_name = "MangoRHI Sanbox App";
     info.engine_name = "No Engine";
-    ctx->set_api_info(&info);
-    ctx->set_device_name("NVIDIA GeForce RTX 4090");
-    ctx->set_swapchain_image_count(3);
-    ctx->set_max_in_flight_frame_count(2);
-    ctx->set_multisample_count(MangoRHI::MultisampleCount::e8);
-    auto &rm = ctx->get_resource_manager_reference();
+    ctx.set_api_info(&info);
+    ctx.set_device_name("NVIDIA GeForce RTX 4090");
+    ctx.set_swapchain_image_count(3);
+    ctx.set_max_in_flight_frame_count(2);
+    ctx.set_multisample_count(MangoRHI::MultisampleCount::e8);
+    auto &rm = ctx.get_resource_manager_reference();
 
     auto &color = rm.create_render_target("color", MangoRHI::RenderTargetUsage::eColor);
     rm.create_render_target("depth", MangoRHI::RenderTargetUsage::eDepth).set_clear_color(MangoRHI::ClearValue { .depth_stencil = { .depth = 1.0f, .stencil = 0 } });
 
-    auto &rp = ctx->get_render_pass_reference();
+    auto &rp = ctx.get_render_pass_reference();
     rp.add_output_render_target("color", MangoRHI::RenderTargetLayout::eColor, {
         .src_color_factor = MangoRHI::BlendFactor::eSrcAlpha,
         .dst_color_factor = MangoRHI::BlendFactor::eOneMinusSrcAlpha,
@@ -72,7 +72,7 @@ int main() {
     auto &color_buffer = rm.create_vertex_buffer(sizeof(glm::vec3));
     auto &index_buffer = rm.create_index_buffer();
 
-    ctx->create();
+    ctx.create();
 
     struct UserPointer {
         MangoRHI::DescriptorSet &ds;
@@ -143,8 +143,8 @@ int main() {
     while (!glfwWindowShouldClose(glfwWindow)) {
         glfwPollEvents();
 
-        if (ctx->begin_frame() == MangoRHI::Result::eSuccess) {
-            auto &command = ctx->get_current_command_reference();
+        if (ctx.begin_frame() == MangoRHI::Result::eSuccess) {
+            auto &command = ctx.get_current_command_reference();
 
             float *uniform_buffer_pointer0 = (float *)ds.get_uniform_buffer_pointer(uniform_binding, 0);
             float *uniform_buffer_pointer1 = (float *)ds.get_uniform_buffer_pointer(uniform_binding, 1);
@@ -163,8 +163,8 @@ int main() {
                     .b = (glm::sin(t_ + 3.14159265358979f * 4.0f / 30.0f) + 1.0f) / 2.0f,
                     .a = 1.0f
             }});
-            auto viewport = MangoRHI::Viewport { 0, static_cast<float>(ctx->get_height()), static_cast<float>(ctx->get_width()), -static_cast<float>(ctx->get_height()), 0.0f, 1.0f };
-            auto scissor = MangoRHI::Scissor { 0, 0, ctx->get_width(), ctx->get_height() };
+            auto viewport = MangoRHI::Viewport { 0, static_cast<float>(ctx.get_height()), static_cast<float>(ctx.get_width()), -static_cast<float>(ctx.get_height()), 0.0f, 1.0f };
+            auto scissor = MangoRHI::Scissor { 0, 0, ctx.get_width(), ctx.get_height() };
             command.bind_shader_program(main_shader_program);
             command.set_viewport(viewport);
             command.set_scissor(scissor);
@@ -173,7 +173,7 @@ int main() {
             command.bind_index_buffer(index_buffer);
             command.draw_indexed_instances(6, 8, 0, 0,  0);
 
-            ctx->end_frame();
+            ctx.end_frame();
         }
     }
 

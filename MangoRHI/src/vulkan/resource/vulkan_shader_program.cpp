@@ -24,21 +24,21 @@ namespace MangoRHI {
 
     void VulkanShaderProgram::attach_vertex_shader(const Shader &shader, const char *entry) {
         this->vertex_shader = VulkanShaderInfo {
-            .shader = (VulkanShader *)&shader,
+            .shader = (VulkanShader &)shader,
             .entry = entry,
         };
     }
 
     void VulkanShaderProgram::attach_fragment_shader(const Shader &shader, const char *entry) {
         this->fragment_shader = VulkanShaderInfo {
-            .shader = (VulkanShader *)&shader,
+            .shader = (VulkanShader &)shader,
             .entry = entry,
         };
     }
 
     DescriptorSet &VulkanShaderProgram::create_descriptor_set() {
         auto *descriptor_set = new VulkanDescriptorSet();
-        vulkan_descriptor_sets.push_back(descriptor_set);
+        vulkan_descriptor_sets.push_back(*descriptor_set);
         return *descriptor_set;
     }
 

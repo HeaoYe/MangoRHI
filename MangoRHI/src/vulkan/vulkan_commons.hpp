@@ -4,12 +4,11 @@
 #include <vulkan/vulkan.h>
 
 namespace MangoRHI {
-    static VkResult res;
+    static VkResult __res;
     #define VK_CHECK(expr) \
     { \
-        if ((res = expr) != VK_SUCCESS) { \
-            RHI_ERROR("Vulkan Error: \n{} --> {}\n\t{}", __FILE__, __LINE__, #expr) \
-            RHI_ERROR("{}", res) \
+        if ((__res = expr) != VK_SUCCESS) { \
+            RHI_ERROR("Vulkan Error {}: \n{} --> {}\n\t{}", (i32)__res, __FILE__, __LINE__, #expr) \
         } \
     }
 

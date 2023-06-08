@@ -7,7 +7,7 @@
 
 namespace MangoRHI {
     struct VulkanShaderInfo {
-        VulkanShader *shader;
+        Reference<VulkanShader> shader;
         const char *entry;
     };
 
@@ -34,7 +34,7 @@ namespace MangoRHI {
     define_private_member(VulkanShaderInfo, vertex_shader, MANGO_NO_INIT_VAULE)
     define_private_member(VulkanShaderInfo, fragment_shader, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkDynamicState>, dynamic_states, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<VulkanDescriptorSet *>, vulkan_descriptor_sets, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<Reference<VulkanDescriptorSet>>, vulkan_descriptor_sets, MANGO_NO_INIT_VAULE)
 
     define_private_member(u32, _current_location, 0)
     define_private_member(u32, _current_offset, 0)
