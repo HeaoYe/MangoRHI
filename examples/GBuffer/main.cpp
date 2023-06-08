@@ -42,7 +42,7 @@ int main() {
     rm.create_render_target("normal_resolve", MangoRHI::RenderTargetUsage::eColorBuffer);
     rm.create_render_target("texture", MangoRHI::RenderTargetUsage::eColor);
     rm.create_render_target("texture_resolve", MangoRHI::RenderTargetUsage::eColorBuffer);
-    
+
     auto &rp = ctx->get_render_pass_reference();
     rp.add_output_render_target("pos", MangoRHI::RenderTargetLayout::eColor);
     rp.add_resolve_render_target("pos_resolve", MangoRHI::RenderTargetLayout::eColor);
@@ -151,7 +151,7 @@ int main() {
         },
     };
     std::vector<MangoRHI::u32> indices = {
-        0, 1, 2, 
+        0, 1, 2,
         0, 3, 2,
     };
     vertex_buffer.write_data(vertices.data(), vertices.size(), 0);

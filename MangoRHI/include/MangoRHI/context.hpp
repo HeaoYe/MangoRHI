@@ -15,7 +15,7 @@ namespace MangoRHI {
         virtual void set_swapchain_image_count(u32 count) = 0;
         virtual void set_max_in_flight_frame_count(u32 count) = 0;
         virtual void set_multisample_count(MultisampleCount count) = 0;
-        
+
         virtual void resize(u32 width, u32 height) = 0;
         virtual const u32 get_width() const = 0;
         virtual const u32 get_height() const = 0;

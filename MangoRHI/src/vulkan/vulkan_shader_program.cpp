@@ -167,7 +167,7 @@ namespace MangoRHI {
 
     Result VulkanShaderProgram::destroy() {
         component_destroy()
-        
+
         if (is_external_shader_program == MG_TRUE) {
             return Result::eSuccess;
         }

@@ -36,7 +36,7 @@ namespace MangoRHI {
     define_member(MANGO_CONST_GETTER, MANGO_SETTER_BASIC_OVERRIDE, Bool, is_external_shader_program, MG_FALSE)
     define_private_member(STL_IMPL::vector<VkDynamicState>, dynamic_states, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VulkanDescriptorSet *>, vulkan_descriptor_sets, MANGO_NO_INIT_VAULE)
-    
+
     define_private_member(u32, _current_location, 0)
     define_private_member(u32, _current_offset, 0)
 

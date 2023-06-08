@@ -31,7 +31,7 @@ namespace MangoRHI {
         } else {
             RHI_DEBUG("No device name specified, default to selecting one")
         }
-        
+
         if (found_device == MG_FALSE) {
             for (const auto &a_physical_device : physical_devices) {
                 if (check_physical_device_suitable(a_physical_device)) {
@@ -105,7 +105,7 @@ namespace MangoRHI {
         vkGetPhysicalDeviceProperties(physical_device, &properties);
         VkPhysicalDeviceFeatures features;
         vkGetPhysicalDeviceFeatures(physical_device, &features);
-        
+
         if (properties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
             RHI_DEBUG("{} is not a discrete gpu -- skipping", properties.deviceName)
             return MG_FALSE;

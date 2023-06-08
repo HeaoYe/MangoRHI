@@ -126,7 +126,7 @@ namespace MangoRHI {
             RHI_ERROR("Begin render pass error {}", to_string(res));
             return res;
         }
-        
+
         return Result::eSuccess;
     }
 

@@ -24,7 +24,7 @@ namespace MangoRHI {
         }
         VK_CHECK(vkBeginCommandBuffer(command_buffer, &begin_info))
         _current_subpass = -1;
-        
+
         return Result::eSuccess;
     }
 

@@ -11,7 +11,7 @@ namespace MangoRHI {
     public:
         VulkanSubpass() = default;
         void build(const char *name, PipelineBindPoint bind_point, u32 index);
-    
+
     define_readonly_pointer(MANGO_CONST_GETTER, MANGO_NO_SETTER, char, name, "")
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkSubpassDescription, description, MANGO_NO_INIT_VAULE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkPipelineBindPoint, bind_point, MANGO_NO_INIT_VAULE)
@@ -33,7 +33,7 @@ namespace MangoRHI {
     class VulkanRenderPass final : public RenderPass {
     public:
         void attach_render_target(RenderTarget *render_target);
-        
+
         void add_input_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
         void add_output_render_target(const char *render_target_name, RenderTargetLayout ref_layout, ColorBlendInfo color_blend_info) override;
         void add_preserve_render_target(const char *render_target_name) override;
@@ -44,7 +44,7 @@ namespace MangoRHI {
 
         Result begin_render_pass(VulkanCommand *commnad);
         Result end_render_pass(VulkanCommand *commnad);
-        
+
         u32 get_subpass_index_by_name(const char *subpass_name) const;
         u32 get_render_target_index_by_name(const char *render_target_name) const;
     private:
@@ -55,7 +55,7 @@ namespace MangoRHI {
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VulkanSubpass *>, subpasses, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkSubpassDependency>, dependencies, MANGO_NO_INIT_VAULE)
     define_private_pointer(VulkanSubpass, temp_subpass, new VulkanSubpass())
-    
+
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkRenderPass, render_pass, VK_NULL_HANDLE)
 
     declare_component_cls(VulkanRenderPass)

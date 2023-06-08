@@ -33,7 +33,7 @@ int main() {
 
     auto &color = rm.create_render_target("color", MangoRHI::RenderTargetUsage::eColor);
     rm.create_render_target("depth", MangoRHI::RenderTargetUsage::eDepth).set_clear_color(MangoRHI::ClearValue { .depth_stencil = { .depth = 1.0f, .stencil = 0 } });
-    
+
     auto &rp = ctx->get_render_pass_reference();
     rp.add_output_render_target("color", MangoRHI::RenderTargetLayout::eColor, {
         .src_color_factor = MangoRHI::BlendFactor::eSrcAlpha,
@@ -71,7 +71,7 @@ int main() {
     auto &vertex_buffer = rm.create_vertex_buffer(sizeof(glm::vec3));
     auto &color_buffer = rm.create_vertex_buffer(sizeof(glm::vec3));
     auto &index_buffer = rm.create_index_buffer();
-    
+
     ctx->create();
 
     struct UserPointer {
@@ -130,7 +130,7 @@ int main() {
         { 240.0f, 248.0f, 255.0f },
     };
     std::vector<MangoRHI::u32> indices = {
-        0, 1, 2, 
+        0, 1, 2,
         0, 3, 2,
     };
     for (auto &color : colors) {

@@ -17,7 +17,7 @@ namespace MangoRHI {
         shaders.push_back(shader);
         return *shader;
     }
-    
+
     VertexBuffer &VulkanResourceManager::create_vertex_buffer(u32 vertex_size, u32 count) {
         auto *vertex_buffer = new VulkanVertexBuffer();
         vertex_buffer->set_vertex_size(vertex_size);
@@ -25,14 +25,14 @@ namespace MangoRHI {
         vertex_buffers.push_back(vertex_buffer);
         return *vertex_buffer;
     }
-    
+
     IndexBuffer &VulkanResourceManager::create_index_buffer(u32 count) {
         auto *index_buffer = new VulkanIndexBuffer();
         index_buffer->set_count(count);
         index_buffers.push_back(index_buffer);
         return *index_buffer;
     }
-    
+
     Texture &VulkanResourceManager::create_texture(const char *filename, u32 mipmap_levels) {
         auto *texture = new VulkanTexture();
         texture->set_filename(filename);

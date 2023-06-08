@@ -27,7 +27,7 @@ namespace MangoRHI {
             in_flight_buffers[in_flight_index]->create();
             mapped_pointers[in_flight_index] = in_flight_buffers[in_flight_index]->map();
         }
-        
+
         return Result::eSuccess;
     }
 
@@ -242,7 +242,7 @@ namespace MangoRHI {
         auto *descriptor = (VulkanTextureDescriptor *)descriptors[binding];
         descriptor->set_texture(index, (VulkanTexture *)texture);
     }
-    
+
     void VulkanDescriptorSet::set_input_render_target(u32 binding, u32 index, const char *render_target_name, Sampler *sampler) {
         auto *descriptor = (VulkanInputRenderTargetDescriptor *)descriptors[binding];
         descriptor->set_render_target(index, vulkan_context->get_render_pass().get_render_targets()[vulkan_context->get_render_pass().get_render_target_index_by_name(render_target_name)], (VulkanSampler *)sampler);

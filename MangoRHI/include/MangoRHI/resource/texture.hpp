@@ -4,7 +4,7 @@
 
 namespace MangoRHI {
     class Sampler;
-    
+
     class Texture : public RuntimeComponent {
     public:
         virtual void set_filename(const char *filename) = 0;

@@ -11,7 +11,7 @@ namespace MangoRHI {
 
     private:
         Bool check_physical_device_suitable(const VkPhysicalDevice &physical_device);
-    
+
     define_readonly_pointer(MANGO_CONST_GETTER, MANGO_SETTER, char, name, "")
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkPhysicalDevice, physical_device, VK_NULL_HANDLE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkDevice, logical_device, VK_NULL_HANDLE)
@@ -23,7 +23,7 @@ namespace MangoRHI {
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkQueue, present_queue, VK_NULL_HANDLE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkQueue, transfer_queue, VK_NULL_HANDLE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkQueue, compute_queue, VK_NULL_HANDLE)
-    
+
     declare_component_cls(VulkanDevice)
     };
 }
