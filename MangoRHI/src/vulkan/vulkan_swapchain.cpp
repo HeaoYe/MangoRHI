@@ -20,28 +20,45 @@ namespace MangoRHI {
         format = details.formats[0];
         for (const auto& a_format : details.formats) {
             if (format.format == VK_FORMAT_B8G8R8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
-                RHI_DEBUG("\tFound best surface format")
+                RHI_DEBUG("Found best surface format")
                 format = a_format;
                 found = MG_TRUE;
                 break;
             }
         }
         if (found == MG_FALSE) {
-            RHI_DEBUG("\tBest surface format not found")
+            RHI_DEBUG("Best surface format not found")
         }
 
         found = MG_FALSE;
         present_mode = details.present_modes[0];
-        for (const auto& a_present_mode : details.present_modes) {
-            if (a_present_mode == VK_PRESENT_MODE_MAILBOX_KHR) {
-                RHI_DEBUG("\tFound best surface present mode")
-                present_mode = a_present_mode;
-                found = MG_TRUE;
-                break;
+        auto find_present_mode = [&](VkPresentModeKHR expected_mode) {
+            for (const auto& a_present_mode : details.present_modes) {
+                if (a_present_mode == expected_mode) {
+                    present_mode = a_present_mode;
+                    found = MG_TRUE;
+                    return MG_TRUE;
+                }
+            }
+            return MG_FALSE;
+        };
+        if (vulkan_context->get_vsync_enabled() == MG_FALSE) {
+            if (find_present_mode(VK_PRESENT_MODE_IMMEDIATE_KHR) == MG_TRUE) {
+                RHI_DEBUG("Successfully disable V-Sync mode")
+            } else {
+                RHI_ERROR("Cannot disable V-Sync mode")
+            }
+        } else {
+            if (find_present_mode(VK_PRESENT_MODE_MAILBOX_KHR) == MG_TRUE ||
+                find_present_mode(VK_PRESENT_MODE_FIFO_KHR) == MG_TRUE ||
+                find_present_mode(VK_PRESENT_MODE_FIFO_RELAXED_KHR) == MG_TRUE) {
+                RHI_DEBUG("Successfully enable V-Sync mode")
+            } else {
+                RHI_ERROR("Cannot enable V-Sync mode")
             }
         }
         if (found == MG_FALSE) {
-            RHI_DEBUG("\tBest surface present mode not found")
+            RHI_DEBUG("Best surface present mode not found, use default present mode")
         }
 
         if (image_count < details.capabilities.minImageCount) {

@@ -39,6 +39,7 @@ namespace MangoRHI {
 
     define_member(MANGO_CONST_GETTER, MANGO_SETTER_BASIC_OVERRIDE, u32, max_in_flight_frame_count, 2)
     define_member_with_translator(MANGO_CONST_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, MultisampleCount, VkSampleCountFlagBits, multisample_count, multisample_count2vk_sample_count, MultisampleCount::e1)
+    define_member(MANGO_CONST_GETTER, MANGO_SETTER_BASIC_OVERRIDE, Bool, vsync_enabled, MG_TRUE)
 
     define_pointer(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkAllocationCallbacks, allocator, VK_NULL_HANDLE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkInstance, instance, VK_NULL_HANDLE)
