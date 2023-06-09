@@ -4,19 +4,27 @@ namespace MangoRHI {
     VulkanContext *vulkan_context;
 
     VulkanContext::VulkanContext() {
-        render_pass.attach_render_target(swapchain.get_render_target());
+        device = std::make_unique<VulkanDevice>();
+        swapchain = std::make_unique<VulkanSwapchain>();
+        render_pass = std::make_unique<VulkanRenderPass>();
+        framebuffer = std::make_unique<VulkanFrameBuffer>();
+        descriptor_pool = std::make_unique<VulkanDescriptorPool>();
+        synchronization = std::make_unique<VulkanSynchronization>();
+        command_pool = std::make_unique<VulkanCommandPool>();
+        resource_manager = std::make_unique<VulkanResourceManager>();
+        render_pass->attach_render_target(*swapchain->get_render_target());
     }
 
     void VulkanContext::set_api_info(const void *info) {
-        this->info = (const VulkanContextInfo *)info;
+        this->info = static_cast<const VulkanContextInfo *>(info);
     }
 
     void VulkanContext::set_device_name(const char *name) {
-        this->device.set_name(name);
+        this->device->set_name(name);
     }
 
     void VulkanContext::set_swapchain_image_count(u32 count) {
-        this->swapchain.set_image_count(count);
+        this->swapchain->set_image_count(count);
     }
 
     void VulkanContext::resize(u32 width, u32 height) {
@@ -34,7 +42,8 @@ namespace MangoRHI {
         instance_create_info.pApplicationInfo = &app_info;
         instance_create_info.ppEnabledExtensionNames = info->extensions;
         instance_create_info.enabledExtensionCount = info->extension_count;
-        #if defined (MANGO_DEBUG)
+        #if defined (MANGORHI_DEBUG)
+        RHI_INFO("MangoRHI Debug Mode")
         const char *layers[] = { "VK_LAYER_KHRONOS_validation" };
         instance_create_info.ppEnabledLayerNames = layers;
         instance_create_info.enabledLayerCount = 1;
@@ -51,25 +60,24 @@ namespace MangoRHI {
         }
         RHI_DEBUG("Create vulkan surface -> 0x{:x}", (AddrType)surface)
 
-        device.create();
-        depth_format = device.get_supported_depth_format();
-        max_multisample_count = device.get_max_multisample_count();
+        device->create();
+        depth_format = device->get_supported_depth_format();
+        max_multisample_count = device->get_max_multisample_count();
         if (multisample_count > max_multisample_count) {
             RHI_ERROR("Multisample count({}) more then max multisample count({}).", multisample_count, max_multisample_count)
             return Result::eFailed;
         }
-        swapchain.create();
-        command_pool.create();
-        resource_manager.create();
-        descriptor_pool.create();
-        render_pass.create();
-        resource_manager.post_create();
-        framebuffer.create();
-        synchronization.create();
+        swapchain->create();
+        command_pool->create();
+        resource_manager->create();
+        descriptor_pool->create();
+        render_pass->create();
+        resource_manager->post_create();
+        framebuffer->create();
+        synchronization->create();
         for (u32 index = 0; index < max_in_flight_frame_count; index++) {
-            auto *command = new VulkanCommand();
-            commands.push_back(*command);
-            command_pool.allocate(CommandLevel::ePrimary, *command);
+            auto &command =commands.emplace_back(new VulkanCommand());
+            command_pool->allocate(CommandLevel::ePrimary, *command);
         }
         return Result::eSuccess;
     }
@@ -77,20 +85,20 @@ namespace MangoRHI {
     Result VulkanContext::destroy() {
         component_destroy()
 
-        VK_CHECK(vkDeviceWaitIdle(device.get_logical_device()))
+        VK_CHECK(vkDeviceWaitIdle(device->get_logical_device()))
 
-        descriptor_pool.destroy();
+        descriptor_pool->destroy();
         for (auto &command : commands) {
-            command_pool.free(command.get());
+            command_pool->free(*command);
         }
-        synchronization.destroy();
-        framebuffer.destroy();
-        resource_manager.pre_destroy();
-        render_pass.destroy();
-        resource_manager.destroy();
-        command_pool.destroy();
-        swapchain.destroy();
-        device.destroy();
+        synchronization->destroy();
+        framebuffer->destroy();
+        resource_manager->pre_destroy();
+        render_pass->destroy();
+        resource_manager->destroy();
+        command_pool->destroy();
+        swapchain->destroy();
+        device->destroy();
 
         RHI_DEBUG("Destroy vulkan surface -> 0x{:x}", (AddrType)surface)
         vkDestroySurfaceKHR(instance, surface, allocator);
@@ -102,16 +110,16 @@ namespace MangoRHI {
     }
 
     void VulkanContext::recreate_resources() {
-        VK_CHECK(vkDeviceWaitIdle(device.get_logical_device()))
+        VK_CHECK(vkDeviceWaitIdle(device->get_logical_device()))
 
-        swapchain.recreate();
-        resource_manager.recreate_render_targets();
-        framebuffer.recreate();
+        swapchain->recreate();
+        resource_manager->recreate_render_targets();
+        framebuffer->recreate();
 
         for (auto &descriptor_set : g_vulkan_descriptor_sets) {
             for (auto &descriptor : descriptor_set->get_descriptors()) {
                 if (descriptor->get_type() == DescriptorType::eInputRenderTarget) {
-                    descriptor->update(descriptor_set);
+                    descriptor->update(*descriptor_set);
                 }
             }
         }
@@ -119,7 +127,7 @@ namespace MangoRHI {
 
     Result VulkanContext::begin_frame() {
         Result res;
-        if ((res = swapchain.acquire_next_frame()) != Result::eSuccess) {
+        if ((res = swapchain->acquire_next_frame()) != Result::eSuccess) {
             if (res == Result::eNeedToRecreate) {
                 recreate_resources();
                 return Result::eRecreating;
@@ -133,7 +141,7 @@ namespace MangoRHI {
             return res;
         }
 
-        if ((res = render_pass.begin_render_pass(command)) != Result::eSuccess) {
+        if ((res = render_pass->begin_render_pass(command)) != Result::eSuccess) {
             RHI_ERROR("Begin render pass error {}", to_string(res));
             return res;
         }
@@ -145,7 +153,7 @@ namespace MangoRHI {
         Result res;
         auto &command = get_current_command_reference();
 
-        if ((res = render_pass.end_render_pass((VulkanCommand &)command)) != Result::eSuccess) {
+        if ((res = render_pass->end_render_pass((VulkanCommand &)command)) != Result::eSuccess) {
             RHI_ERROR("End render pass error {}", to_string(res));
             return res;
         }
@@ -155,7 +163,7 @@ namespace MangoRHI {
             return res;
         }
 
-        if ((res = swapchain.present()) != Result::eSuccess) {
+        if ((res = swapchain->present()) != Result::eSuccess) {
             if (res == Result::eNeedToRecreate) {
                 recreate_resources();
                 return Result::eRecreating;
@@ -171,7 +179,7 @@ namespace MangoRHI {
     VkFormat VulkanContext::find_supported_format(const STL_IMPL::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const {
         for (const auto &format : candidates) {
             VkFormatProperties properties;
-            vkGetPhysicalDeviceFormatProperties(device.get_physical_device(), format, &properties);
+            vkGetPhysicalDeviceFormatProperties(device->get_physical_device(), format, &properties);
             if (tiling == VK_IMAGE_TILING_LINEAR && (properties.linearTilingFeatures & features) == features) {
                 return format;
             } else if (tiling == VK_IMAGE_TILING_OPTIMAL && (properties.optimalTilingFeatures & features) == features) {
@@ -201,13 +209,13 @@ namespace MangoRHI {
             .baseArrayLayer = 0,
             .layerCount = 1,
         };
-        VK_CHECK(vkCreateImageView(device.get_logical_device(), &image_view_create_info, allocator, &image_view))
+        VK_CHECK(vkCreateImageView(device->get_logical_device(), &image_view_create_info, allocator, &image_view))
         return image_view;
     }
 
     u32 VulkanContext::find_memory_index(u32 type_filter, VkMemoryPropertyFlags flags) const {
         VkPhysicalDeviceMemoryProperties properties;
-        vkGetPhysicalDeviceMemoryProperties(device.get_physical_device(), &properties);
+        vkGetPhysicalDeviceMemoryProperties(device->get_physical_device(), &properties);
 
         for (u32 i = 0; i < properties.memoryTypeCount; i++) {
             if (type_filter & (1 << i) && (properties.memoryTypes[i].propertyFlags & flags) == flags) {
@@ -238,7 +246,7 @@ namespace MangoRHI {
         }
 
         VulkanCommand command;
-        command_pool.allocate_single_use(command);
+        command_pool->allocate_single_use(command);
         VkImageMemoryBarrier barrier { .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
         barrier.oldLayout = old_layout;
         barrier.newLayout = new_layout;
@@ -262,6 +270,6 @@ namespace MangoRHI {
             barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         }
         vkCmdPipelineBarrier(command.get_command_buffer(), src_stage, dst_stage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
-        command_pool.free(command);
+        command_pool->free(command);
     }
 }

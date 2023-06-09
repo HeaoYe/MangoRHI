@@ -15,7 +15,7 @@ namespace MangoRHI {
 
         switch (usage) {
         case RenderTargetUsage::eColor:
-            description.format = vulkan_context->get_swapchain().get_format().format;
+            description.format = vulkan_context->get_swapchain()->get_format().format;
             description.samples = vulkan_context->get_multisample_count();
             description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             description.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -35,7 +35,7 @@ namespace MangoRHI {
             description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
             break;
         case RenderTargetUsage::eColorBuffer:
-            description.format = vulkan_context->get_swapchain().get_format().format;
+            description.format = vulkan_context->get_swapchain()->get_format().format;
             description.samples = vulkan_context->get_multisample_count();
             description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             description.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -47,13 +47,13 @@ namespace MangoRHI {
 
         if (images.size() == 0) {
             if (is_each_frame_render_target == MG_TRUE) {
-                vulkan_images.resize(vulkan_context->get_swapchain().get_image_count());
+                vulkan_images.resize(vulkan_context->get_swapchain()->get_image_count());
             } else {
                 vulkan_images.resize(1);
             }
         }
-        for (auto &vulkan_image : vulkan_images) {
-            auto *image = new VulkanImage();
+        for (auto &image : vulkan_images) {
+            image = std::make_unique<VulkanImage>();
             image->set_extent(vulkan_context->get_extent());
             image->set_format(description.format);
             switch (usage) {
@@ -80,7 +80,6 @@ namespace MangoRHI {
             image->create();
             images.push_back(image->get_image());
             image_views.push_back(image->get_image_view());
-            vulkan_image.set(*image);
         }
 
         return Result::eSuccess;
@@ -91,12 +90,11 @@ namespace MangoRHI {
 
         for (auto &image : vulkan_images) {
             image->destroy();
-            delete &image.get();
         }
+        this->vulkan_images.clear();
 
         this->images.clear();
         this->image_views.clear();
-        this->vulkan_images.clear();
 
         return Result::eSuccess;
     }

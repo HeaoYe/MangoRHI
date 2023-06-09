@@ -3,54 +3,47 @@
 
 namespace MangoRHI {
     RenderTarget &VulkanResourceManager::create_render_target(const char *name, RenderTargetUsage usage) {
-        auto *render_target = new VulkanRenderTarget();
+        auto &render_target = render_targets.emplace_back(new VulkanRenderTarget());
         render_target->set_name(name);
         render_target->set_usage(usage);
-        ((VulkanRenderPass &)vulkan_context->get_render_pass_reference()).attach_render_target(*render_target);
-        render_targets.push_back(*render_target);
+        vulkan_context->get_render_pass()->attach_render_target(*render_target);
         return *render_target;
     }
 
     Shader &VulkanResourceManager::create_shader(const char *filename) {
-        auto *shader = new VulkanShader();
+        auto &shader = shaders.emplace_back(new VulkanShader());
         shader->set_filename(filename);
-        shaders.push_back(*shader);
         return *shader;
     }
 
     VertexBuffer &VulkanResourceManager::create_vertex_buffer(u32 vertex_size, u32 count) {
-        auto *vertex_buffer = new VulkanVertexBuffer();
+        auto &vertex_buffer = vertex_buffers.emplace_back(new VulkanVertexBuffer());
         vertex_buffer->set_vertex_size(vertex_size);
         vertex_buffer->set_count(count);
-        vertex_buffers.push_back(*vertex_buffer);
         return *vertex_buffer;
     }
 
     IndexBuffer &VulkanResourceManager::create_index_buffer(u32 count) {
-        auto *index_buffer = new VulkanIndexBuffer();
+        auto &index_buffer = index_buffers.emplace_back(new VulkanIndexBuffer);
         index_buffer->set_count(count);
-        index_buffers.push_back(*index_buffer);
         return *index_buffer;
     }
 
     Texture &VulkanResourceManager::create_texture(const char *filename, u32 mipmap_levels) {
-        auto *texture = new VulkanTexture();
+        auto &texture = textures.emplace_back(new VulkanTexture());
         texture->set_filename(filename);
         texture->set_mipmap_levels(mipmap_levels);
-        textures.push_back(*texture);
         return *texture;
     }
 
     Sampler &VulkanResourceManager::create_sampler() {
-        auto *sampler = new VulkanSampler();
-        samplers.push_back(*sampler);
+        auto &sampler = samplers.emplace_back(new VulkanSampler());
         return *sampler;
     }
 
     ShaderProgram &VulkanResourceManager::create_shader_program(const char *subpass_name) {
-        auto shader_program = new VulkanShaderProgram();
-        shader_program->set_subpass_index(vulkan_context->get_render_pass().get_subpass_index_by_name(subpass_name));
-        shader_programs.push_back(*shader_program);
+        auto &shader_program = shader_programs.emplace_back(new VulkanShaderProgram());
+        shader_program->set_subpass_index(vulkan_context->get_render_pass()->get_subpass_index_by_name(subpass_name));
         return *shader_program;
     }
 

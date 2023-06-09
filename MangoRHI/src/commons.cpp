@@ -69,18 +69,18 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
-    MANGORHI_API Reference<Context> get_context() {
+    MANGORHI_API Context &get_context() {
         switch (g_api) {
         case API::eNone:
-            return Reference<Context>();
+            throw std::runtime_error("Not Impl For None Yet.");
         case API::eOpenGL:
-            return Reference<Context>();
+            throw std::runtime_error("Not Impl For OpenGL Yet.");
         case API::eVulkan:
             return *vulkan_context;
         case API::eDirectX:
-            return Reference<Context>();
+            throw std::runtime_error("Not Impl For DirectX Yet.");
         case API::eMetal:
-            return Reference<Context>();
+            throw std::runtime_error("Not Impl For Matel Yet.");
         };
     }
 
@@ -109,14 +109,14 @@ namespace MangoRHI {
         STL_IMPL::vector<char> buffer(0);
         if (!file.is_open()) {
             RHI_ERROR("Failed open binary file {}", filename)
-            return STL_IMPL::move(buffer);
+            return std::move(buffer);
         }
         u32 size = file.tellg();
         buffer.resize(size);
         file.seekg(0);
         file.read(buffer.data(), size);
         file.close();
-        return STL_IMPL::move(buffer);
+        return std::move(buffer);
     }
 }
 

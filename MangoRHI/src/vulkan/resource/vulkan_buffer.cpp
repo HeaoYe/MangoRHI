@@ -6,23 +6,23 @@ namespace MangoRHI {
         component_create()
 
         VkBufferCreateInfo buffer_create_info { .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-        buffer_create_info.pQueueFamilyIndices = &vulkan_context->get_device().get_graphics_family_index();
+        buffer_create_info.pQueueFamilyIndices = &vulkan_context->get_device()->get_graphics_family_index();
         buffer_create_info.queueFamilyIndexCount = 1;
         buffer_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         buffer_create_info.usage = usage;
         buffer_create_info.size = size;
-        VK_CHECK(vkCreateBuffer(vulkan_context->get_device().get_logical_device(), &buffer_create_info, vulkan_context->get_allocator(), &buffer))
+        VK_CHECK(vkCreateBuffer(vulkan_context->get_device()->get_logical_device(), &buffer_create_info, vulkan_context->get_allocator(), &buffer))
         RHI_DEBUG("Create vulkan buffer -> 0x{:x}", (AddrType)buffer)
 
         VkMemoryRequirements requirements;
-        vkGetBufferMemoryRequirements(vulkan_context->get_device().get_logical_device(), buffer, &requirements);
+        vkGetBufferMemoryRequirements(vulkan_context->get_device()->get_logical_device(), buffer, &requirements);
         VkMemoryAllocateInfo allocate_info { .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
         allocate_info.allocationSize = requirements.size;
         allocate_info.memoryTypeIndex = vulkan_context->find_memory_index(requirements.memoryTypeBits, properties);
-        VK_CHECK(vkAllocateMemory(vulkan_context->get_device().get_logical_device(), &allocate_info, vulkan_context->get_allocator(), &memory));
+        VK_CHECK(vkAllocateMemory(vulkan_context->get_device()->get_logical_device(), &allocate_info, vulkan_context->get_allocator(), &memory));
         RHI_DEBUG("Allocate vulkan device memory -> 0x{:x}", (AddrType)memory)
 
-        vkBindBufferMemory(vulkan_context->get_device().get_logical_device(), buffer, memory, 0);
+        vkBindBufferMemory(vulkan_context->get_device()->get_logical_device(), buffer, memory, 0);
 
         return Result::eSuccess;
     }
@@ -31,24 +31,24 @@ namespace MangoRHI {
         component_destroy()
 
         RHI_DEBUG("Free vulkan device memory -> 0x{:x}", (AddrType)memory)
-        vkFreeMemory(vulkan_context->get_device().get_logical_device(), memory, vulkan_context->get_allocator());
+        vkFreeMemory(vulkan_context->get_device()->get_logical_device(), memory, vulkan_context->get_allocator());
 
         RHI_DEBUG("Destroy vulkan buffer -> 0x{:x}", (AddrType)buffer)
-        vkDestroyBuffer(vulkan_context->get_device().get_logical_device(), buffer, vulkan_context->get_allocator());
+        vkDestroyBuffer(vulkan_context->get_device()->get_logical_device(), buffer, vulkan_context->get_allocator());
 
         return Result::eSuccess;
     }
 
     void *VulkanBuffer::map() {
         if (ptr == nullptr) {
-            vkMapMemory(vulkan_context->get_device().get_logical_device(), memory, 0, size, 0, &ptr);
+            vkMapMemory(vulkan_context->get_device()->get_logical_device(), memory, 0, size, 0, &ptr);
         }
         return ptr;
     }
 
     void VulkanBuffer::unmap() {
         if (ptr != nullptr) {
-            vkUnmapMemory(vulkan_context->get_device().get_logical_device(), memory);
+            vkUnmapMemory(vulkan_context->get_device()->get_logical_device(), memory);
             ptr = nullptr;
         }
     }
@@ -75,13 +75,13 @@ namespace MangoRHI {
 
     void VulkanBuffer::copy_from(const Buffer &other, const u64 src_offset, const u64 dst_offset, const u64 size) {
         VulkanCommand command;
-        vulkan_context->get_command_pool().allocate_single_use(command);
+        vulkan_context->get_command_pool()->allocate_single_use(command);
         VkBufferCopy copy;
         copy.srcOffset = src_offset;
         copy.dstOffset = dst_offset;
         copy.size = size;
         vkCmdCopyBuffer(command.get_command_buffer(), ((VulkanBuffer &)other).buffer, buffer, 1, &copy);
-        vulkan_context->get_command_pool().free(command);
+        vulkan_context->get_command_pool()->free(command);
     }
 
     Result VulkanVertexBuffer::create() {

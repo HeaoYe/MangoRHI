@@ -38,12 +38,12 @@ namespace MangoRHI {
         vulkan_context->transition_image_layout(image.get_image(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipmap_levels);
 
         VkFormatProperties format_properties;
-        vkGetPhysicalDeviceFormatProperties(vulkan_context->get_device().get_physical_device(), image.get_format(), &format_properties);
+        vkGetPhysicalDeviceFormatProperties(vulkan_context->get_device()->get_physical_device(), image.get_format(), &format_properties);
         if (!(format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
             RHI_ERROR("Vulkan texture image format does not support linear blitting");
         }
 
-        vulkan_context->get_command_pool().allocate_single_use(command);
+        vulkan_context->get_command_pool()->allocate_single_use(command);
         VkBufferImageCopy region{};
         region.bufferOffset = 0;
         region.bufferRowLength = 0;
@@ -61,10 +61,10 @@ namespace MangoRHI {
             1
         };
         vkCmdCopyBufferToImage(command.get_command_buffer(), staging.get_buffer(), image.get_image(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-        vulkan_context->get_command_pool().free(command);
+        vulkan_context->get_command_pool()->free(command);
         staging.destroy();
 
-        vulkan_context->get_command_pool().allocate_single_use(command);
+        vulkan_context->get_command_pool()->allocate_single_use(command);
         VkImageMemoryBarrier barrier {};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
         barrier.image = image.get_image();
@@ -116,7 +116,7 @@ namespace MangoRHI {
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
         vkCmdPipelineBarrier(command.get_command_buffer(), VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
-        vulkan_context->get_command_pool().free(command);
+        vulkan_context->get_command_pool()->free(command);
 
         sampler.set_mipmap_levels(mipmap_levels);
         sampler.create();

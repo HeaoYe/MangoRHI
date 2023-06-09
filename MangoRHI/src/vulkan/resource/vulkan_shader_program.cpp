@@ -24,21 +24,20 @@ namespace MangoRHI {
 
     void VulkanShaderProgram::attach_vertex_shader(const Shader &shader, const char *entry) {
         this->vertex_shader = VulkanShaderInfo {
-            .shader = (VulkanShader &)shader,
+            .shader = (VulkanShader *)&shader,
             .entry = entry,
         };
     }
 
     void VulkanShaderProgram::attach_fragment_shader(const Shader &shader, const char *entry) {
         this->fragment_shader = VulkanShaderInfo {
-            .shader = (VulkanShader &)shader,
+            .shader = (VulkanShader *)&shader,
             .entry = entry,
         };
     }
 
     DescriptorSet &VulkanShaderProgram::create_descriptor_set() {
-        auto *descriptor_set = new VulkanDescriptorSet();
-        vulkan_descriptor_sets.push_back(*descriptor_set);
+        auto &descriptor_set = vulkan_descriptor_sets.emplace_back(new VulkanDescriptorSet());
         return *descriptor_set;
     }
 
@@ -112,8 +111,8 @@ namespace MangoRHI {
 
         VkPipelineColorBlendStateCreateInfo color_blend_state { .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
         color_blend_state.logicOpEnable = VK_FALSE;
-        color_blend_state.attachmentCount = vulkan_context->get_render_pass().get_subpasses()[subpass_index]->get_color_blend_states().size();
-        color_blend_state.pAttachments = vulkan_context->get_render_pass().get_subpasses()[subpass_index]->get_color_blend_states().data();
+        color_blend_state.attachmentCount = vulkan_context->get_render_pass()->get_subpasses()[subpass_index]->get_color_blend_states().size();
+        color_blend_state.pAttachments = vulkan_context->get_render_pass()->get_subpasses()[subpass_index]->get_color_blend_states().data();
 
         dynamic_states.push_back(VK_DYNAMIC_STATE_VIEWPORT);
         dynamic_states.push_back(VK_DYNAMIC_STATE_SCISSOR);
@@ -134,12 +133,12 @@ namespace MangoRHI {
         layout_create_info.setLayoutCount = descriptor_set_layouts.size();
         layout_create_info.pPushConstantRanges = nullptr;
         layout_create_info.pushConstantRangeCount = 0;
-        VK_CHECK(vkCreatePipelineLayout(vulkan_context->get_device().get_logical_device(), &layout_create_info, vulkan_context->get_allocator(), &layout))
+        VK_CHECK(vkCreatePipelineLayout(vulkan_context->get_device()->get_logical_device(), &layout_create_info, vulkan_context->get_allocator(), &layout))
         RHI_DEBUG("Create vulkan pipeline layout -> 0x{:x}", (AddrType)layout)
 
         VkGraphicsPipelineCreateInfo pipeline_create_info { .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
         pipeline_create_info.layout = layout;
-        pipeline_create_info.renderPass = vulkan_context->get_render_pass().get_render_pass();
+        pipeline_create_info.renderPass = vulkan_context->get_render_pass()->get_render_pass();
         pipeline_create_info.subpass = subpass_index;
         pipeline_create_info.basePipelineHandle = VK_NULL_HANDLE;
         pipeline_create_info.basePipelineIndex = 0;
@@ -155,7 +154,7 @@ namespace MangoRHI {
         pipeline_create_info.pDepthStencilState = &depth_stencil_state;
         pipeline_create_info.pColorBlendState = &color_blend_state;
         pipeline_create_info.pDynamicState = &dynamic_state;
-        VK_CHECK(vkCreateGraphicsPipelines(vulkan_context->get_device().get_logical_device(), VK_NULL_HANDLE, 1, &pipeline_create_info, vulkan_context->get_allocator(), &pipeline))
+        VK_CHECK(vkCreateGraphicsPipelines(vulkan_context->get_device()->get_logical_device(), VK_NULL_HANDLE, 1, &pipeline_create_info, vulkan_context->get_allocator(), &pipeline))
         RHI_DEBUG("Create vulkan pipeline -> 0x{:x}", (AddrType)pipeline)
 
         return Result::eSuccess;
@@ -165,10 +164,10 @@ namespace MangoRHI {
         component_destroy()
 
         RHI_DEBUG("Destroy vulkan pipeline -> 0x{:x}", (AddrType)pipeline)
-        vkDestroyPipeline(vulkan_context->get_device().get_logical_device(), pipeline, vulkan_context->get_allocator());
+        vkDestroyPipeline(vulkan_context->get_device()->get_logical_device(), pipeline, vulkan_context->get_allocator());
 
         RHI_DEBUG("Destroy vulkan pipeline layout -> 0x{:x}", (AddrType)layout)
-        vkDestroyPipelineLayout(vulkan_context->get_device().get_logical_device(), layout, vulkan_context->get_allocator());
+        vkDestroyPipelineLayout(vulkan_context->get_device()->get_logical_device(), layout, vulkan_context->get_allocator());
 
         in_flight_descriptor_sets.clear();
 
