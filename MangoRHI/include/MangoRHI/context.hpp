@@ -11,6 +11,7 @@ namespace MangoRHI {
     public:
         virtual void set_api_info(const void *info) = 0;
         virtual void set_device_name(const char *name) = 0;
+        virtual void set_vsync_enabled(Bool enabled) = 0;
         virtual void set_swapchain_image_count(u32 count) = 0;
         virtual void set_max_in_flight_frame_count(u32 count) = 0;
         virtual void set_multisample_count(MultisampleCount count) = 0;

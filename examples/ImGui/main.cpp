@@ -34,6 +34,7 @@ int main() {
     info.engine_name = "No Engine";
     ctx.set_api_info(&info);
     ctx.set_device_name("NVIDIA GeForce RTX 4090");
+    ctx.set_vsync_enabled(MangoRHI::MG_FALSE);
     ctx.set_swapchain_image_count(3);
     ctx.set_max_in_flight_frame_count(2);
     ctx.set_multisample_count(MangoRHI::MultisampleCount::e8);
