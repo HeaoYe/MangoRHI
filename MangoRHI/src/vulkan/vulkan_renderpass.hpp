@@ -18,7 +18,7 @@ namespace MangoRHI {
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkAttachmentReference>, output_attachments, MANGO_NO_INIT_VAULE)
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkPipelineColorBlendAttachmentState>, color_blend_states, MANGO_NO_INIT_VAULE)
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<u32>, preserve_attachments, MANGO_NO_INIT_VAULE)
-    define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::optional<VkAttachmentReference>, depth_attachment, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, std::optional<VkAttachmentReference>, depth_attachment, MANGO_NO_INIT_VAULE)
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkAttachmentReference>, resolve_attachment, MANGO_NO_INIT_VAULE)
 
     private:
@@ -48,9 +48,9 @@ namespace MangoRHI {
     private:
         VkAttachmentReference get_render_target_ref(const char *render_target_name, RenderTargetLayout ref_layout) const;
 
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<Reference<VulkanRenderTarget>>, render_targets, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<std::reference_wrapper<VulkanRenderTarget>>, render_targets, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkClearValue>, clear_values, MANGO_NO_INIT_VAULE)
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<Reference<VulkanSubpass>>, subpasses, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<std::unique_ptr<VulkanSubpass>>, subpasses, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkSubpassDependency>, dependencies, MANGO_NO_INIT_VAULE)
     define_private_pointer(VulkanSubpass, temp_subpass, new VulkanSubpass())
 

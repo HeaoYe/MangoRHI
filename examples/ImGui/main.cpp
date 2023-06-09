@@ -75,7 +75,7 @@ int main() {
     pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
     pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
     pool_info.pPoolSizes = pool_sizes;
-    vkCreateDescriptorPool(vk_ctx.get_device().get_logical_device(), &pool_info, vk_ctx.get_allocator(), &g_DescriptorPool);
+    vkCreateDescriptorPool(vk_ctx.get_device()->get_logical_device(), &pool_info, vk_ctx.get_allocator(), &g_DescriptorPool);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -88,25 +88,25 @@ int main() {
     ImGui_ImplGlfw_InitForVulkan(glfwWindow, true);
     ImGui_ImplVulkan_InitInfo init_info {};
     init_info.Instance = vk_ctx.get_instance();
-    init_info.PhysicalDevice = vk_ctx.get_device().get_physical_device();
-    init_info.Device = vk_ctx.get_device().get_logical_device();
-    init_info.QueueFamily = vk_ctx.get_device().get_graphics_family_index();
-    init_info.Queue = vk_ctx.get_device().get_graphics_queue();
+    init_info.PhysicalDevice = vk_ctx.get_device()->get_physical_device();
+    init_info.Device = vk_ctx.get_device()->get_logical_device();
+    init_info.QueueFamily = vk_ctx.get_device()->get_graphics_family_index();
+    init_info.Queue = vk_ctx.get_device()->get_graphics_queue();
     init_info.PipelineCache = VK_NULL_HANDLE;
     init_info.DescriptorPool = g_DescriptorPool;
-    init_info.Subpass = vk_ctx.get_render_pass().get_subpass_index_by_name("imgui");
-    init_info.MinImageCount = vk_ctx.get_swapchain().get_image_count();
-    init_info.ImageCount = vk_ctx.get_swapchain().get_image_count();
+    init_info.Subpass = vk_ctx.get_render_pass()->get_subpass_index_by_name("imgui");
+    init_info.MinImageCount = vk_ctx.get_swapchain()->get_image_count();
+    init_info.ImageCount = vk_ctx.get_swapchain()->get_image_count();
     init_info.MSAASamples = vk_ctx.get_multisample_count();
     init_info.Allocator = vk_ctx.get_allocator();
     init_info.CheckVkResultFn = vk_check_fn;
-    ImGui_ImplVulkan_Init(&init_info, vk_ctx.get_render_pass().get_render_pass());
+    ImGui_ImplVulkan_Init(&init_info, vk_ctx.get_render_pass()->get_render_pass());
 
     {
         MangoRHI::VulkanCommand command;
-        vk_ctx.get_command_pool().allocate_single_use(command);
+        vk_ctx.get_command_pool()->allocate_single_use(command);
         ImGui_ImplVulkan_CreateFontsTexture(command.get_command_buffer());
-        vk_ctx.get_command_pool().free(command);
+        vk_ctx.get_command_pool()->free(command);
         ImGui_ImplVulkan_DestroyFontUploadObjects();
     }
 
@@ -176,13 +176,13 @@ int main() {
         }
     }
 
-    vkDeviceWaitIdle(vk_ctx.get_device().get_logical_device());
+    vkDeviceWaitIdle(vk_ctx.get_device()->get_logical_device());
 
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
-    vkDestroyDescriptorPool(vk_ctx.get_device().get_logical_device(), g_DescriptorPool, vk_ctx.get_allocator());
+    vkDestroyDescriptorPool(vk_ctx.get_device()->get_logical_device(), g_DescriptorPool, vk_ctx.get_allocator());
     MangoRHI::quit();
 
     glfwDestroyWindow(glfwWindow);

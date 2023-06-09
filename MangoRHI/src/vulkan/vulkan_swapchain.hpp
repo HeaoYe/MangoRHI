@@ -20,7 +20,7 @@ namespace MangoRHI {
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkPresentModeKHR, present_mode, MANGO_NO_INIT_VAULE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkImage>, images, MANGO_NO_INIT_VAULE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkImageView>, image_views, MANGO_NO_INIT_VAULE)
-    define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, VulkanRenderTarget, render_target, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, std::unique_ptr<VulkanRenderTarget>, render_target, MANGO_NO_INIT_VAULE)
     define_private_member(VkSwapchainKHR, swapchain, VK_NULL_HANDLE)
 
     declare_component_cls_custom_construction(VulkanSwapchain)

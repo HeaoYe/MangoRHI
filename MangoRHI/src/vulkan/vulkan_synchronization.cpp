@@ -14,9 +14,9 @@ namespace MangoRHI {
         render_finished_semaphores.resize(max_in_flight_frame_count);
         fences.resize(max_in_flight_frame_count);
         for (u32 index = 0; index < max_in_flight_frame_count; index++) {
-            VK_CHECK(vkCreateSemaphore(vulkan_context->get_device().get_logical_device(), &semaphore_create_info, vulkan_context->get_allocator(), &image_available_semaphores[index]))
-            VK_CHECK(vkCreateSemaphore(vulkan_context->get_device().get_logical_device(), &semaphore_create_info, vulkan_context->get_allocator(), &render_finished_semaphores[index]))
-            VK_CHECK(vkCreateFence(vulkan_context->get_device().get_logical_device(), &fence_create_info, vulkan_context->get_allocator(), &fences[index]))
+            VK_CHECK(vkCreateSemaphore(vulkan_context->get_device()->get_logical_device(), &semaphore_create_info, vulkan_context->get_allocator(), &image_available_semaphores[index]))
+            VK_CHECK(vkCreateSemaphore(vulkan_context->get_device()->get_logical_device(), &semaphore_create_info, vulkan_context->get_allocator(), &render_finished_semaphores[index]))
+            VK_CHECK(vkCreateFence(vulkan_context->get_device()->get_logical_device(), &fence_create_info, vulkan_context->get_allocator(), &fences[index]))
         }
 
         return Result::eSuccess;
@@ -26,9 +26,9 @@ namespace MangoRHI {
         component_destroy()
 
         for (u32 index = 0; index < vulkan_context->get_max_in_flight_frame_count(); index++) {
-            vkDestroySemaphore(vulkan_context->get_device().get_logical_device(), image_available_semaphores[index], vulkan_context->get_allocator());
-            vkDestroySemaphore(vulkan_context->get_device().get_logical_device(), render_finished_semaphores[index], vulkan_context->get_allocator());
-            vkDestroyFence(vulkan_context->get_device().get_logical_device(), fences[index], vulkan_context->get_allocator());
+            vkDestroySemaphore(vulkan_context->get_device()->get_logical_device(), image_available_semaphores[index], vulkan_context->get_allocator());
+            vkDestroySemaphore(vulkan_context->get_device()->get_logical_device(), render_finished_semaphores[index], vulkan_context->get_allocator());
+            vkDestroyFence(vulkan_context->get_device()->get_logical_device(), fences[index], vulkan_context->get_allocator());
         }
 
         image_available_semaphores.clear();

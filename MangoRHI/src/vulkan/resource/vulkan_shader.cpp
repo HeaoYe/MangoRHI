@@ -9,7 +9,7 @@ namespace MangoRHI {
         VkShaderModuleCreateInfo shader_module_create_info { .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
         shader_module_create_info.pCode = reinterpret_cast<const u32 *>(code.data());
         shader_module_create_info.codeSize = code.size();
-        VK_CHECK(vkCreateShaderModule(vulkan_context->get_device().get_logical_device(), &shader_module_create_info, vulkan_context->get_allocator(), &shader_module))
+        VK_CHECK(vkCreateShaderModule(vulkan_context->get_device()->get_logical_device(), &shader_module_create_info, vulkan_context->get_allocator(), &shader_module))
         RHI_DEBUG("Create vulkan shader module -> 0x{:x}", (AddrType)shader_module)
 
         return Result::eSuccess;
@@ -19,7 +19,7 @@ namespace MangoRHI {
         component_destroy()
 
         RHI_DEBUG("Destroy vulkan shader module -> 0x{:x}", (AddrType)shader_module)
-        vkDestroyShaderModule(vulkan_context->get_device().get_logical_device(), shader_module, vulkan_context->get_allocator());
+        vkDestroyShaderModule(vulkan_context->get_device()->get_logical_device(), shader_module, vulkan_context->get_allocator());
 
         return Result::eSuccess;
     }

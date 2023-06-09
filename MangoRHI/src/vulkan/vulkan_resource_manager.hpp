@@ -24,13 +24,13 @@ namespace MangoRHI {
 
         void recreate_render_targets();
 
-    define_private_member(STL_IMPL::vector<Reference<VulkanRenderTarget>>, render_targets, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<Reference<VulkanShader>>, shaders, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<Reference<VulkanVertexBuffer>>, vertex_buffers, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<Reference<VulkanIndexBuffer>>, index_buffers, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<Reference<VulkanTexture>>, textures, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<Reference<VulkanSampler>>, samplers, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<Reference<VulkanShaderProgram>>, shader_programs, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<std::unique_ptr<VulkanRenderTarget>>, render_targets, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<std::unique_ptr<VulkanShader>>, shaders, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<std::unique_ptr<VulkanVertexBuffer>>, vertex_buffers, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<std::unique_ptr<VulkanIndexBuffer>>, index_buffers, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<std::unique_ptr<VulkanTexture>>, textures, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<std::unique_ptr<VulkanSampler>>, samplers, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<std::unique_ptr<VulkanShaderProgram>>, shader_programs, MANGO_NO_INIT_VAULE)
 
     declare_component_cls(VulkanResourceManager)
     };

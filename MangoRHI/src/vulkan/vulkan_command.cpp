@@ -34,19 +34,19 @@ namespace MangoRHI {
         submit_info.pCommandBuffers = &command_buffer;
         submit_info.commandBufferCount = 1;
         if (is_single_use == MG_FALSE) {
-            submit_info.pWaitSemaphores = &vulkan_context->get_synchronization().get_current_image_available_semaphore();
+            submit_info.pWaitSemaphores = &vulkan_context->get_synchronization()->get_current_image_available_semaphore();
             submit_info.waitSemaphoreCount = 1;
             VkPipelineStageFlags stages[] = {
                 VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
             };
             submit_info.pWaitDstStageMask = stages;
-            submit_info.pSignalSemaphores = &vulkan_context->get_synchronization().get_current_render_finished_semaphore();
+            submit_info.pSignalSemaphores = &vulkan_context->get_synchronization()->get_current_render_finished_semaphore();
             submit_info.signalSemaphoreCount = 1;
-            VK_CHECK(vkQueueSubmit(vulkan_context->get_device().get_graphics_queue(), 1, &submit_info, vulkan_context->get_synchronization().get_current_fence()))
+            VK_CHECK(vkQueueSubmit(vulkan_context->get_device()->get_graphics_queue(), 1, &submit_info, vulkan_context->get_synchronization()->get_current_fence()))
         }
         else {
-            VK_CHECK(vkQueueSubmit(vulkan_context->get_device().get_transfer_queue(), 1, &submit_info, VK_NULL_HANDLE))
-            VK_CHECK(vkQueueWaitIdle(vulkan_context->get_device().get_transfer_queue()))
+            VK_CHECK(vkQueueSubmit(vulkan_context->get_device()->get_transfer_queue(), 1, &submit_info, VK_NULL_HANDLE))
+            VK_CHECK(vkQueueWaitIdle(vulkan_context->get_device()->get_transfer_queue()))
         }
 
         return Result::eSuccess;
@@ -58,7 +58,7 @@ namespace MangoRHI {
 
     void VulkanCommand::bind_shader_program(const ShaderProgram &shader_program) {
         VulkanShaderProgram &vulkan_shader_program = (VulkanShaderProgram &)shader_program;
-        auto bind_point = vulkan_context->get_render_pass().get_subpasses()[vulkan_shader_program.get_subpass_index()]->get_bind_point();
+        auto bind_point = vulkan_context->get_render_pass()->get_subpasses()[vulkan_shader_program.get_subpass_index()]->get_bind_point();
         vkCmdBindPipeline(command_buffer, bind_point, vulkan_shader_program.get_pipeline());
         if (vulkan_shader_program.get_current_in_flight_descriptor_sets().size() > 0) {
             vkCmdBindDescriptorSets(command_buffer, bind_point, vulkan_shader_program.get_layout(), 0, vulkan_shader_program.get_current_in_flight_descriptor_sets().size(), vulkan_shader_program.get_current_in_flight_descriptor_sets().data(), 0, 0);

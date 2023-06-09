@@ -8,10 +8,37 @@ int main() {
     auto *glfwWindow = glfwCreateWindow(640, 640, "Sandbox", nullptr, nullptr);
 
     MangoRHI::set_logger_level(MangoRHI::LogLevel::eDebug);
+    // MangoRHI::set_logger_level(MangoRHI::LogLevel::eInfo);
     MangoRHI::initialize(MangoRHI::API::eVulkan);
-    MangoRHI::Context &ctx = MangoRHI::get_context();
 
-    #ifdef MANGO_DEBUG
+    #define SIZE(cls) RHI_INFO("sizeof({}) = {}", #cls, sizeof(cls))
+    SIZE(MangoRHI::VulkanBuffer)
+    SIZE(MangoRHI::VulkanVertexBuffer)
+    SIZE(MangoRHI::VulkanIndexBuffer)
+    SIZE(MangoRHI::VulkanImage)
+    SIZE(MangoRHI::VulkanRenderTarget)
+    SIZE(MangoRHI::VulkanSampler)
+    SIZE(MangoRHI::VulkanShaderProgram)
+    SIZE(MangoRHI::VulkanShader)
+    SIZE(MangoRHI::VulkanTexture)
+    SIZE(MangoRHI::VulkanCommandPool)
+    SIZE(MangoRHI::VulkanCommand)
+    SIZE(MangoRHI::VulkanContext)
+    SIZE(MangoRHI::VulkanDescriptorPool)
+    SIZE(MangoRHI::VulkanDescriptorSet)
+    SIZE(MangoRHI::VulkanUniformDescriptor)
+    SIZE(MangoRHI::VulkanTextureDescriptor)
+    SIZE(MangoRHI::VulkanInputRenderTargetDescriptor)
+    SIZE(MangoRHI::VulkanDevice)
+    SIZE(MangoRHI::VulkanFrameBuffer)
+    SIZE(MangoRHI::VulkanRenderPass)
+    SIZE(MangoRHI::VulkanSubpass)
+    SIZE(MangoRHI::VulkanResourceManager)
+    SIZE(MangoRHI::VulkanSwapchain)
+    SIZE(MangoRHI::VulkanSynchronization)
+
+    MangoRHI::Context &ctx = MangoRHI::get_context();
+    #ifdef MANGORHI_DEBUG
     RHI_WARN("Debug Mode")
     #endif
 

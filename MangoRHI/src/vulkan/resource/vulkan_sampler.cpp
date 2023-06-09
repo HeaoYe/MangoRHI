@@ -27,7 +27,7 @@ namespace MangoRHI {
         sampler_create_info.minLod = 0.0f;
         sampler_create_info.maxLod = static_cast<float>(mipmap_levels);
         sampler_create_info.mipLodBias = 0.0f;
-        VK_CHECK(vkCreateSampler(vulkan_context->get_device().get_logical_device(), &sampler_create_info, vulkan_context->get_allocator(), &sampler))
+        VK_CHECK(vkCreateSampler(vulkan_context->get_device()->get_logical_device(), &sampler_create_info, vulkan_context->get_allocator(), &sampler))
         RHI_DEBUG("Create vulkan sampler -> 0x{:x}", (AddrType)sampler)
 
         return Result::eSuccess;
@@ -37,7 +37,7 @@ namespace MangoRHI {
         component_destroy()
 
         RHI_DEBUG("Create vulkan sampler -> 0x{:x}", (AddrType)sampler)
-        vkDestroySampler(vulkan_context->get_device().get_logical_device(), sampler, vulkan_context->get_allocator());
+        vkDestroySampler(vulkan_context->get_device()->get_logical_device(), sampler, vulkan_context->get_allocator());
 
         return Result::eSuccess;
     }

@@ -70,7 +70,7 @@ namespace MangoRHI {
         const char *extensions[] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
         device_create_info.ppEnabledExtensionNames = extensions;
         device_create_info.enabledExtensionCount = 1;
-        #if defined (MANGO_DEBUG)
+        #if defined (MANGORHI_DEBUG)
         const char *layers[] = { "VK_LAYER_KHRONOS_validation" };
         device_create_info.ppEnabledLayerNames = layers;
         device_create_info.enabledLayerCount = 1;
@@ -145,6 +145,7 @@ namespace MangoRHI {
 
         RHI_DEBUG("{} is suitable", properties.deviceName)
         this->physical_device = physical_device;
+        RHI_INFO("Select Device {}", properties.deviceName)
 
         VkPhysicalDeviceMemoryProperties memoryProperties;
         vkGetPhysicalDeviceMemoryProperties(physical_device, &memoryProperties);

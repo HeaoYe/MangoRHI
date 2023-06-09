@@ -26,7 +26,7 @@ namespace MangoRHI {
         descriptor_pool_create_info.pPoolSizes = pool_sizes.data();
         descriptor_pool_create_info.poolSizeCount = pool_sizes.size();
         descriptor_pool_create_info.maxSets = g_vulkan_descriptor_sets.size() * vulkan_context->get_max_in_flight_frame_count();
-        VK_CHECK(vkCreateDescriptorPool(vulkan_context->get_device().get_logical_device(), &descriptor_pool_create_info, vulkan_context->get_allocator(), &descriptor_pool))
+        VK_CHECK(vkCreateDescriptorPool(vulkan_context->get_device()->get_logical_device(), &descriptor_pool_create_info, vulkan_context->get_allocator(), &descriptor_pool))
         RHI_DEBUG("Create vulkan descriptor pool -> 0x{:x}", (AddrType)descriptor_pool)
 
         STL_IMPL::vector<VkDescriptorSetLayout> layouts(size);
@@ -41,7 +41,7 @@ namespace MangoRHI {
         descriptor_set_allocate_info.pSetLayouts = layouts.data();
         for (auto &flight : sets) {
             flight.resize(size);
-            VK_CHECK(vkAllocateDescriptorSets(vulkan_context->get_device().get_logical_device(), &descriptor_set_allocate_info, flight.data()))
+            VK_CHECK(vkAllocateDescriptorSets(vulkan_context->get_device()->get_logical_device(), &descriptor_set_allocate_info, flight.data()))
         }
         RHI_DEBUG("Allocate {} vulkan descriptor set", sets.size() * size)
         for (u32 index = 0; index < g_vulkan_descriptor_sets.size(); index++) {
@@ -62,7 +62,7 @@ namespace MangoRHI {
         }
 
         RHI_DEBUG("Destroy vulkan descriptor pool -> 0x{:x}", (AddrType)descriptor_pool)
-        vkDestroyDescriptorPool(vulkan_context->get_device().get_logical_device(), descriptor_pool, vulkan_context->get_allocator());
+        vkDestroyDescriptorPool(vulkan_context->get_device()->get_logical_device(), descriptor_pool, vulkan_context->get_allocator());
 
         for (auto &descriptor_set : g_vulkan_descriptor_sets) {
             descriptor_set->destroy();

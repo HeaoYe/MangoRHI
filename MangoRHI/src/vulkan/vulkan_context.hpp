@@ -21,10 +21,10 @@ namespace MangoRHI {
         void resize(u32 width, u32 height) override;
         const u32 get_width() const override { return extent.width; }
         const u32 get_height() const override { return extent.height; }
-        ResourceManager &get_resource_manager_reference() override { return resource_manager; }
-        RenderTarget &get_surface_render_target_reference() override { return swapchain.get_render_target(); };
-        RenderPass &get_render_pass_reference() override { return render_pass; }
-        Command &get_current_command_reference() override { return commands[current_in_flight_frame_index].get(); };
+        ResourceManager &get_resource_manager_reference() override { return *resource_manager; }
+        RenderTarget &get_surface_render_target_reference() override { return *swapchain->get_render_target(); };
+        RenderPass &get_render_pass_reference() override { return *render_pass; }
+        Command &get_current_command_reference() override { return *commands[current_in_flight_frame_index]; };
 
         Result begin_frame() override;
         Result end_frame() override;
@@ -43,20 +43,20 @@ namespace MangoRHI {
     define_pointer(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkAllocationCallbacks, allocator, VK_NULL_HANDLE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkInstance, instance, VK_NULL_HANDLE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkSurfaceKHR, surface, VK_NULL_HANDLE)
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanDevice, device, MANGO_NO_INIT_VAULE)
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanSwapchain, swapchain, MANGO_NO_INIT_VAULE)
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanRenderPass, render_pass, MANGO_NO_INIT_VAULE)
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanFrameBuffer, framebuffer, MANGO_NO_INIT_VAULE)
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanDescriptorPool, descriptor_pool, MANGO_NO_INIT_VAULE)
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanSynchronization, synchronization, MANGO_NO_INIT_VAULE)
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VulkanCommandPool, command_pool, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, std::unique_ptr<VulkanDevice>, device, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, std::unique_ptr<VulkanSwapchain>, swapchain, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, std::unique_ptr<VulkanRenderPass>, render_pass, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, std::unique_ptr<VulkanFrameBuffer>, framebuffer, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, std::unique_ptr<VulkanDescriptorPool>, descriptor_pool, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, std::unique_ptr<VulkanSynchronization>, synchronization, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, std::unique_ptr<VulkanCommandPool>, command_pool, MANGO_NO_INIT_VAULE)
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, VkExtent2D, extent, MANGO_NO_INIT_VAULE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkFormat, depth_format, VK_FORMAT_UNDEFINED)
     define_member(MANGO_NO_GETTER, MANGO_NO_SETTER, VkSampleCountFlagBits, max_multisample_count, MANGO_NO_INIT_VAULE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, u32, current_in_flight_frame_index, 0)
     define_private_readonly_pointer(VulkanContextInfo, info, MANGO_NO_INIT_VAULE)
-    define_private_member(VulkanResourceManager, resource_manager, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<Reference<VulkanCommand>>, commands, MANGO_NO_INIT_VAULE)
+    define_private_member(std::unique_ptr<VulkanResourceManager>, resource_manager, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<std::unique_ptr<VulkanCommand>>, commands, MANGO_NO_INIT_VAULE)
 
     declare_component_cls_custom_construction(VulkanContext)
     };
