@@ -7,12 +7,18 @@ namespace MangoRHI {
         render_target->set_name(name);
         render_target->set_usage(usage);
         vulkan_context->get_render_pass()->attach_render_target(*render_target);
+        if (vulkan_context->is_destroyed() == MG_FALSE) {
+            render_target->create();
+        }
         return *render_target;
     }
 
     Shader &VulkanResourceManager::create_shader(const char *filename) {
         auto &shader = shaders.emplace_back(new VulkanShader());
         shader->set_filename(filename);
+        if (vulkan_context->is_destroyed() == MG_FALSE) {
+            shader->create();
+        }
         return *shader;
     }
 
@@ -20,12 +26,18 @@ namespace MangoRHI {
         auto &vertex_buffer = vertex_buffers.emplace_back(new VulkanVertexBuffer());
         vertex_buffer->set_vertex_size(vertex_size);
         vertex_buffer->set_count(count);
+        if (vulkan_context->is_destroyed() == MG_FALSE) {
+            vertex_buffer->create();
+        }
         return *vertex_buffer;
     }
 
     IndexBuffer &VulkanResourceManager::create_index_buffer(u32 count) {
         auto &index_buffer = index_buffers.emplace_back(new VulkanIndexBuffer);
         index_buffer->set_count(count);
+        if (vulkan_context->is_destroyed() == MG_FALSE) {
+            index_buffer->create();
+        }
         return *index_buffer;
     }
 
@@ -34,6 +46,9 @@ namespace MangoRHI {
         texture->set_filename(filename);
         texture->set_is_empty(MG_FALSE);
         texture->set_mipmap_levels(mipmap_levels);
+        if (vulkan_context->is_destroyed() == MG_FALSE) {
+            texture->create();
+        }
         return *texture;
     }
     Texture &VulkanResourceManager::create_empty_texture(u32 mipmap_levels) {
@@ -41,17 +56,26 @@ namespace MangoRHI {
         texture->set_filename(nullptr);
         texture->set_is_empty(MG_TRUE);
         texture->set_mipmap_levels(mipmap_levels);
+        if (vulkan_context->is_destroyed() == MG_FALSE) {
+            texture->create();
+        }
         return *texture;
     }
 
     Sampler &VulkanResourceManager::create_sampler() {
         auto &sampler = samplers.emplace_back(new VulkanSampler());
+        if (vulkan_context->is_destroyed() == MG_FALSE) {
+            sampler->create();
+        }
         return *sampler;
     }
 
     ShaderProgram &VulkanResourceManager::create_shader_program(const char *subpass_name) {
         auto &shader_program = shader_programs.emplace_back(new VulkanShaderProgram());
         shader_program->set_subpass_index(vulkan_context->get_render_pass()->get_subpass_index_by_name(subpass_name));
+        if (vulkan_context->is_destroyed() == MG_FALSE) {
+            shader_program->create();
+        }
         return *shader_program;
     }
 
