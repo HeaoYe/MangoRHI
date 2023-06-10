@@ -41,6 +41,6 @@ namespace MangoRHI {
         RHI_DEBUG("Create vulkan sampler -> 0x{:x}", (AddrType)sampler)
         vkDestroySampler(vulkan_context->get_device()->get_logical_device(), sampler, vulkan_context->get_allocator());
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 }

@@ -11,7 +11,7 @@ namespace MangoRHI {
     Result VulkanCommand::destroy() {
         component_destroy()
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     Result VulkanCommand::begin_render() {

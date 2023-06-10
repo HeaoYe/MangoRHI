@@ -20,7 +20,7 @@ namespace MangoRHI {
         RHI_DEBUG("Destroy vulkan command pool -> 0x{:x}", (AddrType)command_pool)
         vkDestroyCommandPool(vulkan_context->get_device()->get_logical_device(), command_pool, vulkan_context->get_allocator());
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     void VulkanCommandPool::allocate(CommandLevel level, VulkanCommand &command) const {

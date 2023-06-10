@@ -109,7 +109,7 @@ namespace MangoRHI {
         RHI_DEBUG("Destroy vulkan instance -> 0x{:x}", (AddrType)instance)
         vkDestroyInstance(instance, allocator);
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     void VulkanContext::recreate_resources() {

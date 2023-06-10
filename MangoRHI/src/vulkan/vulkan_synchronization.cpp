@@ -37,7 +37,7 @@ namespace MangoRHI {
         render_finished_semaphores.clear();
         fences.clear();
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     const VkSemaphore &VulkanSynchronization::get_current_image_available_semaphore() const {

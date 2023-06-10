@@ -38,7 +38,7 @@ namespace MangoRHI {
         RHI_DEBUG("Destroy vulkan buffer -> 0x{:x}", (AddrType)buffer)
         vkDestroyBuffer(vulkan_context->get_device()->get_logical_device(), buffer, vulkan_context->get_allocator());
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     void *VulkanBuffer::map() {
@@ -110,7 +110,7 @@ namespace MangoRHI {
         staging.destroy();
         buffer.destroy();
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     void VulkanVertexBuffer::write_data(const void *data, const u32 count, const u32 offset_count) {
@@ -154,7 +154,7 @@ namespace MangoRHI {
         staging.destroy();
         buffer.destroy();
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     void VulkanIndexBuffer::write_data(const void *data, const u32 count, const u32 offset_count) {

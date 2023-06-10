@@ -141,7 +141,7 @@ namespace MangoRHI {
         sampler.destroy();
         image.destroy();
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     Sampler &VulkanTexture::get_sampler_reference() {

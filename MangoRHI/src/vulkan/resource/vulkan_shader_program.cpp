@@ -178,7 +178,7 @@ namespace MangoRHI {
         descriptor_set_layouts.clear();
         in_flight_descriptor_sets.clear();
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     const STL_IMPL::vector<VkDescriptorSet> &VulkanShaderProgram::get_current_in_flight_descriptor_sets() const {

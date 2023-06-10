@@ -47,6 +47,6 @@ namespace MangoRHI {
         RHI_DEBUG("Destroy vulkan descriptor pool -> 0x{:x}", (AddrType)descriptor_pool)
         vkDestroyDescriptorPool(vulkan_context->get_device()->get_logical_device(), descriptor_pool, vulkan_context->get_allocator());
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 }

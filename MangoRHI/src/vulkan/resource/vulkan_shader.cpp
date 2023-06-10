@@ -23,6 +23,6 @@ namespace MangoRHI {
         RHI_DEBUG("Destroy vulkan shader module -> 0x{:x}", (AddrType)shader_module)
         vkDestroyShaderModule(vulkan_context->get_device()->get_logical_device(), shader_module, vulkan_context->get_allocator());
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 }

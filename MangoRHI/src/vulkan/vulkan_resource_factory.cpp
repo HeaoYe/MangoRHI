@@ -62,6 +62,6 @@ namespace MangoRHI {
     Result VulkanResourceFactory::destroy() {
         component_destroy()
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 }

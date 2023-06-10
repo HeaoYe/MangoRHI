@@ -102,6 +102,6 @@ namespace MangoRHI {
         this->images.clear();
         this->image_views.clear();
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 }

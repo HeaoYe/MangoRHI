@@ -38,6 +38,6 @@ namespace MangoRHI {
         }
         framebuffers.clear();
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 }

@@ -173,7 +173,7 @@ namespace MangoRHI {
         render_targets.clear();
         clear_values.clear();
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     Result VulkanRenderPass::recreate_render_targets() {

@@ -18,6 +18,16 @@ namespace MangoRHI {
         return Result::eSuccess;
     }
 
+    RuntimeComponent *RuntimeComponent::destroy_before(RuntimeComponent *component) {
+        component->pre_destroy_components.push_back(this);
+        return this;
+    }
+
+    RuntimeComponent *RuntimeComponent::destroy_after(RuntimeComponent *component) {
+        component->post_destroy_components.push_back(this);
+        return this;
+    }
+
     #define invoke_backend_func(backend, func) \
     { \
         auto res = func##_##backend(); \

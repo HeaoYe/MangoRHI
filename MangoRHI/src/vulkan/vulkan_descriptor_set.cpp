@@ -37,7 +37,7 @@ namespace MangoRHI {
         in_flight_buffers.clear();
         mapped_pointers.clear();
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     void VulkanUniformDescriptor::update(const VulkanDescriptorSet &descriptor_set) {
@@ -82,7 +82,7 @@ namespace MangoRHI {
     Result VulkanTextureDescriptor::destroy() {
         component_destroy()
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     void VulkanTextureDescriptor::update(const VulkanDescriptorSet &descriptor_set) {
@@ -113,7 +113,7 @@ namespace MangoRHI {
     Result VulkanInputRenderTargetDescriptor::destroy() {
         component_destroy()
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     void VulkanInputRenderTargetDescriptor::add_render_target(const VulkanRenderTarget &render_target, const VulkanSampler &sampler) {
@@ -221,7 +221,7 @@ namespace MangoRHI {
             descriptor->destroy();
         }
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     void *VulkanDescriptorSet::get_uniform_buffer_pointer(u32 binding, u32 index) {

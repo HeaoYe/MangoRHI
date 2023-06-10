@@ -94,6 +94,8 @@ int main() {
     auto frag_shader = rf.create_shader("assets/shaders/frag.spv");
     main_shader_program->attach_vertex_shader(*vert_shader, "main");
     main_shader_program->attach_fragment_shader(*frag_shader, "main");
+    vert_shader.release()->destroy_before(main_shader_program.get());
+    frag_shader.release()->destroy_before(main_shader_program.get());
     main_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
     main_shader_program->set_depth_test_enabled(MangoRHI::MG_TRUE);
     main_shader_program->set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);
@@ -102,8 +104,6 @@ int main() {
     MangoRHI::u32 uniform_binding = ds.lock()->add_uniforms_descriptor(MangoRHI::DescriptorStage::eVertex, sizeof(float) * 2, 2);
     MangoRHI::u32 textures_binding = ds.lock()->add_textures_descriptor(MangoRHI::DescriptorStage::eFragment, { *t_61.get(), *t_paper_plane.get(), *t_dance.get(), *t_dhl.get() });
     main_shader_program->create();
-    vert_shader.reset();
-    frag_shader.reset();
 
     auto vertex_buffer = rf.create_vertex_buffer(sizeof(glm::vec3));
     auto color_buffer = rf.create_vertex_buffer(sizeof(glm::vec3));

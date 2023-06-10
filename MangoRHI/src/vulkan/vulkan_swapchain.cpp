@@ -119,7 +119,7 @@ namespace MangoRHI {
         swapchain = VK_NULL_HANDLE;
         images.clear();
 
-        return Result::eSuccess;
+        component_destroy_end()
     };
 
     Result VulkanSwapchain::acquire_next_frame() {
