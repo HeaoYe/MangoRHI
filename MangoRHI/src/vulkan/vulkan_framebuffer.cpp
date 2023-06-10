@@ -14,10 +14,10 @@ namespace MangoRHI {
         for (u32 index = 0; index < vulkan_context->get_swapchain()->get_image_count(); index++) {
             STL_IMPL::vector<VkImageView> attachments;
             for (const auto &render_target : vulkan_context->get_render_pass()->get_render_targets()) {
-                if (render_target.get().get_is_each_frame_render_target() == MG_TRUE) {
-                    attachments.push_back(render_target.get().get_image_views()[index]);
+                if (render_target->get_is_each_frame_render_target() == MG_TRUE) {
+                    attachments.push_back(render_target->get_image_views()[index]);
                 } else {
-                    attachments.push_back(render_target.get().get_image_views()[0]);
+                    attachments.push_back(render_target->get_image_views()[0]);
                 }
             }
             framebuffer_create_info.pAttachments = attachments.data();
@@ -36,7 +36,8 @@ namespace MangoRHI {
             RHI_DEBUG("Destroy vulkan framebuffer({}) -> 0x{:x}", index, (AddrType)framebuffers[index])
             vkDestroyFramebuffer(vulkan_context->get_device()->get_logical_device(), framebuffers[index], vulkan_context->get_allocator());
         }
+        framebuffers.clear();
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 }

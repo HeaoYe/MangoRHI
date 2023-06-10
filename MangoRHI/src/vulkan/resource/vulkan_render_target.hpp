@@ -10,7 +10,7 @@ namespace MangoRHI {
         void add_render_target_data(VkImage image, VkImageView image_view);
 
     define_readonly_pointer(MANGO_CONST_GETTER, MANGO_SETTER_OVERRIDE, char, name, "")
-    define_member_with_translator(MANGO_CONST_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, ClearValue, VkClearValue, clear_color, clear_value2vk_clear_value, ClearValue {})
+    define_member_with_translator(MANGO_CONST_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, ClearValue, VkClearValue, clear_value, clear_value2vk_clear_value, ClearValue {})
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC_OVERRIDE, RenderTargetUsage, usage, MANGO_NO_INIT_VAULE)
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, u32, index, MANGO_NO_INIT_VAULE)
 

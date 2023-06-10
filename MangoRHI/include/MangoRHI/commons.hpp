@@ -94,6 +94,7 @@ namespace MangoRHI {
 
     class RuntimeComponent {
     public:
+        virtual ~RuntimeComponent() = default;
         virtual Result create() = 0;
         virtual Result destroy() = 0;
         virtual Bool is_destroyed() final { return destroyed; }
@@ -101,6 +102,12 @@ namespace MangoRHI {
         virtual Result recreate();
     protected:
         Bool destroyed = MG_TRUE;
+    public:
+        virtual RuntimeComponent *destroy_before(RuntimeComponent *component);
+        virtual RuntimeComponent *destroy_after(RuntimeComponent *component);
+    protected:
+        STL_IMPL::vector<RuntimeComponent *> pre_destroy_components;
+        STL_IMPL::vector<RuntimeComponent *> post_destroy_components;
     };
 
     #define __MANGO_NULL_MACRO
@@ -193,6 +200,7 @@ namespace MangoRHI {
 
     #define __declare_component_cls(cls_name) \
     public: \
+        ~cls_name() { if (is_destroyed() == MG_FALSE) { destroy(); }} \
         Result create() override; \
         Result destroy() override; \
     private: \
@@ -223,7 +231,12 @@ namespace MangoRHI {
     if (destroyed == ::MangoRHI::MG_TRUE) { \
         return ::MangoRHI::Result::eAlreadyDestroyed; \
     } \
-    destroyed = ::MangoRHI::MG_TRUE;
+    destroyed = ::MangoRHI::MG_TRUE; \
+    std::for_each(pre_destroy_components.begin(), pre_destroy_components.end(), [](auto *component) { component->destroy(); });
+
+    #define component_destroy_end() \
+    std::for_each(post_destroy_components.begin(), post_destroy_components.end(), [](auto *component) { component->destroy(); }); \
+    return Result::eSuccess;
 
     #define define_flags(EnumClass) \
     struct EnumClass##Flags { EnumClass##Flags(u32 n) : bits(n) {} EnumClass##Flags(EnumClass n) : bits((u32)n) {} u32 bits; }; \
@@ -328,9 +341,11 @@ namespace MangoRHI {
     };
 
     enum class VertexInputType : u32 {
+        eInt,
         eInt2,
         eInt3,
         eInt4,
+        eFloat,
         eFloat2,
         eFloat3,
         eFloat4,

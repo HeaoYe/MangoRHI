@@ -24,7 +24,7 @@ namespace MangoRHI {
     u32 VulkanRenderPass::get_render_target_index_by_name(const char *render_target_name) const {
         u32 index = 0;
         for (const auto &render_target: render_targets) {
-            if (strcmp(render_target.get().get_name(), render_target_name) == 0) {
+            if (strcmp(render_target->get_name(), render_target_name) == 0) {
                 break;
             }
             index++;
@@ -57,13 +57,15 @@ namespace MangoRHI {
         return index;
     }
 
-    void VulkanRenderPass::attach_render_target(RenderTarget &render_target) {
-        VulkanRenderTarget &vulkan_render_target = (VulkanRenderTarget &)render_target;
-        vulkan_render_target.set_index(render_targets.size());
-        if (get_render_target_index_by_name(vulkan_render_target.get_name()) < render_targets.size()) {
-            RHI_ERROR("RenderTarget {} is existed", vulkan_render_target.get_name());
+    void VulkanRenderPass::create_render_target(const char *render_target_name, RenderTargetUsage usage) {
+        if (get_render_target_index_by_name(render_target_name) < render_targets.size()) {
+            RHI_ERROR("RenderTarget {} is existed", render_target_name);
+            return;
         }
-        render_targets.push_back(vulkan_render_target);
+        auto &render_target = render_targets.emplace_back(new VulkanRenderTarget());
+        render_target->set_name(render_target_name);
+        render_target->set_usage(usage);
+        render_target->set_index(render_targets.size() - 1);
     }
 
     void VulkanRenderPass::add_input_render_target(const char *render_target_name, RenderTargetLayout ref_layout) {
@@ -94,7 +96,7 @@ namespace MangoRHI {
 
     void VulkanRenderPass::add_resolve_render_target(const char *render_target_name, RenderTargetLayout ref_layout) {
         temp_subpass->get_resolve_attachment().push_back(get_render_target_ref(render_target_name, ref_layout));
-        render_targets[get_render_target_index_by_name(render_target_name)].get().set_is_resolve(MG_TRUE);
+        render_targets[get_render_target_index_by_name(render_target_name)]->set_is_resolve(MG_TRUE);
     }
 
     void VulkanRenderPass::add_subpass(const char *subpass_name, PipelineBindPoint bind_point) {
@@ -130,10 +132,16 @@ namespace MangoRHI {
 
         STL_IMPL::vector<VkAttachmentDescription> attachment_descriptions;
         STL_IMPL::vector<VkSubpassDescription> subpass_descriptions;
+        clear_values.reserve(render_targets.size());
         clear_values.resize(render_targets.size());
 
+        for (u32 index = 0; index < vulkan_context->get_swapchain()->get_image_count(); index ++) {
+            render_targets[0]->add_render_target_data(vulkan_context->get_swapchain()->get_images()[index], vulkan_context->get_swapchain()->get_image_views()[index]);
+        }
+
         for (const auto &render_target : render_targets) {
-            attachment_descriptions.push_back(render_target.get().get_description());
+            render_target->create();
+            attachment_descriptions.push_back(render_target->get_description());
         }
         for (const auto &subpass : subpasses) {
             subpass_descriptions.push_back(subpass->get_description());
@@ -159,12 +167,29 @@ namespace MangoRHI {
         RHI_DEBUG("Destroy vulkan render pass -> 0x{:x}", (AddrType)render_pass)
         vkDestroyRenderPass(vulkan_context->get_device()->get_logical_device(), render_pass, vulkan_context->get_allocator());
 
+        for (const auto &render_target : render_targets) {
+            render_target->destroy();
+        }
+        render_targets.clear();
+        clear_values.clear();
+
+        component_destroy_end()
+    }
+
+    Result VulkanRenderPass::recreate_render_targets() {
+        render_targets[0]->destroy();
+        for (u32 index = 0; index < vulkan_context->get_swapchain()->get_image_count(); index ++) {
+            render_targets[0]->add_render_target_data(vulkan_context->get_swapchain()->get_images()[index], vulkan_context->get_swapchain()->get_image_views()[index]);
+        }
+        render_targets[0]->create();
+        std::for_each(render_targets.begin() + 1, render_targets.end(), [](auto &render_target) { render_target->recreate(); });
+
         return Result::eSuccess;
     }
 
     Result VulkanRenderPass::begin_render_pass(VulkanCommand &command) {
         for (u32 index = 0; index < render_targets.size(); index++) {
-            clear_values[index] = render_targets[index].get().get_clear_color();
+            clear_values[index] = render_targets[index]->get_clear_value();
         }
         VkRenderPassBeginInfo render_pass_begin_info { .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
         render_pass_begin_info.renderPass = render_pass;

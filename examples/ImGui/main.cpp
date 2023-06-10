@@ -23,6 +23,7 @@ int main() {
     MangoRHI::Context &ctx = MangoRHI::get_context();
     auto &vk_ctx = (MangoRHI::VulkanContext &)ctx;
 
+    {
     MangoRHI::VulkanContextInfo info;
     info.extensions = glfwGetRequiredInstanceExtensions(&info.extension_count);
     info.surface_create_callback = [glfwWindow](VkInstance instance, VkAllocationCallbacks *allocator) {
@@ -38,10 +39,9 @@ int main() {
     ctx.set_swapchain_image_count(3);
     ctx.set_max_in_flight_frame_count(2);
     ctx.set_multisample_count(MangoRHI::MultisampleCount::e8);
-    auto &rm = ctx.get_resource_manager_reference();
 
-    rm.create_render_target("resolve", MangoRHI::RenderTargetUsage::eColor);
     auto &rp = ctx.get_render_pass_reference();
+    rp.create_render_target("resolve", MangoRHI::RenderTargetUsage::eColor);
     rp.add_output_render_target("resolve", MangoRHI::RenderTargetLayout::eColor);
     rp.add_subpass("main", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
     rp.add_output_render_target("resolve", MangoRHI::RenderTargetLayout::eColor);
@@ -49,12 +49,18 @@ int main() {
     rp.add_subpass("imgui", MangoRHI::PipelineBindPoint::eGraphicsPipeline);
     rp.add_dependency({ MANGORHI_EXTERNAL_SUBPASS_NAME, MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eNone }, { "main", MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eColorRenderTargetWrite });
     rp.add_dependency({ "main", MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eColorRenderTargetWrite }, { "imgui", MangoRHI::PipelineStage::eColorOutput, MangoRHI::Access::eColorRenderTargetWrite });
-    auto &sp = rm.create_shader_program("main");
-    sp.set_cull_mode(MangoRHI::CullMode::eNone);
-    sp.attach_vertex_shader(rm.create_shader("assets/shaders/vert.spv"), "main");
-    sp.attach_fragment_shader(rm.create_shader("assets/shaders/frag.spv"), "main");
-
     ctx.create();
+
+    auto &rf = ctx.get_resource_factory_reference();
+    auto sp = rf.create_shader_program("main");
+    sp->set_cull_mode(MangoRHI::CullMode::eNone);
+    auto vert_shader = rf.create_shader("assets/shaders/vert.spv");
+    auto frag_shader = rf.create_shader("assets/shaders/frag.spv");
+    sp->attach_vertex_shader(*vert_shader, "main");
+    sp->attach_fragment_shader(*frag_shader, "main");
+    sp->create();
+    vert_shader.reset();
+    frag_shader.reset();
 
     VkDescriptorPool g_DescriptorPool;
     VkDescriptorPoolSize pool_sizes[] = {
@@ -166,7 +172,7 @@ int main() {
 
             auto viewport = MangoRHI::Viewport { 0, static_cast<float>(ctx.get_height()), static_cast<float>(ctx.get_width()), -static_cast<float>(ctx.get_height()), 0.0f, 1.0f };
             auto scissor = MangoRHI::Scissor { 0, 0, ctx.get_width(), ctx.get_height() };
-            command.bind_shader_program(sp);
+            command.bind_shader_program(*sp);
             command.set_viewport(viewport);
             command.set_scissor(scissor);
             command.draw_instances(3, 1, 0, 0);
@@ -182,8 +188,9 @@ int main() {
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-
     vkDestroyDescriptorPool(vk_ctx.get_device()->get_logical_device(), g_DescriptorPool, vk_ctx.get_allocator());
+    }
+
     MangoRHI::quit();
 
     glfwDestroyWindow(glfwWindow);

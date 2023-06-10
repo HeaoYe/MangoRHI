@@ -2,12 +2,6 @@
 #include "vulkan_context.hpp"
 
 namespace MangoRHI {
-    VulkanSwapchain::VulkanSwapchain() {
-        render_target = std::make_unique<VulkanRenderTarget>();
-        render_target->set_name(MANGORHI_SURFACE_RENDER_TARGET_NAME);
-        render_target->set_usage(RenderTargetUsage::eColor);
-    }
-
     Result VulkanSwapchain::create() {
         component_create()
 
@@ -43,14 +37,14 @@ namespace MangoRHI {
             return MG_FALSE;
         };
         if (vulkan_context->get_vsync_enabled() == MG_FALSE) {
-            if (find_present_mode(VK_PRESENT_MODE_IMMEDIATE_KHR) == MG_TRUE) {
+            if (find_present_mode(VK_PRESENT_MODE_MAILBOX_KHR) == MG_TRUE ||
+                find_present_mode(VK_PRESENT_MODE_IMMEDIATE_KHR) == MG_TRUE) {
                 RHI_DEBUG("Successfully disable V-Sync mode")
             } else {
                 RHI_ERROR("Cannot disable V-Sync mode")
             }
         } else {
-            if (find_present_mode(VK_PRESENT_MODE_MAILBOX_KHR) == MG_TRUE ||
-                find_present_mode(VK_PRESENT_MODE_FIFO_KHR) == MG_TRUE ||
+            if (find_present_mode(VK_PRESENT_MODE_FIFO_KHR) == MG_TRUE ||
                 find_present_mode(VK_PRESENT_MODE_FIFO_RELAXED_KHR) == MG_TRUE) {
                 RHI_DEBUG("Successfully enable V-Sync mode")
             } else {
@@ -104,12 +98,9 @@ namespace MangoRHI {
         }
         for (count = 0; count < image_count; count++) {
             image_views[count] = vulkan_context->create_image_view(images[count], format.format, VK_IMAGE_ASPECT_COLOR_BIT, 1);
-            render_target->add_render_target_data(images[count], image_views[count]);
+
             RHI_DEBUG("Create vulkan swapchain image view({}) -> 0x{:x}", count, (AddrType)image_views[count])
         }
-        render_target->create();
-        render_target->get_description().samples = VK_SAMPLE_COUNT_1_BIT;
-        render_target->get_description().finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
         return Result::eSuccess;
     };
@@ -117,18 +108,18 @@ namespace MangoRHI {
     Result VulkanSwapchain::destroy() {
         component_destroy()
 
-        render_target->destroy();
-
         for (u32 i = 0; i < image_count; i++) {
             RHI_DEBUG("Destroy vulkan swapchain image view({}) -> 0x{:x}", i, (AddrType)image_views[i])
             vkDestroyImageView(vulkan_context->get_device()->get_logical_device(), image_views[i], vulkan_context->get_allocator());
         }
+        image_views.clear();
 
         RHI_DEBUG("Destroy vulkan swapchain -> 0x{:x}", (AddrType)swapchain)
         vkDestroySwapchainKHR(vulkan_context->get_device()->get_logical_device(), swapchain, vulkan_context->get_allocator());
         swapchain = VK_NULL_HANDLE;
+        images.clear();
 
-        return Result::eSuccess;
+        component_destroy_end()
     };
 
     Result VulkanSwapchain::acquire_next_frame() {

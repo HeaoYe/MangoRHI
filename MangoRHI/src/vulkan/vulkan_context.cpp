@@ -11,8 +11,8 @@ namespace MangoRHI {
         descriptor_pool = std::make_unique<VulkanDescriptorPool>();
         synchronization = std::make_unique<VulkanSynchronization>();
         command_pool = std::make_unique<VulkanCommandPool>();
-        resource_manager = std::make_unique<VulkanResourceManager>();
-        render_pass->attach_render_target(*swapchain->get_render_target());
+        resource_factory = std::make_unique<VulkanResourceFactory>();
+        render_pass->create_render_target(MANGORHI_SURFACE_RENDER_TARGET_NAME, RenderTargetUsage::eColor);
     }
 
     void VulkanContext::set_api_info(const void *info) {
@@ -25,6 +25,10 @@ namespace MangoRHI {
 
     void VulkanContext::set_swapchain_image_count(u32 count) {
         this->swapchain->set_image_count(count);
+    }
+
+    void VulkanContext::set_clear_value(const char *render_target_name, ClearValue value) {
+        render_pass->get_render_targets()[render_pass->get_render_target_index_by_name(render_target_name)]->set_clear_value(value);
     }
 
     void VulkanContext::resize(u32 width, u32 height) {
@@ -69,14 +73,13 @@ namespace MangoRHI {
         }
         swapchain->create();
         command_pool->create();
-        resource_manager->create();
+        resource_factory->create();
         descriptor_pool->create();
         render_pass->create();
-        resource_manager->post_create();
         framebuffer->create();
         synchronization->create();
         for (u32 index = 0; index < max_in_flight_frame_count; index++) {
-            auto &command =commands.emplace_back(new VulkanCommand());
+            auto &command = commands.emplace_back(new VulkanCommand());
             command_pool->allocate(CommandLevel::ePrimary, *command);
         }
         return Result::eSuccess;
@@ -91,11 +94,11 @@ namespace MangoRHI {
         for (auto &command : commands) {
             command_pool->free(*command);
         }
+        commands.clear();
         synchronization->destroy();
         framebuffer->destroy();
-        resource_manager->pre_destroy();
         render_pass->destroy();
-        resource_manager->destroy();
+        resource_factory->destroy();
         command_pool->destroy();
         swapchain->destroy();
         device->destroy();
@@ -106,14 +109,14 @@ namespace MangoRHI {
         RHI_DEBUG("Destroy vulkan instance -> 0x{:x}", (AddrType)instance)
         vkDestroyInstance(instance, allocator);
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     void VulkanContext::recreate_resources() {
         VK_CHECK(vkDeviceWaitIdle(device->get_logical_device()))
 
         swapchain->recreate();
-        resource_manager->recreate_render_targets();
+        render_pass->recreate_render_targets();
         framebuffer->recreate();
 
         for (auto &descriptor_set : g_vulkan_descriptor_sets) {

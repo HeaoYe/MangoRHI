@@ -170,7 +170,7 @@ namespace MangoRHI {
         RHI_DEBUG("Destroy vulkan device -> 0x{:x}", (AddrType)logical_device)
         vkDestroyDevice(logical_device, vulkan_context->get_allocator());
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     VkFormat VulkanDevice::get_supported_depth_format() const {

@@ -30,7 +30,7 @@ namespace MangoRHI {
 
     class VulkanRenderPass final : public RenderPass {
     public:
-        void attach_render_target(RenderTarget &render_target);
+        void create_render_target(const char *render_target_name, RenderTargetUsage usage) override;
 
         void add_input_render_target(const char *render_target_name, RenderTargetLayout ref_layout) override;
         void add_output_render_target(const char *render_target_name, RenderTargetLayout ref_layout, ColorBlendInfo color_blend_info) override;
@@ -43,12 +43,14 @@ namespace MangoRHI {
         Result begin_render_pass(VulkanCommand &commnad);
         Result end_render_pass(VulkanCommand &commnad);
 
+        Result recreate_render_targets();
+
         u32 get_subpass_index_by_name(const char *subpass_name) const;
         u32 get_render_target_index_by_name(const char *render_target_name) const;
     private:
         VkAttachmentReference get_render_target_ref(const char *render_target_name, RenderTargetLayout ref_layout) const;
 
-    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<std::reference_wrapper<VulkanRenderTarget>>, render_targets, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<std::unique_ptr<VulkanRenderTarget>>, render_targets, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkClearValue>, clear_values, MANGO_NO_INIT_VAULE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<std::unique_ptr<VulkanSubpass>>, subpasses, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkSubpassDependency>, dependencies, MANGO_NO_INIT_VAULE)

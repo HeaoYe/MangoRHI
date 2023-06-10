@@ -30,13 +30,15 @@ namespace MangoRHI {
     Result VulkanBuffer::destroy() {
         component_destroy()
 
+        VK_CHECK(vkDeviceWaitIdle(vulkan_context->get_device()->get_logical_device()))
+
         RHI_DEBUG("Free vulkan device memory -> 0x{:x}", (AddrType)memory)
         vkFreeMemory(vulkan_context->get_device()->get_logical_device(), memory, vulkan_context->get_allocator());
 
         RHI_DEBUG("Destroy vulkan buffer -> 0x{:x}", (AddrType)buffer)
         vkDestroyBuffer(vulkan_context->get_device()->get_logical_device(), buffer, vulkan_context->get_allocator());
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     void *VulkanBuffer::map() {
@@ -103,10 +105,12 @@ namespace MangoRHI {
     Result VulkanVertexBuffer::destroy() {
         component_destroy()
 
+        VK_CHECK(vkDeviceWaitIdle(vulkan_context->get_device()->get_logical_device()))
+
         staging.destroy();
         buffer.destroy();
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     void VulkanVertexBuffer::write_data(const void *data, const u32 count, const u32 offset_count) {
@@ -145,10 +149,12 @@ namespace MangoRHI {
     Result VulkanIndexBuffer::destroy() {
         component_destroy()
 
+        VK_CHECK(vkDeviceWaitIdle(vulkan_context->get_device()->get_logical_device()))
+
         staging.destroy();
         buffer.destroy();
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     void VulkanIndexBuffer::write_data(const void *data, const u32 count, const u32 offset_count) {

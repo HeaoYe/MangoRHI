@@ -20,7 +20,7 @@ namespace MangoRHI {
         RHI_DEBUG("Destroy vulkan command pool -> 0x{:x}", (AddrType)command_pool)
         vkDestroyCommandPool(vulkan_context->get_device()->get_logical_device(), command_pool, vulkan_context->get_allocator());
 
-        return Result::eSuccess;
+        component_destroy_end()
     }
 
     void VulkanCommandPool::allocate(CommandLevel level, VulkanCommand &command) const {
@@ -30,7 +30,7 @@ namespace MangoRHI {
         command_buffer_allocate_info.level = command_level2vk_command_buffer_level(level);
         command_buffer_allocate_info.commandBufferCount = 1;
         VK_CHECK(vkAllocateCommandBuffers(vulkan_context->get_device()->get_logical_device(), &command_buffer_allocate_info, &command_buffer))
-        RHI_DEBUG("Allocate vulkan command buffer -> 0x{:x}", (AddrType)command_buffer)
+        RHI_TRACE("Allocate vulkan command buffer -> 0x{:x}", (AddrType)command_buffer)
         command.command_buffer = command_buffer;
         command.is_single_use = MG_FALSE;
         command.create();
@@ -47,7 +47,7 @@ namespace MangoRHI {
             command.end_render();
         }
         command.destroy();
-        RHI_DEBUG("Free vulkan command buffer -> 0x{:x}", (AddrType)command.get_command_buffer())
+        RHI_TRACE("Free vulkan command buffer -> 0x{:x}", (AddrType)command.get_command_buffer())
         vkFreeCommandBuffers(vulkan_context->get_device()->get_logical_device(), command_pool, 1, &command.get_command_buffer());
     }
 }
