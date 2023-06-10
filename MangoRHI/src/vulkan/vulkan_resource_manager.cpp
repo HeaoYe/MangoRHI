@@ -32,6 +32,14 @@ namespace MangoRHI {
     Texture &VulkanResourceManager::create_texture(const char *filename, u32 mipmap_levels) {
         auto &texture = textures.emplace_back(new VulkanTexture());
         texture->set_filename(filename);
+        texture->set_is_empty(MG_FALSE);
+        texture->set_mipmap_levels(mipmap_levels);
+        return *texture;
+    }
+    Texture &VulkanResourceManager::create_empty_texture(u32 mipmap_levels) {
+        auto &texture = textures.emplace_back(new VulkanTexture());
+        texture->set_filename(nullptr);
+        texture->set_is_empty(MG_TRUE);
         texture->set_mipmap_levels(mipmap_levels);
         return *texture;
     }
@@ -78,21 +86,27 @@ namespace MangoRHI {
         for (auto &index_buffer : index_buffers) {
             index_buffer->destroy();
         }
+        index_buffers.clear();
         for (auto &vertex_buffer : vertex_buffers) {
             vertex_buffer->destroy();
         }
+        vertex_buffers.clear();
         for (auto &sampler : samplers) {
             sampler->destroy();
         }
+        samplers.clear();
         for (auto &texture : textures) {
             texture->destroy();
         }
+        textures.clear();
         for (auto &shader : shaders) {
             shader->destroy();
         }
+        shaders.clear();
         for (auto &render_target : render_targets) {
             render_target->destroy();
         }
+        render_targets.clear();
 
         return Result::eSuccess;
     }
@@ -114,6 +128,7 @@ namespace MangoRHI {
         for (auto &shader_program : shader_programs) {
             shader_program->destroy();
         }
+        shader_programs.clear();
         return Result::eSuccess;
     }
 

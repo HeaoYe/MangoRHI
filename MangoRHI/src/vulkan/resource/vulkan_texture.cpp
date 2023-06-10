@@ -5,27 +5,36 @@ namespace MangoRHI {
     Result VulkanTexture::create() {
         component_create()
 
-        int width, height, channels;
-        stbi_uc* pixels = stbi_load(filename, &width, &height, &channels, STBI_rgb_alpha);
-        extent.width = static_cast<u32>(width);
-        extent.height = static_cast<u32>(height);
-        if (mipmap_levels == 0) {
-            mipmap_levels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+        stbi_uc* pixels;
+        if (is_empty == MG_TRUE) {
+            extent.width = 512;
+            extent.height = 512;
+            RHI_DEBUG("Create empty texture, [{}, {}, {}]", extent.width, extent.height, 4)
+        } else {
+            int width, height, channels;
+            pixels = stbi_load(filename, &width, &height, &channels, STBI_rgb_alpha);
+            if (!pixels) {
+                RHI_ERROR("Failed load texture file {}", filename)
+                return Result::eFailed;
+            }
+            extent.width = static_cast<u32>(width);
+            extent.height = static_cast<u32>(height);
+            RHI_DEBUG("Load texture file {}, [{}, {}, {}]", filename, width, height, channels)
         }
-        VkDeviceSize size = width * height * 4;
 
-        if (!pixels) {
-            RHI_ERROR("Failed load texture file {}", filename)
-            return Result::eFailed;
+        if (mipmap_levels == 0) {
+            mipmap_levels = std::floor(std::log2(std::max(extent.width, extent.height))) + 1;
         }
-        RHI_DEBUG("Load texture file {}, [{}, {}, {}]", filename, width, height, channels)
+        VkDeviceSize size = extent.width * extent.height * 4;
 
         staging.set_size(size);
         staging.set_usage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
         staging.set_properties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         staging.create();
-        staging.write_data(pixels, size, 0);
-        stbi_image_free(pixels);
+        if (is_empty == MG_FALSE) {
+            staging.write_data(pixels, size, 0);
+            stbi_image_free(pixels);
+        }
 
         image.set_extent(extent);
         image.set_mipmap_levels(mipmap_levels);
@@ -74,7 +83,7 @@ namespace MangoRHI {
         barrier.subresourceRange.baseArrayLayer = 0;
         barrier.subresourceRange.layerCount = 1;
         barrier.subresourceRange.levelCount = 1;
-        i32 mip_width = width, mip_height = height;
+        i32 mip_width = static_cast<i32>(extent.width), mip_height = static_cast<i32>(extent.height);
         for (u32 level = 1; level < mipmap_levels; level++) {
             barrier.subresourceRange.baseMipLevel = level - 1;
             barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;

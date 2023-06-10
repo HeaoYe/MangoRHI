@@ -19,6 +19,7 @@ namespace MangoRHI {
         VertexBuffer &create_vertex_buffer(u32 vertex_size, u32 count) override;
         IndexBuffer &create_index_buffer(u32 count) override;
         Texture &create_texture(const char *filename, u32 mipmap_levels) override;
+        Texture &create_empty_texture(u32 mipmap_levels) override;
         Sampler &create_sampler() override;
         ShaderProgram &create_shader_program(const char *subpass_name) override;
 
