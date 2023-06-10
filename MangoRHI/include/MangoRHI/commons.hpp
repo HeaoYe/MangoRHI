@@ -200,7 +200,7 @@ namespace MangoRHI {
 
     #define __declare_component_cls(cls_name) \
     public: \
-        ~cls_name() { if (is_destroyed() == MG_FALSE) { destroy(); }} \
+        ~cls_name() override { if (is_destroyed() == MG_FALSE) { destroy(); }} \
         Result create() override; \
         Result destroy() override; \
     private: \

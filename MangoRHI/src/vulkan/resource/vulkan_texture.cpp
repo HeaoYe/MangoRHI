@@ -22,8 +22,11 @@ namespace MangoRHI {
             RHI_DEBUG("Load texture file {}, [{}, {}, {}]", filename, width, height, channels)
         }
 
+        u32 max_mipmap_levels = std::floor(std::log2(std::max(extent.width, extent.height))) + 1;
         if (mipmap_levels == 0) {
-            mipmap_levels = std::floor(std::log2(std::max(extent.width, extent.height))) + 1;
+            mipmap_levels = max_mipmap_levels;
+        } else {
+            mipmap_levels = std::min(mipmap_levels, max_mipmap_levels);
         }
         VkDeviceSize size = extent.width * extent.height * 4;
 
