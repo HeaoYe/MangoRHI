@@ -4,7 +4,7 @@
 #include "swapchain.hpp"
 #include "renderpass.hpp"
 #include "command.hpp"
-#include "resource_manager.hpp"
+#include "resource_factory.hpp"
 
 namespace MangoRHI {
     class Context : public RuntimeComponent {
@@ -19,8 +19,8 @@ namespace MangoRHI {
         virtual void resize(u32 width, u32 height) = 0;
         virtual const u32 get_width() const = 0;
         virtual const u32 get_height() const = 0;
-        virtual ResourceManager &get_resource_manager_reference() = 0;
-        virtual RenderTarget &get_surface_render_target_reference() = 0;
+        virtual void set_clear_value(const char *render_target_name, ClearValue value) = 0;
+        virtual ResourceFactory &get_resource_factory_reference() = 0;
         virtual RenderPass &get_render_pass_reference() = 0;
         virtual Command &get_current_command_reference() = 0;
 

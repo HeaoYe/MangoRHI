@@ -136,6 +136,8 @@ namespace MangoRHI {
     Result VulkanTexture::destroy() {
         component_destroy()
 
+        VK_CHECK(vkDeviceWaitIdle(vulkan_context->get_device()->get_logical_device()))
+
         sampler.destroy();
         image.destroy();
 

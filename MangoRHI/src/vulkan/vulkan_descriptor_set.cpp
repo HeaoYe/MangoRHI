@@ -2,10 +2,6 @@
 #include "vulkan_context.hpp"
 
 namespace MangoRHI {
-    STL_IMPL::unordered_map<VkDescriptorType, u32> g_descriptor_info = {
-        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0 },
-        { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0 }
-    };
     STL_IMPL::vector<VulkanDescriptorSet *> g_vulkan_descriptor_sets(0);
 
     Result VulkanUniformDescriptor::create() {
@@ -153,14 +149,14 @@ namespace MangoRHI {
         }
     }
 
-    u32 VulkanDescriptorSet::add_uniforms(DescriptorStage stage, u32 size, u32 count) {
+    u32 VulkanDescriptorSet::add_uniforms_descriptor(DescriptorStage stage, u32 size, u32 count) {
         auto &uniform_descriptor = dynamic_cast<VulkanUniformDescriptor &>(*descriptors.emplace_back(new VulkanUniformDescriptor()));
         uniform_descriptor.set_size(size);
         setup_descriptor_binding(uniform_descriptor, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, stage, count);
         return _current_binding - 1;
     }
 
-    u32 VulkanDescriptorSet::add_textures(DescriptorStage stage, const STL_IMPL::vector<std::reference_wrapper<const Texture>> &textures) {
+    u32 VulkanDescriptorSet::add_textures_descriptor(DescriptorStage stage, const STL_IMPL::vector<std::reference_wrapper<const Texture>> &textures) {
         auto &texture_descriptor = dynamic_cast<VulkanTextureDescriptor &>(*descriptors.emplace_back(new VulkanTextureDescriptor()));
         for (auto &texture : textures) {
             texture_descriptor.add_texture((VulkanTexture &)texture.get());
@@ -169,10 +165,10 @@ namespace MangoRHI {
         return _current_binding - 1;
     }
 
-    u32 VulkanDescriptorSet::add_input_render_targets(DescriptorStage stage, const STL_IMPL::vector<STL_IMPL::pair<const char *, const Sampler &>> &render_targets)  {
+    u32 VulkanDescriptorSet::add_input_render_targets_descriptor(DescriptorStage stage, const STL_IMPL::vector<STL_IMPL::pair<const char *, const Sampler &>> &render_targets)  {
         auto &input_render_target_descriptor = dynamic_cast<VulkanInputRenderTargetDescriptor &>(*descriptors.emplace_back(new VulkanInputRenderTargetDescriptor()));
         for (auto &render_target : render_targets) {
-            input_render_target_descriptor.add_render_target(vulkan_context->get_render_pass()->get_render_targets()[vulkan_context->get_render_pass()->get_render_target_index_by_name(render_target.first)], (VulkanSampler &)render_target.second);
+            input_render_target_descriptor.add_render_target(*vulkan_context->get_render_pass()->get_render_targets()[vulkan_context->get_render_pass()->get_render_target_index_by_name(render_target.first)], (VulkanSampler &)render_target.second);
         }
         setup_descriptor_binding(input_render_target_descriptor, VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, stage, render_targets.size());
         return _current_binding - 1;
@@ -189,7 +185,6 @@ namespace MangoRHI {
             .pImmutableSamplers = nullptr,
         });
         _current_binding++;
-        g_descriptor_info[type]++;
     }
 
     VulkanDescriptorSet::VulkanDescriptorSet() {
@@ -241,10 +236,15 @@ namespace MangoRHI {
 
     void VulkanDescriptorSet::set_input_render_target(u32 binding, u32 index, const STL_IMPL::pair<const char *, const Sampler &> &render_target) {
         auto &descriptor = (VulkanInputRenderTargetDescriptor &)*descriptors[binding];
-        descriptor.set_render_target(index, vulkan_context->get_render_pass()->get_render_targets()[vulkan_context->get_render_pass()->get_render_target_index_by_name(render_target.first)], (VulkanSampler &)render_target.second);
+        descriptor.set_render_target(index, *vulkan_context->get_render_pass()->get_render_targets()[vulkan_context->get_render_pass()->get_render_target_index_by_name(render_target.first)], (VulkanSampler &)render_target.second);
     }
 
-    void VulkanDescriptorSet::update() {
+    void VulkanDescriptorSet::update(u32 binding) {
+        VK_CHECK(vkDeviceWaitIdle(vulkan_context->get_device()->get_logical_device()))
+        descriptors[binding]->update(*this);
+    }
+
+    void VulkanDescriptorSet::update_all() {
         VK_CHECK(vkDeviceWaitIdle(vulkan_context->get_device()->get_logical_device()))
         for (auto &descriptor : descriptors) {
             descriptor->update(*this);

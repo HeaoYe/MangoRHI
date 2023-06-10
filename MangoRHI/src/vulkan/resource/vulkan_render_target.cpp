@@ -13,6 +13,8 @@ namespace MangoRHI {
     Result VulkanRenderTarget::create() {
         component_create()
 
+        VK_CHECK(vkDeviceWaitIdle(vulkan_context->get_device()->get_logical_device()))
+
         switch (usage) {
         case RenderTargetUsage::eColor:
             description.format = vulkan_context->get_swapchain()->get_format().format;
@@ -43,6 +45,10 @@ namespace MangoRHI {
             description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        }
+        if (strcmp(name, MANGORHI_SURFACE_RENDER_TARGET_NAME) == 0) {
+            description.samples = VK_SAMPLE_COUNT_1_BIT;
+            description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
         }
 
         if (images.size() == 0) {

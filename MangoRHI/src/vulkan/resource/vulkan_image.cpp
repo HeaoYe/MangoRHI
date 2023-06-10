@@ -40,6 +40,8 @@ namespace MangoRHI {
     Result VulkanImage::destroy() {
         component_destroy()
 
+        VK_CHECK(vkDeviceWaitIdle(vulkan_context->get_device()->get_logical_device()))
+
         RHI_DEBUG("Destroy vulkan image view -> 0x{:x}", (AddrType)image_view)
         vkDestroyImageView(vulkan_context->get_device()->get_logical_device(), image_view, vulkan_context->get_allocator());
 

@@ -30,6 +30,8 @@ namespace MangoRHI {
     Result VulkanBuffer::destroy() {
         component_destroy()
 
+        VK_CHECK(vkDeviceWaitIdle(vulkan_context->get_device()->get_logical_device()))
+
         RHI_DEBUG("Free vulkan device memory -> 0x{:x}", (AddrType)memory)
         vkFreeMemory(vulkan_context->get_device()->get_logical_device(), memory, vulkan_context->get_allocator());
 
@@ -103,6 +105,8 @@ namespace MangoRHI {
     Result VulkanVertexBuffer::destroy() {
         component_destroy()
 
+        VK_CHECK(vkDeviceWaitIdle(vulkan_context->get_device()->get_logical_device()))
+
         staging.destroy();
         buffer.destroy();
 
@@ -144,6 +148,8 @@ namespace MangoRHI {
 
     Result VulkanIndexBuffer::destroy() {
         component_destroy()
+
+        VK_CHECK(vkDeviceWaitIdle(vulkan_context->get_device()->get_logical_device()))
 
         staging.destroy();
         buffer.destroy();

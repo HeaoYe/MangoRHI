@@ -69,21 +69,20 @@ namespace MangoRHI {
     declare_component_cls(VulkanInputRenderTargetDescriptor)
     };
 
-    extern STL_IMPL::unordered_map<VkDescriptorType, u32> g_descriptor_info;
-
     class VulkanDescriptorPool;
 
     class VulkanDescriptorSet final : public DescriptorSet {
         friend VulkanDescriptorPool;
     public:
-        u32 add_uniforms(DescriptorStage stage, u32 size, u32 count) override;
-        u32 add_textures(DescriptorStage stage, const STL_IMPL::vector<std::reference_wrapper<const Texture>> &textures) override;
-        u32 add_input_render_targets(DescriptorStage stage, const STL_IMPL::vector<STL_IMPL::pair<const char *, const Sampler &>> &render_targets) override;
+        u32 add_uniforms_descriptor(DescriptorStage stage, u32 size, u32 count) override;
+        u32 add_textures_descriptor(DescriptorStage stage, const STL_IMPL::vector<std::reference_wrapper<const Texture>> &textures) override;
+        u32 add_input_render_targets_descriptor(DescriptorStage stage, const STL_IMPL::vector<STL_IMPL::pair<const char *, const Sampler &>> &render_targets) override;
 
         void *get_uniform_buffer_pointer(u32 binding, u32 index) override;
         void set_texture(u32 binding, u32 index, Texture &texture) override;
         void set_input_render_target(u32 binding, u32 index, const STL_IMPL::pair<const char *, const Sampler &> &render_target) override;
-        void update() override;
+        void update(u32 binding) override;
+        void update_all() override;
 
     private:
         void setup_descriptor_binding(VulkanDescriptor &descriptor, VkDescriptorType type, DescriptorStage stage, u32 count);

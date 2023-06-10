@@ -36,9 +36,9 @@ namespace MangoRHI {
         };
     }
 
-    DescriptorSet &VulkanShaderProgram::create_descriptor_set() {
+    std::weak_ptr<DescriptorSet> VulkanShaderProgram::create_descriptor_set() {
         auto &descriptor_set = vulkan_descriptor_sets.emplace_back(new VulkanDescriptorSet());
-        return *descriptor_set;
+        return std::reinterpret_pointer_cast<DescriptorSet>(descriptor_set);
     }
 
     Result VulkanShaderProgram::create() {
@@ -121,7 +121,8 @@ namespace MangoRHI {
         dynamic_state.dynamicStateCount = dynamic_states.size();
 
         in_flight_descriptor_sets.resize(vulkan_context->get_max_in_flight_frame_count());
-        for (const auto &descriptor_set : vulkan_descriptor_sets) {
+        for (auto &descriptor_set : vulkan_descriptor_sets) {
+            vulkan_context->get_descriptor_pool()->allocate(*descriptor_set);
             descriptor_set_layouts.push_back(descriptor_set->get_layout());
             for(u32 in_flight_index = 0; in_flight_index < vulkan_context->get_max_in_flight_frame_count(); in_flight_index++) {
                 in_flight_descriptor_sets[in_flight_index].push_back(descriptor_set->get_in_flight_descriptor_sets()[in_flight_index]);
@@ -163,12 +164,17 @@ namespace MangoRHI {
     Result VulkanShaderProgram::destroy() {
         component_destroy()
 
+        VK_CHECK(vkDeviceWaitIdle(vulkan_context->get_device()->get_logical_device()))
+
         RHI_DEBUG("Destroy vulkan pipeline -> 0x{:x}", (AddrType)pipeline)
         vkDestroyPipeline(vulkan_context->get_device()->get_logical_device(), pipeline, vulkan_context->get_allocator());
 
         RHI_DEBUG("Destroy vulkan pipeline layout -> 0x{:x}", (AddrType)layout)
         vkDestroyPipelineLayout(vulkan_context->get_device()->get_logical_device(), layout, vulkan_context->get_allocator());
 
+        for (auto &descriptor_set : vulkan_descriptor_sets) {
+            vulkan_context->get_descriptor_pool()->free(*descriptor_set);
+        }
         in_flight_descriptor_sets.clear();
 
         return Result::eSuccess;

@@ -17,7 +17,7 @@ namespace MangoRHI {
         void add_vertex_binding(VertexInputRate rate) override;
         void attach_vertex_shader(const Shader &shader, const char *entry) override;
         void attach_fragment_shader(const Shader &shader, const char *entry) override;
-        DescriptorSet &create_descriptor_set() override;
+        std::weak_ptr<DescriptorSet> create_descriptor_set() override;
 
         const STL_IMPL::vector<VkDescriptorSet> &get_current_in_flight_descriptor_sets() const;
 
@@ -34,7 +34,7 @@ namespace MangoRHI {
     define_private_member(VulkanShaderInfo, vertex_shader, MANGO_NO_INIT_VAULE)
     define_private_member(VulkanShaderInfo, fragment_shader, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkDynamicState>, dynamic_states, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<std::unique_ptr<VulkanDescriptorSet>>, vulkan_descriptor_sets, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<std::shared_ptr<VulkanDescriptorSet>>, vulkan_descriptor_sets, MANGO_NO_INIT_VAULE)
 
     define_private_member(u32, _current_location, 0)
     define_private_member(u32, _current_offset, 0)

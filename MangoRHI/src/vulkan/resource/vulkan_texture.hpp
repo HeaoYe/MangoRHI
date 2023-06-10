@@ -12,7 +12,7 @@ namespace MangoRHI {
         Sampler &get_sampler_reference() override;
 
     define_readonly_pointer(MANGO_NO_GETTER, MANGO_SETTER_OVERRIDE, char, filename, "")
-    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC, Bool, is_empty, MG_FALSE)
+    define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC_OVERRIDE, Bool, is_empty, MG_FALSE)
     define_member(MANGO_NO_GETTER, MANGO_SETTER_BASIC_OVERRIDE, u32, mipmap_levels, 0)
 
     define_private_member(VkExtent2D, extent, MANGO_NO_INIT_VAULE)
