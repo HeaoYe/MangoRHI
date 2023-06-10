@@ -328,9 +328,11 @@ namespace MangoRHI {
     };
 
     enum class VertexInputType : u32 {
+        eInt,
         eInt2,
         eInt3,
         eInt4,
+        eFloat,
         eFloat2,
         eFloat3,
         eFloat4,

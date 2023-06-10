@@ -154,12 +154,16 @@ namespace MangoRHI {
 
     VkFormat vertex_input_type2vk_format(VertexInputType type) {
         switch (type) {
+        case VertexInputType::eInt:
+            return VK_FORMAT_R32_SINT;
         case VertexInputType::eInt2:
             return VK_FORMAT_R32G32_SINT;
         case VertexInputType::eInt3:
             return VK_FORMAT_R32G32B32_SINT;
         case VertexInputType::eInt4:
             return VK_FORMAT_R32G32B32A32_SINT;
+        case VertexInputType::eFloat:
+            return VK_FORMAT_R32_SFLOAT;
         case VertexInputType::eFloat2:
             return VK_FORMAT_R32G32_SFLOAT;
         case VertexInputType::eFloat3:
