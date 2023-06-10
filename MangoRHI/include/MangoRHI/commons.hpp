@@ -94,6 +94,7 @@ namespace MangoRHI {
 
     class RuntimeComponent {
     public:
+        virtual ~RuntimeComponent() = 0;
         virtual Result create() = 0;
         virtual Result destroy() = 0;
         virtual Bool is_destroyed() final { return destroyed; }
@@ -193,6 +194,7 @@ namespace MangoRHI {
 
     #define __declare_component_cls(cls_name) \
     public: \
+        ~cls_name() { if (is_destroyed() == MG_FALSE) { destroy(); }} \
         Result create() override; \
         Result destroy() override; \
     private: \

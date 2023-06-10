@@ -79,7 +79,7 @@ namespace MangoRHI {
         framebuffer->create();
         synchronization->create();
         for (u32 index = 0; index < max_in_flight_frame_count; index++) {
-            auto &command =commands.emplace_back(new VulkanCommand());
+            auto &command = commands.emplace_back(new VulkanCommand());
             command_pool->allocate(CommandLevel::ePrimary, *command);
         }
         return Result::eSuccess;
@@ -94,6 +94,7 @@ namespace MangoRHI {
         for (auto &command : commands) {
             command_pool->free(*command);
         }
+        commands.clear();
         synchronization->destroy();
         framebuffer->destroy();
         render_pass->destroy();

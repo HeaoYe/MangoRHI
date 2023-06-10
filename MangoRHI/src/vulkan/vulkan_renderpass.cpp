@@ -132,6 +132,7 @@ namespace MangoRHI {
 
         STL_IMPL::vector<VkAttachmentDescription> attachment_descriptions;
         STL_IMPL::vector<VkSubpassDescription> subpass_descriptions;
+        clear_values.reserve(render_targets.size());
         clear_values.resize(render_targets.size());
 
         for (u32 index = 0; index < vulkan_context->get_swapchain()->get_image_count(); index ++) {
@@ -170,6 +171,7 @@ namespace MangoRHI {
             render_target->destroy();
         }
         render_targets.clear();
+        clear_values.clear();
 
         return Result::eSuccess;
     }

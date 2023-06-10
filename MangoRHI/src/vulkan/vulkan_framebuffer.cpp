@@ -36,6 +36,7 @@ namespace MangoRHI {
             RHI_DEBUG("Destroy vulkan framebuffer({}) -> 0x{:x}", index, (AddrType)framebuffers[index])
             vkDestroyFramebuffer(vulkan_context->get_device()->get_logical_device(), framebuffers[index], vulkan_context->get_allocator());
         }
+        framebuffers.clear();
 
         return Result::eSuccess;
     }

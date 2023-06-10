@@ -112,10 +112,12 @@ namespace MangoRHI {
             RHI_DEBUG("Destroy vulkan swapchain image view({}) -> 0x{:x}", i, (AddrType)image_views[i])
             vkDestroyImageView(vulkan_context->get_device()->get_logical_device(), image_views[i], vulkan_context->get_allocator());
         }
+        image_views.clear();
 
         RHI_DEBUG("Destroy vulkan swapchain -> 0x{:x}", (AddrType)swapchain)
         vkDestroySwapchainKHR(vulkan_context->get_device()->get_logical_device(), swapchain, vulkan_context->get_allocator());
         swapchain = VK_NULL_HANDLE;
+        images.clear();
 
         return Result::eSuccess;
     };

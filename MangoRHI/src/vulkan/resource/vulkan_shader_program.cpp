@@ -175,6 +175,7 @@ namespace MangoRHI {
         for (auto &descriptor_set : vulkan_descriptor_sets) {
             vulkan_context->get_descriptor_pool()->free(*descriptor_set);
         }
+        descriptor_set_layouts.clear();
         in_flight_descriptor_sets.clear();
 
         return Result::eSuccess;
