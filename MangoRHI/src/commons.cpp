@@ -37,6 +37,7 @@ namespace MangoRHI {
     }
 
     static API g_api;
+    static Context *g_context;
 
     MANGORHI_API Result initialize(API api) {
         g_logger.create();
@@ -49,6 +50,7 @@ namespace MangoRHI {
             return Result::eNotImplemented;
         case API::eVulkan:
             invoke_backend_func(vulkan, initialize)
+            g_context = reinterpret_cast<Context *>(vulkan_context);
             break;
         case API::eDirectX:
             return Result::eNotImplemented;
@@ -80,18 +82,7 @@ namespace MangoRHI {
     }
 
     MANGORHI_API Context &get_context() {
-        switch (g_api) {
-        case API::eNone:
-            throw std::runtime_error("Not Impl For None Yet.");
-        case API::eOpenGL:
-            throw std::runtime_error("Not Impl For OpenGL Yet.");
-        case API::eVulkan:
-            return *vulkan_context;
-        case API::eDirectX:
-            throw std::runtime_error("Not Impl For DirectX Yet.");
-        case API::eMetal:
-            throw std::runtime_error("Not Impl For Matel Yet.");
-        };
+        return *g_context;
     }
 
     #undef invoke_backend_func
