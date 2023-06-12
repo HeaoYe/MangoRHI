@@ -36,7 +36,8 @@ namespace MangoRHI {
             description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
             break;
-        case RenderTargetUsage::eColorBuffer:
+        case RenderTargetUsage::eBuffer:
+        case RenderTargetUsage::eTexture:
             description.format = vulkan_context->get_swapchain()->get_format().format;
             description.samples = vulkan_context->get_multisample_count();
             description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -71,8 +72,12 @@ namespace MangoRHI {
                 image->set_usage(VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
                 image->set_aspect(VK_IMAGE_ASPECT_DEPTH_BIT);
                 break;
-            case RenderTargetUsage::eColorBuffer:
+            case RenderTargetUsage::eBuffer:
                 image->set_usage(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT);
+                image->set_aspect(VK_IMAGE_ASPECT_COLOR_BIT);
+                break;
+            case RenderTargetUsage::eTexture:
+                image->set_usage(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
                 image->set_aspect(VK_IMAGE_ASPECT_COLOR_BIT);
                 break;
             }

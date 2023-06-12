@@ -262,7 +262,8 @@ namespace MangoRHI {
     enum class RenderTargetUsage : u32 {
         eColor,
         eDepth,
-        eColorBuffer,
+        eBuffer,
+        eTexture,
     };
 
     enum class RenderTargetLayout : u32 {

@@ -39,11 +39,11 @@ int main() {
     rp.create_render_target("color", MangoRHI::RenderTargetUsage::eColor);
 
     rp.create_render_target("pos", MangoRHI::RenderTargetUsage::eColor);
-    rp.create_render_target("pos_resolve", MangoRHI::RenderTargetUsage::eColorBuffer);
+    rp.create_render_target("pos_resolve", MangoRHI::RenderTargetUsage::eBuffer);
     rp.create_render_target("normal", MangoRHI::RenderTargetUsage::eColor);
-    rp.create_render_target("normal_resolve", MangoRHI::RenderTargetUsage::eColorBuffer);
+    rp.create_render_target("normal_resolve", MangoRHI::RenderTargetUsage::eBuffer);
     rp.create_render_target("texture", MangoRHI::RenderTargetUsage::eColor);
-    rp.create_render_target("texture_resolve", MangoRHI::RenderTargetUsage::eColorBuffer);
+    rp.create_render_target("texture_resolve", MangoRHI::RenderTargetUsage::eBuffer);
 
     rp.add_output_render_target("pos", MangoRHI::RenderTargetLayout::eColor);
     rp.add_resolve_render_target("pos_resolve", MangoRHI::RenderTargetLayout::eColor);
