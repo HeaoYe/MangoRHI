@@ -29,7 +29,7 @@ namespace MangoRHI {
         texture->set_filename(filename);
         texture->set_is_empty(MG_FALSE);
         texture->set_mipmap_levels(mipmap_levels);
-        if (is_create) {
+        if (is_create == MG_TRUE) {
             texture->create();
         }
         return std::move(texture);
@@ -46,7 +46,7 @@ namespace MangoRHI {
 
     std::unique_ptr<Sampler> VulkanResourceFactory::create_sampler(Bool is_create) {
         auto sampler = std::unique_ptr<Sampler>(new VulkanSampler());
-        if (is_create) {
+        if (is_create == MG_TRUE) {
             sampler->create();
         }
         return std::move(sampler);
