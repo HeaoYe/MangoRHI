@@ -2,8 +2,6 @@
 #include "vulkan_context.hpp"
 
 namespace MangoRHI {
-    STL_IMPL::vector<VulkanDescriptorSet *> g_vulkan_descriptor_sets(0);
-
     Result VulkanUniformDescriptor::create() {
         component_create()
 
@@ -187,10 +185,6 @@ namespace MangoRHI {
         _current_binding++;
     }
 
-    VulkanDescriptorSet::VulkanDescriptorSet() {
-        g_vulkan_descriptor_sets.push_back(this);
-    }
-
     Result VulkanDescriptorSet::create() {
         component_create()
 
@@ -205,6 +199,14 @@ namespace MangoRHI {
         VK_CHECK(vkCreateDescriptorSetLayout(vulkan_context->get_device()->get_logical_device(), &descriptor_set_layout_create_info, vulkan_context->get_allocator(), &layout))
         RHI_DEBUG("Create vulkan descriptor set layout -> 0x{:x}", (AddrType)layout)
         in_flight_descriptor_sets.resize(vulkan_context->get_max_in_flight_frame_count());
+
+        vulkan_context->add_resource_recreate_callback([this]() {
+            for (auto &descriptor : descriptors) {
+                if (descriptor->get_type() == DescriptorType::eInputRenderTarget) {
+                    descriptor->update(*this);
+                }
+            }
+        });
 
         return Result::eSuccess;
     }

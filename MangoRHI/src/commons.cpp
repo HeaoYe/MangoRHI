@@ -28,6 +28,16 @@ namespace MangoRHI {
         return this;
     }
 
+    RuntimeComponent *RuntimeComponent::remove_destroy_dependency(RuntimeComponent *component) {
+        pre_destroy_components.remove_if([component](auto &a_component) {
+            return a_component == component;
+        });
+        post_destroy_components.remove_if([component](auto &a_component) {
+            return a_component == component;
+        });
+        return this;
+    }
+
     #define invoke_backend_func(backend, func) \
     { \
         auto res = func##_##backend(); \

@@ -129,7 +129,6 @@ int main() {
     sp2->set_depth_write_enabled(MangoRHI::MG_FALSE);
     auto ds2 = sp2->create_descriptor_set();
     auto sampler = rf.create_sampler();
-    sampler->create();
     ds2.lock()->add_input_render_targets_descriptor(MangoRHI::DescriptorStage::eFragment, { { "pos_resolve", *sampler } });
     ds2.lock()->add_input_render_targets_descriptor(MangoRHI::DescriptorStage::eFragment, { { "normal_resolve", *sampler } });
     ds2.lock()->add_input_render_targets_descriptor(MangoRHI::DescriptorStage::eFragment, { { "texture_resolve", *sampler } });

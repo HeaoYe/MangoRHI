@@ -92,8 +92,6 @@ namespace MangoRHI {
     define_member(MANGO_MUTABLE_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<std::unique_ptr<VulkanDescriptor>>, descriptors, MANGO_NO_INIT_VAULE)
     define_private_member(u32, _current_binding, 0)
 
-    declare_component_cls_custom_construction(VulkanDescriptorSet)
+    declare_component_cls(VulkanDescriptorSet)
     };
-
-    extern STL_IMPL::vector<VulkanDescriptorSet *> g_vulkan_descriptor_sets;
 }
