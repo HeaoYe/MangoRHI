@@ -36,9 +36,33 @@ namespace MangoRHI {
         };
     }
 
-    std::weak_ptr<DescriptorSet> VulkanShaderProgram::create_descriptor_set() {
-        auto &descriptor_set = vulkan_descriptor_sets.emplace_back(new VulkanDescriptorSet());
-        return std::reinterpret_pointer_cast<DescriptorSet>(descriptor_set);
+    std::weak_ptr<DescriptorSetLayout> VulkanShaderProgram::create_descriptor_set_layout(const char *layout_name) {
+        auto &vk_layout = descriptor_set_layouts.emplace_back(new VulkanDescriptorSetLayout());
+        vk_layout->set_name(layout_name);
+        return vk_layout;
+    }
+
+    std::unique_ptr<DescriptorSet> VulkanShaderProgram::allocate_descriptor_set(const char *layout_name) {
+        std::unique_ptr<VulkanDescriptorSet> descriptor_set = std::make_unique<VulkanDescriptorSet>();
+        Bool found = MG_FALSE;
+        std::for_each(descriptor_set_layouts.begin(), descriptor_set_layouts.end(), [layout_name, &descriptor_set, &found](auto &layout) {
+            if (strcmp(layout_name, layout->get_name()) == 0) {
+                if (layout->is_destroyed() == MG_TRUE) {
+                    layout->create();
+                }
+                vulkan_context->get_descriptor_pool()->allocate(*layout, *descriptor_set);
+                found = MG_TRUE;
+                return;
+            }
+        });
+        if (found == MG_FALSE) {
+            RHI_ERROR("Cannot found descriptor layout {}", layout_name)
+        }
+        return std::move(descriptor_set);
+    }
+
+    void VulkanShaderProgram::free_descriptor_set(std::unique_ptr<DescriptorSet> descriptor_set) {
+        vulkan_context->get_descriptor_pool()->free(dynamic_cast<VulkanDescriptorSet &>(*descriptor_set));
     }
 
     Result VulkanShaderProgram::create() {
@@ -120,18 +144,17 @@ namespace MangoRHI {
         dynamic_state.pDynamicStates = dynamic_states.data();
         dynamic_state.dynamicStateCount = dynamic_states.size();
 
-        in_flight_descriptor_sets.resize(vulkan_context->get_max_in_flight_frame_count());
-        for (auto &descriptor_set : vulkan_descriptor_sets) {
-            vulkan_context->get_descriptor_pool()->allocate(*descriptor_set);
-            descriptor_set_layouts.push_back(descriptor_set->get_layout());
-            for(u32 in_flight_index = 0; in_flight_index < vulkan_context->get_max_in_flight_frame_count(); in_flight_index++) {
-                in_flight_descriptor_sets[in_flight_index].push_back(descriptor_set->get_in_flight_descriptor_sets()[in_flight_index]);
+        STL_IMPL::vector<VkDescriptorSetLayout> layouts;
+        std::for_each(descriptor_set_layouts.begin(), descriptor_set_layouts.end(), [&layouts](auto &layout) {
+            if (layout->is_destroyed() == MG_TRUE) {
+                layout->create();
             }
-        }
+            layouts.push_back(layout->get_layout());
+        });
 
         VkPipelineLayoutCreateInfo layout_create_info { .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-        layout_create_info.pSetLayouts = descriptor_set_layouts.data();
-        layout_create_info.setLayoutCount = descriptor_set_layouts.size();
+        layout_create_info.pSetLayouts = layouts.data();
+        layout_create_info.setLayoutCount = layouts.size();
         layout_create_info.pPushConstantRanges = nullptr;
         layout_create_info.pushConstantRangeCount = 0;
         VK_CHECK(vkCreatePipelineLayout(vulkan_context->get_device()->get_logical_device(), &layout_create_info, vulkan_context->get_allocator(), &layout))
@@ -172,16 +195,8 @@ namespace MangoRHI {
         RHI_DEBUG("Destroy vulkan pipeline layout -> 0x{:x}", (AddrType)layout)
         vkDestroyPipelineLayout(vulkan_context->get_device()->get_logical_device(), layout, vulkan_context->get_allocator());
 
-        for (auto &descriptor_set : vulkan_descriptor_sets) {
-            vulkan_context->get_descriptor_pool()->free(*descriptor_set);
-        }
         descriptor_set_layouts.clear();
-        in_flight_descriptor_sets.clear();
 
         component_destroy_end()
-    }
-
-    const STL_IMPL::vector<VkDescriptorSet> &VulkanShaderProgram::get_current_in_flight_descriptor_sets() const {
-        return in_flight_descriptor_sets[vulkan_context->get_current_in_flight_frame_index()];
     }
 }

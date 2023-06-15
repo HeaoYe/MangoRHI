@@ -417,6 +417,13 @@ namespace MangoRHI {
         eMax,
     };
 
+    enum class DescriptorType {
+        eNone,
+        eUniform,
+        eTexture,
+        eInputRenderTarget,
+    };
+
     #undef define_flags
 
     struct Viewport {

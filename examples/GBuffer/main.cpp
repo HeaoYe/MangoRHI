@@ -111,12 +111,15 @@ int main() {
     sp1->set_cull_mode(MangoRHI::CullMode::eNone);
     sp1->set_depth_test_enabled(MangoRHI::MG_TRUE);
     sp1->set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);
-    auto texture = rf.create_texture("assets/textures/dance.png");
-    auto ds1 = sp1->create_descriptor_set();
-    ds1.lock()->add_textures_descriptor(MangoRHI::DescriptorStage::eFragment, { *texture });
+    auto l1 = sp1->create_descriptor_set_layout("g-buffer");
+    l1.lock()->add_textures_descriptor(MangoRHI::DescriptorStage::eFragment, 1);
     sp1->create();
     vert.reset();
     frag.reset();
+    auto texture = rf.create_texture("assets/textures/dance.png");
+    auto d1 = sp1->allocate_descriptor_set("g-buffer");
+    d1->set_texture(0, 0, *texture);
+    d1->update_all();
 
     auto sp2 = rf.create_shader_program("second");
     auto vert2 = rf.create_shader("assets/shaders/vert2.spv");
@@ -127,14 +130,19 @@ int main() {
     sp2->set_depth_test_enabled(MangoRHI::MG_TRUE);
     sp2->set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);
     sp2->set_depth_write_enabled(MangoRHI::MG_FALSE);
-    auto ds2 = sp2->create_descriptor_set();
-    auto sampler = rf.create_sampler();
-    ds2.lock()->add_input_render_targets_descriptor(MangoRHI::DescriptorStage::eFragment, { { "pos_resolve", *sampler } });
-    ds2.lock()->add_input_render_targets_descriptor(MangoRHI::DescriptorStage::eFragment, { { "normal_resolve", *sampler } });
-    ds2.lock()->add_input_render_targets_descriptor(MangoRHI::DescriptorStage::eFragment, { { "texture_resolve", *sampler } });
+    auto l2 = sp2->create_descriptor_set_layout("render");
+    l2.lock()->add_input_render_targets_descriptor(MangoRHI::DescriptorStage::eFragment, 1);
+    l2.lock()->add_input_render_targets_descriptor(MangoRHI::DescriptorStage::eFragment, 1);
+    l2.lock()->add_input_render_targets_descriptor(MangoRHI::DescriptorStage::eFragment, 1);
     sp2->create();
     vert2.reset();
     frag2.reset();
+    auto sampler = rf.create_sampler();
+    auto d2 = sp2->allocate_descriptor_set("render");
+    d2->set_input_render_target(0, 0, { "pos_resolve", *sampler });
+    d2->set_input_render_target(1, 0, { "normal_resolve", *sampler });
+    d2->set_input_render_target(2, 0, { "texture_resolve", *sampler });
+    d2->update_all();
 
     auto vertex_buffer = rf.create_vertex_buffer(sizeof(Vertex));
     auto index_buffer = rf.create_index_buffer();
@@ -177,6 +185,7 @@ int main() {
             auto viewport = MangoRHI::Viewport { 0, static_cast<float>(ctx.get_height()), static_cast<float>(ctx.get_width()), -static_cast<float>(ctx.get_height()), 0.0f, 1.0f };
             auto scissor = MangoRHI::Scissor { 0, 0, ctx.get_width(), ctx.get_height() };
             command.bind_shader_program(*sp1);
+            command.bind_descriptor_set(*d1);
             command.set_viewport(viewport);
             command.set_scissor(scissor);
             command.bind_vertex_buffer(*vertex_buffer, 0);
@@ -185,6 +194,7 @@ int main() {
 
             command.next_subpass();
             command.bind_shader_program(*sp2);
+            command.bind_descriptor_set(*d2);
             command.set_viewport(viewport);
             command.set_scissor(scissor);
             command.bind_vertex_buffer(*vertex_buffer, 0);
