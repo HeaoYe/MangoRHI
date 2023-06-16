@@ -64,7 +64,7 @@ namespace MangoRHI {
 
     void VulkanCommand::bind_descriptor_set(const DescriptorSet &descriptor_set) {
         VulkanDescriptorSet &vulkan_descriptor_set = (VulkanDescriptorSet &)descriptor_set;
-        vkCmdBindDescriptorSets(command_buffer, vulkan_context->get_render_pass()->get_subpasses()[_current_shader_program->get_subpass_index()]->get_bind_point(), _current_shader_program->get_layout(), 0, 1, &vulkan_descriptor_set.get_current_in_flight_descriptor_set(), 0, 0);
+        vkCmdBindDescriptorSets(command_buffer, vulkan_context->get_render_pass()->get_subpasses()[_current_shader_program->get_subpass_index()]->get_bind_point(), _current_shader_program->get_layout(), vulkan_descriptor_set.get_index(), 1, &vulkan_descriptor_set.get_current_in_flight_descriptor_set(), 0, 0);
     };
 
     void VulkanCommand::bind_vertex_buffer(const VertexBuffer &vertex_buffer, u32 binding) {

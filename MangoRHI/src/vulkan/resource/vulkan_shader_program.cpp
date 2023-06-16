@@ -39,6 +39,7 @@ namespace MangoRHI {
     std::weak_ptr<DescriptorSetLayout> VulkanShaderProgram::create_descriptor_set_layout(const char *layout_name) {
         auto &vk_layout = descriptor_set_layouts.emplace_back(new VulkanDescriptorSetLayout());
         vk_layout->set_name(layout_name);
+        vk_layout->set_index(descriptor_set_layouts.size() - 1);
         return vk_layout;
     }
 

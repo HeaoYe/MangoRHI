@@ -20,6 +20,7 @@ namespace MangoRHI {
     define_private_member(u32, _current_binding, 0)
 
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkDescriptorSetLayout, layout, VK_NULL_HANDLE)
+    define_member(MANGO_CONST_GETTER, MANGO_SETTER_BASIC, u32, index, MANGO_NO_INIT_VAULE)
 
     declare_component_cls(VulkanDescriptorSetLayout)
     };
@@ -37,6 +38,7 @@ namespace MangoRHI {
 
     define_member(MANGO_NO_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<std::unique_ptr<VulkanDescriptor>>, descriptors, MANGO_NO_INIT_VAULE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, STL_IMPL::vector<VkDescriptorSet>, in_flight_descriptor_sets, MANGO_NO_INIT_VAULE)
+    define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, u32, index, MANGO_NO_INIT_VAULE)
 
     declare_component_cls(VulkanDescriptorSet)
     };

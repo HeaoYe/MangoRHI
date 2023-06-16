@@ -25,6 +25,7 @@ namespace MangoRHI {
     }
 
     void VulkanDescriptorPool::allocate(VulkanDescriptorSetLayout &layout, VulkanDescriptorSet &descriptor_set) const {
+        descriptor_set.index = layout.get_index();
         descriptor_set.create();
         STL_IMPL::vector<VkDescriptorSetLayout> layouts(vulkan_context->get_max_in_flight_frame_count(), layout.get_layout());
         VkDescriptorSetAllocateInfo descriptor_set_allocate_info { .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
