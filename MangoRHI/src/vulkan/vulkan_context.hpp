@@ -12,6 +12,8 @@
 #include "vulkan_resource_factory.hpp"
 
 namespace MangoRHI {
+    using RecreateCallback = std::function<void(void)>;
+
     class VulkanContext final : public Context {
     public:
         void set_api_info(const void *info) override;
@@ -28,6 +30,8 @@ namespace MangoRHI {
 
         Result begin_frame() override;
         Result end_frame() override;
+
+        void add_resource_recreate_callback(RecreateCallback callback);
 
         VkFormat find_supported_format(const STL_IMPL::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
         VkImageView create_image_view(VkImage image, VkFormat format, VkImageAspectFlags aspect, uint32_t mipmap_levels) const;
@@ -57,6 +61,7 @@ namespace MangoRHI {
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, u32, current_in_flight_frame_index, 0)
     define_private_readonly_pointer(VulkanContextInfo, info, MANGO_NO_INIT_VAULE)
     define_private_member(std::unique_ptr<VulkanResourceFactory>, resource_factory, MANGO_NO_INIT_VAULE)
+    define_private_member(std::vector<RecreateCallback>, resource_recreate_callbacks, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<std::unique_ptr<VulkanCommand>>, commands, MANGO_NO_INIT_VAULE)
 
     declare_component_cls_custom_construction(VulkanContext)

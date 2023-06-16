@@ -36,15 +36,17 @@
     #define STL_IMPL eastl
     #include <EASTL/vector.h>
     #include <EASTL/set.h>
+    #include <EASTL/list>
     #include <EASTL/unordered_map.h>
 #else
     #define STL_IMPL ::std
     #include <vector>
     #include <set>
+    #include <list>
     #include <unordered_map>
-    #include <optional>
 #endif
 
+#include <optional>
 #include <fstream>
 
 namespace MangoRHI {
@@ -105,9 +107,10 @@ namespace MangoRHI {
     public:
         virtual RuntimeComponent *destroy_before(RuntimeComponent *component);
         virtual RuntimeComponent *destroy_after(RuntimeComponent *component);
+        virtual RuntimeComponent *remove_destroy_dependency(RuntimeComponent *component);
     protected:
-        STL_IMPL::vector<RuntimeComponent *> pre_destroy_components;
-        STL_IMPL::vector<RuntimeComponent *> post_destroy_components;
+        STL_IMPL::list<RuntimeComponent *> pre_destroy_components;
+        STL_IMPL::list<RuntimeComponent *> post_destroy_components;
     };
 
     #define __MANGO_NULL_MACRO
@@ -262,7 +265,8 @@ namespace MangoRHI {
     enum class RenderTargetUsage : u32 {
         eColor,
         eDepth,
-        eColorBuffer,
+        eBuffer,
+        eTexture,
     };
 
     enum class RenderTargetLayout : u32 {
@@ -411,6 +415,13 @@ namespace MangoRHI {
         eReverseSub,
         eMin,
         eMax,
+    };
+
+    enum class DescriptorType {
+        eNone,
+        eUniform,
+        eTexture,
+        eInputRenderTarget,
     };
 
     #undef define_flags

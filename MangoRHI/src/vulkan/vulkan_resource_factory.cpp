@@ -24,12 +24,14 @@ namespace MangoRHI {
         return std::move(index_buffer);
     }
 
-    std::unique_ptr<Texture> VulkanResourceFactory::create_texture(const char *filename, u32 mipmap_levels) {
+    std::unique_ptr<Texture> VulkanResourceFactory::create_texture(const char *filename, u32 mipmap_levels, Bool is_create) {
         auto texture = std::unique_ptr<Texture>(new VulkanTexture());
         texture->set_filename(filename);
         texture->set_is_empty(MG_FALSE);
         texture->set_mipmap_levels(mipmap_levels);
-        texture->create();
+        if (is_create == MG_TRUE) {
+            texture->create();
+        }
         return std::move(texture);
     }
 
@@ -42,8 +44,11 @@ namespace MangoRHI {
         return std::move(texture);
     }
 
-    std::unique_ptr<Sampler> VulkanResourceFactory::create_sampler() {
+    std::unique_ptr<Sampler> VulkanResourceFactory::create_sampler(Bool is_create) {
         auto sampler = std::unique_ptr<Sampler>(new VulkanSampler());
+        if (is_create == MG_TRUE) {
+            sampler->create();
+        }
         return std::move(sampler);
     }
 

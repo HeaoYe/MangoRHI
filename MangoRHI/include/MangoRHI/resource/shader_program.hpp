@@ -18,6 +18,8 @@ namespace MangoRHI {
         virtual void add_vertex_binding(VertexInputRate rate) = 0;
         virtual void attach_vertex_shader(const Shader &shader, const char *entry) = 0;
         virtual void attach_fragment_shader(const Shader &shader, const char *entry) = 0;
-        virtual std::weak_ptr<DescriptorSet> create_descriptor_set() = 0;
+        virtual std::weak_ptr<DescriptorSetLayout> create_descriptor_set_layout(const char *layout_name) = 0;
+        virtual std::unique_ptr<DescriptorSet> allocate_descriptor_set(const char *layout_name) = 0;
+        virtual void free_descriptor_set(std::unique_ptr<DescriptorSet> descriptor_set) = 0;
     };
 }

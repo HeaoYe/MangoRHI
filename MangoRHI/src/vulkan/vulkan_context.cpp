@@ -112,6 +112,10 @@ namespace MangoRHI {
         component_destroy_end()
     }
 
+    void VulkanContext::add_resource_recreate_callback(RecreateCallback callback) {
+        resource_recreate_callbacks.push_back(callback);
+    }
+
     void VulkanContext::recreate_resources() {
         VK_CHECK(vkDeviceWaitIdle(device->get_logical_device()))
 
@@ -119,13 +123,9 @@ namespace MangoRHI {
         render_pass->recreate_render_targets();
         framebuffer->recreate();
 
-        for (auto &descriptor_set : g_vulkan_descriptor_sets) {
-            for (auto &descriptor : descriptor_set->get_descriptors()) {
-                if (descriptor->get_type() == DescriptorType::eInputRenderTarget) {
-                    descriptor->update(*descriptor_set);
-                }
-            }
-        }
+        std::for_each(resource_recreate_callbacks.begin(), resource_recreate_callbacks.end(), [](auto &callback) {
+            callback();
+        });
     }
 
     Result VulkanContext::begin_frame() {

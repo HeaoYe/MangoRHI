@@ -58,12 +58,14 @@ namespace MangoRHI {
 
     void VulkanCommand::bind_shader_program(const ShaderProgram &shader_program) {
         VulkanShaderProgram &vulkan_shader_program = (VulkanShaderProgram &)shader_program;
-        auto bind_point = vulkan_context->get_render_pass()->get_subpasses()[vulkan_shader_program.get_subpass_index()]->get_bind_point();
-        vkCmdBindPipeline(command_buffer, bind_point, vulkan_shader_program.get_pipeline());
-        if (vulkan_shader_program.get_current_in_flight_descriptor_sets().size() > 0) {
-            vkCmdBindDescriptorSets(command_buffer, bind_point, vulkan_shader_program.get_layout(), 0, vulkan_shader_program.get_current_in_flight_descriptor_sets().size(), vulkan_shader_program.get_current_in_flight_descriptor_sets().data(), 0, 0);
-        }
+        _current_shader_program = &vulkan_shader_program;
+        vkCmdBindPipeline(command_buffer, vulkan_context->get_render_pass()->get_subpasses()[vulkan_shader_program.get_subpass_index()]->get_bind_point(), vulkan_shader_program.get_pipeline());
     }
+
+    void VulkanCommand::bind_descriptor_set(const DescriptorSet &descriptor_set) {
+        VulkanDescriptorSet &vulkan_descriptor_set = (VulkanDescriptorSet &)descriptor_set;
+        vkCmdBindDescriptorSets(command_buffer, vulkan_context->get_render_pass()->get_subpasses()[_current_shader_program->get_subpass_index()]->get_bind_point(), _current_shader_program->get_layout(), vulkan_descriptor_set.get_index(), 1, &vulkan_descriptor_set.get_current_in_flight_descriptor_set(), 0, 0);
+    };
 
     void VulkanCommand::bind_vertex_buffer(const VertexBuffer &vertex_buffer, u32 binding) {
         VkDeviceSize offset = 0;

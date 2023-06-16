@@ -29,14 +29,14 @@ namespace MangoRHI {
             }
             index++;
         }
+        if (index == render_targets.size()) {
+            RHI_ERROR("RenderTarget {} not found", render_target_name)
+        }
         return index;
     }
 
     VkAttachmentReference VulkanRenderPass::get_render_target_ref(const char *render_target_name, RenderTargetLayout ref_layout) const {
         u32 attachment = get_render_target_index_by_name(render_target_name);
-        if (attachment == render_targets.size()) {
-            RHI_ERROR("RenderTarget {} not found", render_target_name)
-        }
         return VkAttachmentReference {
             .attachment = attachment,
             .layout = render_target_layout2vk_image_layout(ref_layout),
@@ -58,9 +58,11 @@ namespace MangoRHI {
     }
 
     void VulkanRenderPass::create_render_target(const char *render_target_name, RenderTargetUsage usage) {
-        if (get_render_target_index_by_name(render_target_name) < render_targets.size()) {
-            RHI_ERROR("RenderTarget {} is existed", render_target_name);
-            return;
+        for (const auto &render_target: render_targets) {
+            if (strcmp(render_target->get_name(), render_target_name) == 0) {
+                RHI_ERROR("RenderTarget {} is existed", render_target_name);
+                return;
+            }
         }
         auto &render_target = render_targets.emplace_back(new VulkanRenderTarget());
         render_target->set_name(render_target_name);

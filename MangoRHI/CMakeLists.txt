@@ -8,6 +8,7 @@ file(GLOB MangoRHIInclude include/*.hpp)
 file(GLOB MangoRHISource ${MangoRHISource} src/*.cpp)
 file(GLOB MangoRHISource ${MangoRHISource} src/vulkan/*.cpp)
 file(GLOB MangoRHISource ${MangoRHISource} src/vulkan/resource/*.cpp)
+file(GLOB MangoRHISource ${MangoRHISource} src/vulkan/descriptors/*.cpp)
 add_library(MangoRHI SHARED ${MangoRHISource} ${MangoRHIInclude})
 
 target_include_directories(MangoRHI PUBLIC include/)

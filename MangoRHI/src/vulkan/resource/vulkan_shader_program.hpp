@@ -17,9 +17,9 @@ namespace MangoRHI {
         void add_vertex_binding(VertexInputRate rate) override;
         void attach_vertex_shader(const Shader &shader, const char *entry) override;
         void attach_fragment_shader(const Shader &shader, const char *entry) override;
-        std::weak_ptr<DescriptorSet> create_descriptor_set() override;
-
-        const STL_IMPL::vector<VkDescriptorSet> &get_current_in_flight_descriptor_sets() const;
+        std::weak_ptr<DescriptorSetLayout> create_descriptor_set_layout(const char *layout_name) override;
+        std::unique_ptr<DescriptorSet> allocate_descriptor_set(const char *layout_name) override;
+        void free_descriptor_set(std::unique_ptr<DescriptorSet> descriptor_set) override;
 
     define_member(MANGO_CONST_GETTER, MANGO_SETTER_BASIC, u32, subpass_index, MANGO_NO_INIT_VAULE)
     define_member_with_translator(MANGO_NO_GETTER, MANGO_SETTER_WITH_TRANSLATOR_OVERRIDE, Topology, VkPrimitiveTopology, topology, topology2vk_primitive_topology, Topology::eTriangleList)
@@ -34,15 +34,13 @@ namespace MangoRHI {
     define_private_member(VulkanShaderInfo, vertex_shader, MANGO_NO_INIT_VAULE)
     define_private_member(VulkanShaderInfo, fragment_shader, MANGO_NO_INIT_VAULE)
     define_private_member(STL_IMPL::vector<VkDynamicState>, dynamic_states, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<std::shared_ptr<VulkanDescriptorSet>>, vulkan_descriptor_sets, MANGO_NO_INIT_VAULE)
+    define_private_member(STL_IMPL::vector<std::shared_ptr<VulkanDescriptorSetLayout>>, descriptor_set_layouts, MANGO_NO_INIT_VAULE)
 
     define_private_member(u32, _current_location, 0)
     define_private_member(u32, _current_offset, 0)
 
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkPipelineLayout, layout, VK_NULL_HANDLE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkPipeline, pipeline, VK_NULL_HANDLE)
-    define_private_member(STL_IMPL::vector<VkDescriptorSetLayout>, descriptor_set_layouts, MANGO_NO_INIT_VAULE)
-    define_private_member(STL_IMPL::vector<STL_IMPL::vector<VkDescriptorSet>>, in_flight_descriptor_sets, MANGO_NO_INIT_VAULE)
 
     declare_component_cls(VulkanShaderProgram)
     };

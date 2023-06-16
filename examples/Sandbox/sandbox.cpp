@@ -26,9 +26,9 @@ int main() {
     SIZE(MangoRHI::VulkanContext)
     SIZE(MangoRHI::VulkanDescriptorPool)
     SIZE(MangoRHI::VulkanDescriptorSet)
-    SIZE(MangoRHI::VulkanUniformDescriptor)
-    SIZE(MangoRHI::VulkanTextureDescriptor)
-    SIZE(MangoRHI::VulkanInputRenderTargetDescriptor)
+    // SIZE(MangoRHI::VulkanUniformDescriptor)
+    // SIZE(MangoRHI::VulkanTextureDescriptor)
+    // SIZE(MangoRHI::VulkanInputRenderTargetDescriptor)
     SIZE(MangoRHI::VulkanDevice)
     SIZE(MangoRHI::VulkanFrameBuffer)
     SIZE(MangoRHI::VulkanRenderPass)
@@ -95,15 +95,24 @@ int main() {
     main_shader_program->attach_vertex_shader(*vert_shader, "main");
     main_shader_program->attach_fragment_shader(*frag_shader, "main");
     vert_shader.release()->destroy_before(main_shader_program.get());
-    frag_shader.release()->destroy_before(main_shader_program.get());
+    auto *frag_shader_p = frag_shader.release();
+    frag_shader_p->destroy_before(main_shader_program.get());
+    main_shader_program->remove_destroy_dependency(frag_shader_p);
     main_shader_program->set_cull_mode(MangoRHI::CullMode::eNone);
     main_shader_program->set_depth_test_enabled(MangoRHI::MG_TRUE);
     main_shader_program->set_depth_compare_op(MangoRHI::DepthCompareOp::eLessOrEqual);
 
-    auto ds = main_shader_program->create_descriptor_set();
-    MangoRHI::u32 uniform_binding = ds.lock()->add_uniforms_descriptor(MangoRHI::DescriptorStage::eVertex, sizeof(float) * 2, 2);
-    MangoRHI::u32 textures_binding = ds.lock()->add_textures_descriptor(MangoRHI::DescriptorStage::eFragment, { *t_61.get(), *t_paper_plane.get(), *t_dance.get(), *t_dhl.get() });
+    auto layout = main_shader_program->create_descriptor_set_layout("main layout");
+    MangoRHI::u32 uniform_binding = layout.lock()->add_uniforms_descriptor(MangoRHI::DescriptorStage::eVertex, sizeof(float) * 2, 2);
+    MangoRHI::u32 textures_binding = layout.lock()->add_textures_descriptor(MangoRHI::DescriptorStage::eFragment, 4);
+    auto ds = main_shader_program->allocate_descriptor_set("main layout");
     main_shader_program->create();
+    ds->set_texture(textures_binding, 0, *t_61);
+    ds->set_texture(textures_binding, 1, *t_paper_plane);
+    ds->set_texture(textures_binding, 2, *t_dance);
+    ds->set_texture(textures_binding, 3, *t_dhl);
+    ds->update_all();
+    frag_shader_p->destroy();
 
     auto vertex_buffer = rf.create_vertex_buffer(sizeof(glm::vec3));
     auto color_buffer = rf.create_vertex_buffer(sizeof(glm::vec3));
@@ -113,7 +122,7 @@ int main() {
         MangoRHI::DescriptorSet &ds;
         std::vector<MangoRHI::Texture *>textures;
         MangoRHI::u32 textures_binding;
-    } up { *ds.lock(), { t_61.get(), t_paper_plane.get(), t_dance.get(), t_dhl.get(), t_tm.get() }, textures_binding };
+    } up { *ds, { t_61.get(), t_paper_plane.get(), t_dance.get(), t_dhl.get(), t_tm.get() }, textures_binding };
     glfwSetWindowUserPointer(glfwWindow, &up);
     glfwSetKeyCallback(glfwWindow, [](GLFWwindow *window, int key, int, int pressed, int) {
         if (pressed != 1) {
@@ -181,8 +190,8 @@ int main() {
         if (ctx.begin_frame() == MangoRHI::Result::eSuccess) {
             auto &command = ctx.get_current_command_reference();
 
-            float *uniform_buffer_pointer0 = (float *)ds.lock()->get_uniform_buffer_pointer(uniform_binding, 0);
-            float *uniform_buffer_pointer1 = (float *)ds.lock()->get_uniform_buffer_pointer(uniform_binding, 1);
+            float *uniform_buffer_pointer0 = (float *)ds->get_uniform_buffer_pointer(uniform_binding, 0);
+            float *uniform_buffer_pointer1 = (float *)ds->get_uniform_buffer_pointer(uniform_binding, 1);
             static float t1 = 0.0f, t2 = 0.0f;
             t1 += 0.01f;
             *(uniform_buffer_pointer0 + 0) = (glm::sin(t1) + 0.2f) * 0.5f;
@@ -201,6 +210,7 @@ int main() {
             auto viewport = MangoRHI::Viewport { 0, static_cast<float>(ctx.get_height()), static_cast<float>(ctx.get_width()), -static_cast<float>(ctx.get_height()), 0.0f, 1.0f };
             auto scissor = MangoRHI::Scissor { 0, 0, ctx.get_width(), ctx.get_height() };
             command.bind_shader_program(*main_shader_program);
+            command.bind_descriptor_set(*ds);
             command.set_viewport(viewport);
             command.set_scissor(scissor);
             command.bind_vertex_buffer(*vertex_buffer, 0);
