@@ -19,5 +19,7 @@ namespace MangoRHI {
         virtual void draw_indexed_instances(u32 index_count, u32 instance_count, u32 first_index, u32 first_instance, u32 vertex_offset) = 0;
         virtual void set_viewport(const Viewport &viewport) = 0;
         virtual void set_scissor(const Scissor &scissor) = 0;
+        virtual void set_depth_test_enabled(Bool enabled) = 0;
+        virtual void set_depth_write_enabled(Bool enabled) = 0;
     };
 }

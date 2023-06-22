@@ -22,6 +22,8 @@ namespace MangoRHI {
         void draw_indexed_instances(u32 index_count, u32 instance_count, u32 first_index, u32 first_instance, u32 vertex_offset) override;
         void set_viewport(const Viewport &viewport) override;
         void set_scissor(const Scissor &scissor) override;
+        void set_depth_test_enabled(Bool enabled) override;
+        void set_depth_write_enabled(Bool enabled) override;
 
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, Bool, is_single_use, MG_FALSE)
     define_member(MANGO_CONST_GETTER, MANGO_NO_SETTER, VkCommandBuffer, command_buffer, VK_NULL_HANDLE)
