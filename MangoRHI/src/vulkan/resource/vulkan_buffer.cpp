@@ -55,7 +55,7 @@ namespace MangoRHI {
         }
     }
 
-    void VulkanBuffer::write_data(const void *data, const u32 size, const u32 offset) {
+    void VulkanBuffer::write_data(const void *data, u32 offset, u32 size) {
         void *buffer_ptr = (void *)(((u8 *)map()) + offset);
         memcpy(buffer_ptr, data, size);
         unmap();
@@ -75,7 +75,7 @@ namespace MangoRHI {
         component_create();
     }
 
-    void VulkanBuffer::copy_from(const Buffer &other, const u64 src_offset, const u64 dst_offset, const u64 size) {
+    void VulkanBuffer::copy_from(const Buffer &other, u64 src_offset, u64 dst_offset, u64 size) {
         VulkanCommand command;
         vulkan_context->get_command_pool()->allocate_single_use(command);
         VkBufferCopy copy;
@@ -122,12 +122,11 @@ namespace MangoRHI {
     }
 
     void VulkanVertexBuffer::flush(u32 offset_count, u32 count) {
-        buffer.copy_from(staging, 0, offset_count * vertex_size, count * vertex_size);
+        buffer.copy_from(staging, offset_count * vertex_size, offset_count * vertex_size, count * vertex_size);
     }
 
-    void VulkanVertexBuffer::write_data(const void *data, u32 count, u32 offset_count) {
-        u32 size = count * vertex_size;
-        staging.write_data(data, size, 0);
+    void VulkanVertexBuffer::write_data(const void *data, u32 offset_count, u32 count) {
+        staging.write_data(data, offset_count * vertex_size, count * vertex_size);
         flush(offset_count, count);
     }
 
@@ -178,12 +177,11 @@ namespace MangoRHI {
     }
 
     void VulkanIndexBuffer::flush(u32 offset_count, u32 count) {
-        buffer.copy_from(staging, 0, offset_count * vulkan_index_type_size, count * vulkan_index_type_size);
+        buffer.copy_from(staging, offset_count * vulkan_index_type_size, offset_count * vulkan_index_type_size, count * vulkan_index_type_size);
     }
 
-    void VulkanIndexBuffer::write_data(const void *data, u32 count, u32 offset_count) {
-        u32 size = count * vulkan_index_type_size;
-        staging.write_data(data, size, 0);
+    void VulkanIndexBuffer::write_data(const void *data, u32 offset_count, u32 count) {
+        staging.write_data(data, offset_count * vulkan_index_type_size, count * vulkan_index_type_size);
         flush(offset_count, count);
     }
 
