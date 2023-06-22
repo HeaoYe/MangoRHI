@@ -6,8 +6,8 @@
 namespace MangoRHI {
     class VulkanBuffer final : public Buffer {
     public:
-        void *map();
-        void unmap();
+        void *map() override;
+        void unmap() override;
         void write_data(const void *data, u32 size, u32 offset) override;
         void resize(u32 size) override;
         void copy_from(const Buffer &other, u64 src_offset, u64 dst_offset, u64 size) override;
@@ -25,6 +25,9 @@ namespace MangoRHI {
 
     class VulkanVertexBuffer final : public VertexBuffer {
     public:
+        void *map() override;
+        void unmap() override;
+        void flush(u32 offset_count, u32 count) override;
         void write_data(const void *data, u32 count, u32 offset_count) override;
         void resize(u32 size) override;
         void copy_from(const Buffer &other, u64 src_offset_count, u64 dst_offset_count, u64 count) override;
@@ -42,6 +45,9 @@ namespace MangoRHI {
 
     class VulkanIndexBuffer final : public IndexBuffer {
     public:
+        void *map() override;
+        void unmap() override;
+        void flush(u32 offset_count, u32 count) override;
         void write_data(const void *data, u32 count, u32 offset_count) override;
         void resize(u32 count) override;
         void copy_from(const Buffer &other, u64 src_offset_count, u64 dst_offset_count, u64 count) override;
