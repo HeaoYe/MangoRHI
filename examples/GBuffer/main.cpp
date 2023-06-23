@@ -173,8 +173,8 @@ int main() {
         0, 1, 2,
         0, 3, 2,
     };
-    vertex_buffer->write_data(vertices.data(), vertices.size(), 0);
-    index_buffer->write_data(indices.data(), indices.size(), 0);
+    vertex_buffer->write_data(vertices.data(), 0, vertices.size());
+    index_buffer->write_data(indices.data(), 0, indices.size());
 
     while (!glfwWindowShouldClose(glfwWindow)) {
         glfwPollEvents();

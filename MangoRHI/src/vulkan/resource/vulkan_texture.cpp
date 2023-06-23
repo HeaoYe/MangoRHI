@@ -35,7 +35,7 @@ namespace MangoRHI {
         staging.set_properties(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         staging.create();
         if (is_empty == MG_FALSE) {
-            staging.write_data(pixels, size, 0);
+            staging.write_data(pixels, 0, size);
             stbi_image_free(pixels);
         }
 

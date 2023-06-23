@@ -303,5 +303,14 @@ namespace MangoRHI {
         }
     }
 
+    VkDynamicState dynamic_state2vk_dynamic_state(DynamicState state) {
+        switch (state) {
+        case DynamicState::eDepthTestEnable:
+            return VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE;
+        case DynamicState::eDepthWriteEnable:
+            return VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE;
+        }
+    }
+
     #undef CASE_OR
 }

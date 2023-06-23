@@ -13,6 +13,7 @@ namespace MangoRHI {
 
     class VulkanShaderProgram final : public ShaderProgram {
     public:
+        void add_dynamic_state(DynamicState state) override;
         void add_vertex_attribute(VertexInputType type, u32 stride) override;
         void add_vertex_binding(VertexInputRate rate) override;
         void attach_vertex_shader(const Shader &shader, const char *entry) override;

@@ -14,6 +14,7 @@ namespace MangoRHI {
         virtual void set_depth_test_enabled(Bool enabled) = 0;
         virtual void set_depth_write_enabled(Bool enabled) = 0;
         virtual void set_depth_compare_op(DepthCompareOp op) = 0;
+        virtual void add_dynamic_state(DynamicState state) = 0;
         virtual void add_vertex_attribute(VertexInputType type, u32 stride) = 0;
         virtual void add_vertex_binding(VertexInputRate rate) = 0;
         virtual void attach_vertex_shader(const Shader &shader, const char *entry) = 0;

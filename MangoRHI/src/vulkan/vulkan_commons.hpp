@@ -53,6 +53,7 @@ namespace MangoRHI {
     Bool check_color_blend_info_enable(ColorBlendInfo &info);
     VkBlendFactor blend_factor2vk_blend_factor(BlendFactor factor);
     VkBlendOp blend_op2vk_blend_op(BlendOp op);
+    VkDynamicState dynamic_state2vk_dynamic_state(DynamicState state);
 
     Result initialize_vulkan();
     Result quit_vulkan();

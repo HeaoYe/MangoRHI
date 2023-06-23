@@ -55,7 +55,7 @@ namespace MangoRHI {
         }
     }
 
-    void VulkanBuffer::write_data(const void *data, const u32 size, const u32 offset) {
+    void VulkanBuffer::write_data(const void *data, u32 offset, u32 size) {
         void *buffer_ptr = (void *)(((u8 *)map()) + offset);
         memcpy(buffer_ptr, data, size);
         unmap();
@@ -75,7 +75,7 @@ namespace MangoRHI {
         component_create();
     }
 
-    void VulkanBuffer::copy_from(const Buffer &other, const u64 src_offset, const u64 dst_offset, const u64 size) {
+    void VulkanBuffer::copy_from(const Buffer &other, u64 src_offset, u64 dst_offset, u64 size) {
         VulkanCommand command;
         vulkan_context->get_command_pool()->allocate_single_use(command);
         VkBufferCopy copy;
@@ -113,10 +113,21 @@ namespace MangoRHI {
         component_destroy_end()
     }
 
-    void VulkanVertexBuffer::write_data(const void *data, const u32 count, const u32 offset_count) {
-        u32 size = count * vertex_size;
-        staging.write_data(data, size, 0);
-        buffer.copy_from(staging, 0, offset_count * vertex_size, size);
+    void *VulkanVertexBuffer::map() {
+        return staging.map();
+    }
+
+    void VulkanVertexBuffer::unmap() {
+        staging.unmap();
+    }
+
+    void VulkanVertexBuffer::flush(u32 offset_count, u32 count) {
+        buffer.copy_from(staging, offset_count * vertex_size, offset_count * vertex_size, count * vertex_size);
+    }
+
+    void VulkanVertexBuffer::write_data(const void *data, u32 offset_count, u32 count) {
+        staging.write_data(data, offset_count * vertex_size, count * vertex_size);
+        flush(offset_count, count);
     }
 
     void VulkanVertexBuffer::resize(const u32 count) {
@@ -124,7 +135,7 @@ namespace MangoRHI {
         buffer.resize(count * vertex_size);
     }
 
-    void VulkanVertexBuffer::copy_from(const Buffer &other, const u64 src_offset_count, const u64 dst_offset_count, const u64 count) {
+    void VulkanVertexBuffer::copy_from(const Buffer &other, u64 src_offset_count, u64 dst_offset_count, u64 count) {
         const VulkanVertexBuffer &vulkan_other = (const VulkanVertexBuffer &)other;
         MANGORHI_ASSERT(this->vertex_size == vulkan_other.vertex_size)
         buffer.copy_from(vulkan_other.buffer, src_offset_count * vertex_size, dst_offset_count * vertex_size, count * vertex_size);
@@ -157,18 +168,29 @@ namespace MangoRHI {
         component_destroy_end()
     }
 
-    void VulkanIndexBuffer::write_data(const void *data, const u32 count, const u32 offset_count) {
-        u32 size = count * vulkan_index_type_size;
-        staging.write_data(data, size, 0);
-        buffer.copy_from(staging, 0, offset_count * vulkan_index_type_size, size);
+    void *VulkanIndexBuffer::map() {
+        return staging.map();
     }
 
-    void VulkanIndexBuffer::resize(const u32 count) {
+    void VulkanIndexBuffer::unmap() {
+        staging.unmap();
+    }
+
+    void VulkanIndexBuffer::flush(u32 offset_count, u32 count) {
+        buffer.copy_from(staging, offset_count * vulkan_index_type_size, offset_count * vulkan_index_type_size, count * vulkan_index_type_size);
+    }
+
+    void VulkanIndexBuffer::write_data(const void *data, u32 offset_count, u32 count) {
+        staging.write_data(data, offset_count * vulkan_index_type_size, count * vulkan_index_type_size);
+        flush(offset_count, count);
+    }
+
+    void VulkanIndexBuffer::resize(u32 count) {
         staging.resize(count * vulkan_index_type_size);
         buffer.resize(count * vulkan_index_type_size);
     }
 
-    void VulkanIndexBuffer::copy_from(const Buffer &other, const u64 src_offset_count, const u64 dst_offset_count, const u64 count) {
+    void VulkanIndexBuffer::copy_from(const Buffer &other, u64 src_offset_count, u64 dst_offset_count, u64 count) {
         buffer.copy_from(((const VulkanIndexBuffer &)other).buffer, src_offset_count * vulkan_index_type_size, dst_offset_count * vulkan_index_type_size, count * vulkan_index_type_size);
     }
 }

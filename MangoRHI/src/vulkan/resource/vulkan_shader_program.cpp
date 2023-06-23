@@ -2,6 +2,10 @@
 #include "../vulkan_context.hpp"
 
 namespace MangoRHI {
+    void VulkanShaderProgram::add_dynamic_state(DynamicState state) {
+        dynamic_states.push_back(dynamic_state2vk_dynamic_state(state));
+    }
+
     void VulkanShaderProgram::add_vertex_attribute(VertexInputType type, u32 stride) {
         this->attributes.push_back(VkVertexInputAttributeDescription {
             .location = _current_location,

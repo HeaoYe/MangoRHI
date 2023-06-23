@@ -103,4 +103,12 @@ namespace MangoRHI {
         };
         vkCmdSetScissor(command_buffer, 0, 1, &vk_scissor);
     }
+
+    void VulkanCommand::set_depth_test_enabled(Bool enabled) {
+        vkCmdSetDepthTestEnable(command_buffer, bool2vk_bool32(enabled));
+    }
+
+    void VulkanCommand::set_depth_write_enabled(Bool enabled) {
+        vkCmdSetDepthWriteEnable(command_buffer, bool2vk_bool32(enabled));
+    }
 }

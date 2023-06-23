@@ -417,11 +417,16 @@ namespace MangoRHI {
         eMax,
     };
 
-    enum class DescriptorType {
+    enum class DescriptorType : u32 {
         eNone,
         eUniform,
         eTexture,
         eInputRenderTarget,
+    };
+
+    enum class DynamicState : u32 {
+        eDepthTestEnable,
+        eDepthWriteEnable
     };
 
     #undef define_flags

@@ -180,9 +180,9 @@ int main() {
     for (auto &color : colors) {
         color = (color - 127.5f) / 127.5f;
     }
-    vertex_buffer->write_data(vertices.data(), vertices.size(), 0);
-    color_buffer->write_data(colors.data(), colors.size(), 0);
-    index_buffer->write_data(indices.data(), indices.size(), 0);
+    vertex_buffer->write_data(vertices.data(), 0, vertices.size());
+    color_buffer->write_data(colors.data(), 0, colors.size());
+    index_buffer->write_data(indices.data(), 0, indices.size());
 
     while (!glfwWindowShouldClose(glfwWindow)) {
         glfwPollEvents();
